@@ -1,6 +1,8 @@
-// tests/math.test.js
-const { add } = require('../dummy');
+const assert = require('assert');
+const { add } = require('./dummy');
 
-test('adds two numbers', () => {
-  expect(add(2, 3)).toBe(5);
+describe('Dummy Test', () => {
+  it('should add two numbers', () => {
+    assert.strictEqual(add(2, 3), 5);
+  });
 });
