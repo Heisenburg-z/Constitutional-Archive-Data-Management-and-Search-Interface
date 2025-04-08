@@ -1,6 +1,6 @@
 
 
-markdown
+[![codecov](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface/branch/main/graph/badge.svg?token=K30OTOQXFK)](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface)
 # 📚 Constitutional Archive Data Management and Search Interface
 
 A web-based platform designed to manage, search, and present South Africa's constitutional archive. Built using **React**, **Tailwind CSS**, and **Firebase**, and deployed on **Microsoft Azure**.
