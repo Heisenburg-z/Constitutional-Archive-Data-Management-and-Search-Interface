@@ -71,7 +71,7 @@ Deployment is automated via GitHub Actions. On push to `main`, the app builds an
 
 ## 👥 Team
 
-- **Frontend Developers:** []  
+- **Frontend Developers:** [Nhlanhla K Ndlovu and ]  
 - **Firebase Integrators:** [Thapelo Ndlovu and ]  
 - **Deployment Lead:** []  
 - **Documentation & Testing:** [Mivuyo and ]
