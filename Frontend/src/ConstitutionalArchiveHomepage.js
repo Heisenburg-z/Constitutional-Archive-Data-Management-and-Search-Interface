@@ -10,7 +10,7 @@ export default function ConstitutionalArchiveHomepage() {
   
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Handle search submission mimi
+    // Handle search submission
     console.log('Search submitted:', searchQuery);
   };
 
