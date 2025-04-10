@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, BookOpen, FileText, Clock, ArrowRight, Globe, Filter, BookMarked } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function ConstitutionalArchiveHomepage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,9 +31,9 @@ export default function ConstitutionalArchiveHomepage() {
             <li><a href="/contact" className="hover:text-blue-300">Contact</a></li>
           </ul>
           
-          <a href="/admin" className="bg-blue-600 px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">
+        <Link to="/admin/login" className="bg-blue-600 px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">
             Admin Login
-          </a>
+        </Link>
         </nav>
       </header>
 
