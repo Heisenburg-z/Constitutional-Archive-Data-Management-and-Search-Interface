@@ -25,42 +25,41 @@ const AdminDashboard = () => {
         <ul className="space-y-4">
           <li>
             <a href="#dashboard" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <BarChart size={20} />
+              <BarChart size={20} data-testid="barchart-icon" />
               Dashboard
             </a>
           </li>
           <li>
             <a href="#upload" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Upload size={20} />
+              <Upload size={20} data-testid="upload-icon" />
               Upload
             </a>
           </li>
           <li>
             <a href="#manage" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Folder size={20} />
+              <Folder size={20} data-testid="folder-icon" />
               Manage
             </a>
           </li>
           <li>
             <a href="#users" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Users size={20} />
+              <Users size={20} data-testid="users-icon" />
               Users
             </a>
           </li>
           <li>
             <a href="#settings" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Settings size={20} />
+              <Settings size={20} data-testid="settings-icon" />
               Settings
             </a>
           </li>
         </ul>
         <button 
-    onClick={handleLogout}
-    className="mt-8 w-full text-left p-3 text-red-600 hover:bg-red-50 rounded-lg"
-  >
-    Logout
-  </button>
-
+          onClick={handleLogout}
+          className="mt-8 w-full text-left p-3 text-red-600 hover:bg-red-50 rounded-lg"
+        >
+          Logout
+        </button>
       </nav>
 
       <section className="ml-64 p-8">
@@ -72,7 +71,11 @@ const AdminDashboard = () => {
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, index) => (
             <article key={index} className="bg-white p-6 rounded-xl shadow-sm">
-              <stat.icon className="text-blue-600 mb-4" size={24} />
+              <stat.icon 
+                className="text-blue-600 mb-4" 
+                size={24} 
+                data-testid={`stat-icon-${index}`}
+              />
               <h3 className="text-gray-500 text-sm mb-1">{stat.title}</h3>
               <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
             </article>
@@ -83,7 +86,7 @@ const AdminDashboard = () => {
           <header className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Recent Uploads</h2>
             <button className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
-              <Plus size={16} />
+              <Plus size={16} data-testid="plus-icon" />
               New Upload
             </button>
           </header>
@@ -116,13 +119,13 @@ const AdminDashboard = () => {
             <ul className="space-y-3">
               <li>
                 <button className="w-full flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                  <FileText size={18} />
+                  <FileText size={18} data-testid="filetext-icon" />
                   Generate Report
                 </button>
               </li>
               <li>
                 <button className="w-full flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-                  <Users size={18} />
+                  <Users size={18} data-testid="users-icon-quickaction" />
                   Manage Permissions
                 </button>
               </li>
