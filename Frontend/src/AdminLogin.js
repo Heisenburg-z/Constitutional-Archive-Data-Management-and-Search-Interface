@@ -15,23 +15,36 @@ export default function AdminLogin() {
 // Update the successful login redirect
 
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
     
-    // Simulate login request
-    setTimeout(() => {
-      // In a real application, this would be an API call
-      if (email === 'admin@example.com' && password === 'password') {
-        localStorage.setItem('adminToken', 'dummy-token'); // to be Replaced  with real token
-        navigate('/admin');
-      } else {
-        setError('Invalid email or password');
-        setIsLoading(false);
-      }
-    }, 1000);
-  };
+    if (!response.ok) {
+      throw new Error(data.error || 'Login failed');
+    }
+
+    // Store token and user data
+    localStorage.setItem('authToken', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    
+    // Redirect to admin dashboard
+    navigate('/admin');
+    
+  } catch (error) {
+    setError(error.message);
+    setIsLoading(false);
+  }
+};
   
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
