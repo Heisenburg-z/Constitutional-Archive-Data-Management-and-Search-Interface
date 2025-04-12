@@ -47,15 +47,16 @@ jobs:
         run: |
           mkdir -p deployment
           # Copy essential files
-          cp -R node_modules package.json package-lock.json *.js deployment/
+          cp -R package.json package-lock.json *.js deployment/
           
           # Copy directories if they exist
           [ -d models ] && cp -R models deployment/
           [ -d routes ] && cp -R routes deployment/
           [ -d utils ] && cp -R utils deployment/
           
-          # Create empty directories if needed
-          mkdir -p deployment/config
+          # Install production dependencies
+          npm ci --production
+          cp -R node_modules deployment/
           
           # Create zip package
           cd deployment && zip -r ../deployment.zip .
@@ -78,10 +79,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-  
+
       - name: Unzip artifact
         run: unzip deployment.zip -d ./deployment
-  
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -89,7 +90,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-  
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
