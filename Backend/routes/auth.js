@@ -7,6 +7,7 @@ const User = require('../models/User');
 // Login
 router.post('/login', async (req, res) => {
   try {
+
     const { email, password } = req.body;
     
     const user = await User.findOne({ email });
@@ -20,7 +21,9 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
-
+    if (user.role !== 'admin') {
+        return res.status(403).json({ error: 'Access denied. Admin privileges required' });
+      }
     res.json({
       token,
       user: {
