@@ -12,10 +12,13 @@ env:
   RESOURCE_GROUP: 'Constitutional-Archive-RG'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy:
+    environment: 
+      name: Production
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
