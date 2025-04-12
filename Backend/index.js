@@ -34,6 +34,9 @@ mongoose.connection.once('open', async () => {
     process.exit(1);
   }
 });
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
 
 // Routes
 app.use('/api/users', require('./routes/users'));
