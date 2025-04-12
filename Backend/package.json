@@ -6,7 +6,11 @@
     "test": "mocha 'src/**/*.test.js'",
     "test:watch": "mocha 'src/**/*.test.js' --watch",
     "coverage": "nyc --reporter=lcov npm test",
-    "report:coverage": "codecov"
+    "report:coverage": "codecov",
+    "start": "pm2-runtime start ecosystem.config.js",
+    "build": "npm install --only=production"
+
+    
   },
   "keywords": [],
   "author": "",

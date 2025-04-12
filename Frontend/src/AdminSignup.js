@@ -77,24 +77,35 @@ const navigate = useNavigate();
     return newErrors;
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    
     setIsLoading(true);
-    
-    // Simulate API request
-    setTimeout(() => {
-      // In a real app, this would be an API call
-      console.log('Form submitted:', formData);
-      // Redirect to success page or login
-      navigate('/admin/login');
-    }, 1500);
+    setError('');
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error || 'Login failed');
+  
+      // Store auth data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Redirect based on role
+      data.user.role === 'admin' 
+        ? navigate('/admin')
+        : navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
