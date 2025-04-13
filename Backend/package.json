@@ -24,6 +24,7 @@
     "supertest": "^7.1.0"
   },
   "dependencies": {
-    "mongoose": "^8.13.2"
+    "mongoose": "^8.13.2",
+    "pm2": "^6.0.5"
   }
 }
