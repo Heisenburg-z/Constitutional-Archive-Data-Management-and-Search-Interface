@@ -19,27 +19,40 @@ app.use(fileUpload({
   limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
 }));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-// Verify Azure Storage connection
-mongoose.connection.once('open', async () => {
-  try {
-    await require('./utils/azureStorage').verifyContainer();
-    console.log('Azure Storage verified');
-  } catch (error) {
-    console.error('Storage verification failed:', error);
-    process.exit(1);
-  }
-});
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
-  dbConnected: mongoose.connection.readyState === 1 
+  const status = {
+    dbStatus: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    status: 'OK'
+  };
+  res.status(200).json(status);
 });
 
-// Routes
+// Database connection with storage verification
+async function initializeApp() {
+  try {
+    // 1. Connect to MongoDB
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to MongoDB');
+
+    // 2. Verify Azure Storage
+    const azureStorage = require('./utils/azureStorage');
+    await azureStorage.verifyContainer();
+    console.log('Azure Storage verified');
+
+    // 3. Start server only after successful connections
+    const port = process.env.PORT || 3000;
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server running on port ${port} (accessible from outside)`);
+    });
+
+  } catch (error) {
+    console.error('Fatal startup error:', error);
+    process.exit(1); // Exit with failure code
+  }
+}
+
+// Route registration (after middleware, before server start)
 app.use('/api/users', require('./routes/users'));
 app.use('/api/archives', require('./routes/archives'));
 app.use('/api/auth', require('./routes/auth'));
@@ -50,12 +63,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error' });
 });
 
-// Server start
-const port = process.env.PORT || 3000;
-// app.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
-// });
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port} (accessible from outside)`);
-});
+// Start the application
+initializeApp();

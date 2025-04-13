@@ -1,5 +1,7 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
+console.log("Initializing Azure Storage...");
+
 // Get connection string from environment variables
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 if (!connectionString) {
@@ -25,6 +27,7 @@ module.exports = {
   },
 
   verifyContainer: async () => {
+    console.log(`Verifying container ${containerName}...`); 
     try {
       // Verify container exists and we have access
       const exists = await containerClient.exists();
