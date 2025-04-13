@@ -11,10 +11,11 @@ if (!connectionString) {
 // Create Blob Service Client
 const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 
-// Get container client (replace 'constitutional-archive' with your actual container name)
-const containerClient = blobServiceClient.getContainerClient('constitutional-archive');
+// Container configuration
+const containerName = 'constitutional-archive';
+const containerClient = blobServiceClient.getContainerClient(containerName);
 
-console.log('Azure Storage initialized for container:', containerClient.containerName);
+console.log('Azure Storage initialized for container:', containerName);
 
 module.exports = {
   uploadFile: async (buffer, fileName, contentType) => {
@@ -27,18 +28,25 @@ module.exports = {
   },
 
   verifyContainer: async () => {
-    console.log(`Verifying container ${containerName}...`); 
+    console.log(`Verifying container ${containerName}...`);
     try {
-      // Verify container exists and we have access
-      const exists = await containerClient.exists();
-      if (!exists) {
-        throw new Error(`Container ${containerClient.containerName} does not exist`);
+      // Create container if it doesn't exist
+      const createResponse = await containerClient.createIfNotExists();
+      
+      if (createResponse.succeeded) {
+        console.log(`Container ${containerName} created successfully`);
+      } else {
+        console.log(`Container ${containerName} already exists`);
       }
-      
-      // Test listing blobs
-      const iterator = containerClient.listBlobsFlat().byPage({ maxPageSize: 1 });
-      await iterator.next();
-      
+
+      // Verify container accessibility by getting properties
+      const properties = await containerClient.getProperties();
+      console.log('Container properties:', {
+        publicAccess: properties.publicAccess,
+        leaseStatus: properties.leaseStatus,
+        lastModified: properties.lastModified
+      });
+
       console.log('Azure Storage connection verified successfully');
       return true;
     } catch (error) {
@@ -54,7 +62,8 @@ module.exports = {
         console.error('Detailed Error Code:', error.details.errorCode);
       }
       
-      process.exit(1);
+      // Throw error instead of exiting to allow proper error handling upstream
+      throw new Error(`Container verification failed: ${error.message}`);
     }
   }
 };
