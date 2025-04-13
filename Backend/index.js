@@ -36,6 +36,7 @@ mongoose.connection.once('open', async () => {
 });
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
+  dbConnected: mongoose.connection.readyState === 1 
 });
 
 // Routes
