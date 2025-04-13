@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
     // if (user.role !== 'admin') {
-    //     return res.status(403).json({ error: 'Access denied. Admin privileges required' });
+    //     return res.status(403).json({ error: 'Access denied. Admin privileges  required' }); 
     //   }
       res.json({
         token,

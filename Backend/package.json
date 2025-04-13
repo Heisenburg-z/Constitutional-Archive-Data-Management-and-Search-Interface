@@ -2,14 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "mocha 'src/**/*.test.js'",
-    "test:watch": "mocha 'src/**/*.test.js' --watch",
-    "coverage": "nyc --reporter=lcov npm test",
-    "report:coverage": "codecov",
-    "start": "npx pm2-runtime start ecosystem.config.js",
-    "build": "npm install --only=production"
-  },
+"scripts": {
+  "test": "mocha 'src/**/*.test.js'",
+  "test:watch": "mocha 'src/**/*.test.js' --watch",
+  "coverage": "nyc --reporter=lcov npm test",
+  "report:coverage": "codecov",
+  "start": "node index.js",
+  "build": "npm install --only=production"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
