@@ -9,8 +9,6 @@
     "report:coverage": "codecov",
     "start": "pm2-runtime start ecosystem.config.js",
     "build": "npm install --only=production"
-
-    
   },
   "keywords": [],
   "author": "",
@@ -24,5 +22,8 @@
     "mocha": "^11.1.0",
     "nyc": "^17.1.0",
     "supertest": "^7.1.0"
+  },
+  "dependencies": {
+    "mongoose": "^8.13.2"
   }
 }
