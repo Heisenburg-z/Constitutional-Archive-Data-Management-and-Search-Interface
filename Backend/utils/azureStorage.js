@@ -1,13 +1,18 @@
-// utils/azureStorage.js
-const { ContainerClient } = require('@azure/storage-blob');
+const { BlobServiceClient } = require('@azure/storage-blob');
 
+// Get connection string from environment variables
+const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+if (!connectionString) {
+  throw new Error('AZURE_STORAGE_CONNECTION_STRING environment variable is not set');
+}
 
-// Use this exact format
-const sasUrl = process.env.BLOB_SAS_URL;
-const containerClient = new ContainerClient(sasUrl);
+// Create Blob Service Client
+const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 
-console.log('Container name:', containerClient.containerName); // Add this
+// Get container client (replace 'constitutional-archive' with your actual container name)
+const containerClient = blobServiceClient.getContainerClient('constitutional-archive');
 
+console.log('Azure Storage initialized for container:', containerClient.containerName);
 
 module.exports = {
   uploadFile: async (buffer, fileName, contentType) => {
@@ -21,16 +26,32 @@ module.exports = {
 
   verifyContainer: async () => {
     try {
-      const response = await containerClient.listBlobsFlat().byPage({ maxPageSize: 1 }).next();
-      console.log('Azure Blob Storage connection established successfully');
+      // Verify container exists and we have access
+      const exists = await containerClient.exists();
+      if (!exists) {
+        throw new Error(`Container ${containerClient.containerName} does not exist`);
+      }
+      
+      // Test listing blobs
+      const iterator = containerClient.listBlobsFlat().byPage({ maxPageSize: 1 });
+      await iterator.next();
+      
+      console.log('Azure Storage connection verified successfully');
       return true;
     } catch (error) {
-      console.error('Azure Connection Error:');
-      console.error(`Message: ${error.message}`);
-      console.error(`Code: ${error.code}`);
-      console.error(`Request ID: ${error.requestId}`);
+      console.error('Azure Storage Connection Error:');
+      console.error('Error Code:', error.code);
+      console.error('Error Message:', error.message);
+      
+      if (error.requestId) {
+        console.error('Request ID:', error.requestId);
+      }
+      
+      if (error.details?.errorCode) {
+        console.error('Detailed Error Code:', error.details.errorCode);
+      }
+      
       process.exit(1);
     }
   }
 };
-// module.exports = { verifyContainer };
