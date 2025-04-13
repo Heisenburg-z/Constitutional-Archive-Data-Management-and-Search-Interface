@@ -9,16 +9,13 @@ env:
   NODE_VERSION: '18.x'
   BACKEND_DIR: './Backend'
   WEBAPP_NAME: 'Constitutional-Archive-Data-Management-API'
-  RESOURCE_GROUP: 'Constitutional-Archive-RG'
+  RESOURCE_GROUP: 'Constitutional-Archive-Data-Management'  # Corrected resource group name
 
 jobs:
-  deploy:
-    environment: 
-      name: Production
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+  build:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +28,7 @@ jobs:
           fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -49,7 +46,8 @@ jobs:
         working-directory: ${{ env.BACKEND_DIR }}
         run: |
           mkdir -p deployment
-          cp -R package.json package-lock.json *.js deployment/
+          # Include all necessary files
+          cp -R package.json package-lock.json *.js ecosystem.config.js deployment/
           
           [ -d models ] && cp -R models deployment/
           [ -d routes ] && cp -R routes deployment/
@@ -69,13 +67,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: Production
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       contents: read
-      id-token: write  # Required for OIDC
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-  
+      id-token: write  # Must be at job level
+
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -98,7 +96,6 @@ jobs:
         with:
           app-name: ${{ env.WEBAPP_NAME }}
           resource-group: ${{ env.RESOURCE_GROUP }}
-          slot-name: 'Production'
           package: ./deployment
-          runtime-stack: 'NODE|18-lts'
-          start-up-command: 'npm start'
+          runtime-stack: 'NODE|18-lts'  # Matches your LinuxFxVersion
+          start-up-command: 'npm start'  # Matches your PM2 configuration
