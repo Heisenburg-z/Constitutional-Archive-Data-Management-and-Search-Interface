@@ -9,13 +9,11 @@ env:
   NODE_VERSION: '18.x'
   BACKEND_DIR: './Backend'
   WEBAPP_NAME: 'Constitutional-Archive-Data-Management-API'
-  RESOURCE_GROUP: 'Constitutional-Archive-Data-Management'
+  RESOURCE_GROUP: 'Constitutional-Archive-Data-Management'  # Corrected resource group name
 
 jobs:
-  build:  # Changed from first 'deploy'
+  build:
     runs-on: ubuntu-latest
-    environment: 
-      name: Production
     permissions:
       contents: read
 
@@ -30,7 +28,7 @@ jobs:
           fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4  # Updated to v4
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -48,7 +46,7 @@ jobs:
         working-directory: ${{ env.BACKEND_DIR }}
         run: |
           mkdir -p deployment
-          # Include ecosystem.config.js and all JS files
+          # Include all necessary files
           cp -R package.json package-lock.json *.js ecosystem.config.js deployment/
           
           [ -d models ] && cp -R models deployment/
@@ -66,13 +64,16 @@ jobs:
           name: node-app
           path: ${{ env.BACKEND_DIR }}/deployment.zip
 
-  deploy:  # Second job
+  deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
       name: Production
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-  
+    permissions:
+      contents: read
+      id-token: write  # Must be at job level
+
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -95,7 +96,6 @@ jobs:
         with:
           app-name: ${{ env.WEBAPP_NAME }}
           resource-group: ${{ env.RESOURCE_GROUP }}
-          slot-name: 'Production'
           package: ./deployment
-          runtime-stack: 'NODE|18-lts'
-          start-up-command: 'npm start'
+          runtime-stack: 'NODE|18-lts'  # Matches your LinuxFxVersion
+          start-up-command: 'npm start'  # Matches your PM2 configuration
