@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: "constitutional-archive-api",
+    name: "Constitutional-Archive-Data-Management-API",
     script: "./index.js",
     instances: 1, // Run only 1 instance
     exec_mode: "fork", // Use fork mode
