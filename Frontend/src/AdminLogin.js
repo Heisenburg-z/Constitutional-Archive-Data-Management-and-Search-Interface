@@ -21,27 +21,33 @@ const handleSubmit = async (e) => {
   setError('');
 
   try {
-    const response = await fetch('/api/login', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
-    
     if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Login failed. Please check your credentials.');
     }
 
-    // Store token and user data
+    const data = await response.json();
+    
+    // Store authentication data
     localStorage.setItem('authToken', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     
     // Redirect to admin dashboard
-    navigate('/admin');
+    if(data.user.role === 'admin') {
+      navigate('/admin');
+    } else {
+      throw new Error('You do not have admin privileges');
+    }
     
   } catch (error) {
     setError(error.message);
+  } finally {
     setIsLoading(false);
   }
 };

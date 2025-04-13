@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-
-
 export default function AdminSignup() {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -13,96 +11,64 @@ export default function AdminSignup() {
     confirmPassword: '',
     accessCode: ''
   });
-  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [termsAccepted, setTermsAccepted] = useState(false);
-  // Inside the component
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear errors when typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
-  
+
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    }
-    
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email address is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email address is invalid';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    if (!formData.accessCode.trim()) {
-      newErrors.accessCode = 'Access code is required';
-    }
-    
-    if (!termsAccepted) {
-      newErrors.terms = 'You must accept the terms and conditions';
-    }
-    
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.email.match(/\S+@\S+\.\S+/)) newErrors.email = 'Invalid email address';
+    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (!formData.accessCode.trim()) newErrors.accessCode = 'Access code is required';
+    if (!termsAccepted) newErrors.terms = 'You must accept the terms';
     return newErrors;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) return setErrors(formErrors);
+
     setIsLoading(true);
-    setError('');
-  
+    setErrors({});
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          accessCode: formData.accessCode
+        }),
       });
-  
+
       const data = await response.json();
       
-      if (!response.ok) throw new Error(data.error || 'Login failed');
-  
-      // Store auth data
-      localStorage.setItem('token', data.token);
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed. Please try again.');
+      }
+
+      localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/admin');
       
-      // Redirect based on role
-      data.user.role === 'admin' 
-        ? navigate('/admin')
-        : navigate('/dashboard');
-    } catch (err) {
-      setError(err.message);
+    } catch (error) {
+      setErrors({ general: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -112,20 +78,20 @@ const navigate = useNavigate();
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
       <header className="bg-gray-900 text-white py-4">
         <nav className="max-w-6xl mx-auto px-6">
-          <a href="/" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <BookMarked className="h-6 w-6 mr-2" />
             <h1 className="text-xl font-bold">Constitutional Archive</h1>
-          </a>
+          </Link>
         </nav>
       </header>
       
       <section className="flex-grow flex items-center justify-center px-6 py-12">
         <article className="bg-white rounded-xl shadow-lg max-w-lg w-full p-8">
           <header className="mb-8">
-          <Link to="/admin/login" className="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-4">
-  <ChevronLeft className="h-4 w-4 mr-1" />
-  Back to login
-</Link>
+            <Link to="/admin/login" className="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-4">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back to login
+            </Link>
             <section className="flex items-center mb-4">
               <Shield className="h-8 w-8 text-blue-600 mr-3" />
               <h2 className="text-2xl font-bold text-gray-800">Admin Registration</h2>
@@ -138,6 +104,12 @@ const navigate = useNavigate();
           
           <form onSubmit={handleSubmit}>
             <fieldset className="space-y-6">
+              {errors.general && (
+                <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm">
+                  {errors.general}
+                </div>
+              )}
+
               <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <section>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -164,15 +136,18 @@ const navigate = useNavigate();
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                     Last Name
                   </label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="px-3 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                    placeholder="Doe"
-                  />
+                  <section className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="pl-10 pr-3 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                      placeholder="Doe"
+                    />
+                  </section>
                   {errors.lastName && (
                     <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
                   )}
@@ -294,8 +269,8 @@ const navigate = useNavigate();
                     className="h-4 w-4 mt-1 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <span className="ml-2 text-sm text-gray-600">
-                    I agree to the <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a> and
-                    <a href="/privacy" className="text-blue-600 hover:underline"> Privacy Policy</a>
+                    I agree to the <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link> and {' '}
+                    <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
                   </span>
                 </label>
                 {errors.terms && (
