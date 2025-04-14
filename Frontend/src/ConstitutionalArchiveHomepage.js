@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Search, BookOpen, FileText, Clock, ArrowRight, Globe, Filter, BookMarked } from 'lucide-react';
+import { Search, BookOpen, FileText, Clock, ArrowRight, Globe, Filter, BookMarked, X } from 'lucide-react';
 
 export default function ConstitutionalArchiveHomepage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
   
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -10,8 +12,111 @@ export default function ConstitutionalArchiveHomepage() {
   
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Handle search submission mimi
-    console.log('Search submitted:', searchQuery);
+    setIsSearching(true);
+    
+    setTimeout(() => {
+      // Mock search results based on query
+      const mockResults = generateMockResults(searchQuery);
+      setSearchResults(mockResults);
+      setIsSearching(false);
+    }, 800);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults(null);
+  };
+
+  // Mock search results
+  const generateMockResults = (query) => {
+    const lowerQuery = query.toLowerCase();
+    const results = [];
+    
+    // Mock data
+    if (lowerQuery.includes('freedom') || lowerQuery.includes('speech')) {
+      results.push({
+        id: 1,
+        title: "First Amendment to the U.S. Constitution",
+        excerpt: "Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press...",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 2,
+        title: "Article 19 of the Universal Declaration of Human Rights",
+        excerpt: "Everyone has the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media...",
+        type: "International Declaration",
+        country: "United Nations",
+        date: "1948",
+      });
+      results.push({
+        id: 3,
+        title: "Section 2(b) of the Canadian Charter of Rights and Freedoms",
+        excerpt: "Everyone has the following fundamental freedoms: ... (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media of communication...",
+        type: "Constitutional Charter",
+        country: "Canada",
+        date: "1982",
+      });
+    } else if (lowerQuery.includes('right') && lowerQuery.includes('privacy')) {
+      results.push({
+        id: 4,
+        title: "Fourth Amendment to the U.S. Constitution",
+        excerpt: "The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated...",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 5,
+        title: "Article 8 of the European Convention on Human Rights",
+        excerpt: "Everyone has the right to respect for his private and family life, his home and his correspondence...",
+        type: "International Convention",
+        country: "Europe",
+        date: "1950",
+      });
+    } else if (lowerQuery.includes('property') || lowerQuery.includes('ownership')) {
+      results.push({
+        id: 6,
+        title: "Fifth Amendment to the U.S. Constitution",
+        excerpt: "...nor shall private property be taken for public use, without just compensation.",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 7,
+        title: "Article 17 of the Universal Declaration of Human Rights",
+        excerpt: "Everyone has the right to own property alone as well as in association with others. No one shall be arbitrarily deprived of his property.",
+        type: "International Declaration",
+        country: "United Nations",
+        date: "1948",
+      });
+    } else {
+      // Default results for any other query
+      results.push({
+        id: 8,
+        title: "South African Constitution, Section 39",
+        excerpt: "When interpreting the Bill of Rights, a court, tribunal or forum must promote the values that underlie an open and democratic society based on human dignity, equality and freedom...",
+        type: "Constitution",
+        country: "South Africa",
+        date: "1996",
+      });
+      results.push({
+        id: 9,
+        title: "Article 1 of the German Basic Law",
+        excerpt: "Human dignity shall be inviolable. To respect and protect it shall be the duty of all state authority.",
+        type: "Basic Law",
+        country: "Germany",
+        date: "1949",
+      });
+    }
+    
+    return {
+      query: query,
+      count: results.length,
+      results: results
+    };
   };
 
   return (
@@ -36,7 +141,7 @@ export default function ConstitutionalArchiveHomepage() {
         </nav>
       </header>
 
-      <section className="py-20 px-6 text-center max-w-4xl mx-auto">
+      <section className={`py-20 px-6 text-center max-w-4xl mx-auto ${searchResults ? 'pb-8' : ''}`}>
         <h2 className="text-4xl font-bold mb-6">Explore Constitutional History</h2>
         <p className="text-xl text-gray-600 mb-12">
           Search through historical constitutional documents, amendments, court decisions, 
@@ -54,183 +159,247 @@ export default function ConstitutionalArchiveHomepage() {
             className="w-full p-4 pl-12 pr-24 text-lg rounded-xl border shadow-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <Search className="absolute left-4 top-5 h-6 w-6 text-gray-400" />
+          {searchQuery && (
+            <button 
+              type="button"
+              onClick={clearSearch} 
+              className="absolute right-20 top-5 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
           <button 
             type="submit" 
-            className="absolute right-3 top-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            disabled={isSearching}
+            className="absolute right-3 top-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
           >
-            Search
+            {isSearching ? 'Searching...' : 'Search'}
           </button>
         </form>
       </section>
       
-      <section className="py-12 bg-blue-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-bold mb-8 text-center">Featured Collections</h2>
-          
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
-              <figure>
-                <img 
-                  src="/api/placeholder/800/400" 
-                  alt="Constitutions of Africa" 
-                  className="w-full h-48 object-cover"
-                />
-              </figure>
-              <section className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Constitutions of Africa</h3>
-                <p className="text-gray-600 mb-4">
-                  Explore constitutional documents from across the African continent, 
-                  including post-colonial and modern democratic constitutions.
-                </p>
-                <a href="/collections/africa" className="inline-flex items-center text-blue-600 hover:underline">
-                  Browse collection
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </section>
-            </article>
+      {searchResults && (
+        <section className="pb-16 px-6 max-w-4xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg border p-6">
+            <header className="mb-6">
+              <h2 className="text-xl font-semibold">
+                Search results for: <span className="italic font-normal">"{searchResults.query}"</span>
+              </h2>
+              <p className="text-gray-600">Found {searchResults.count} relevant documents</p>
+            </header>
             
-            <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
-              <figure>
-                <img 
-                  src="/api/placeholder/800/400" 
-                  alt="Landmark Court Decisions" 
-                  className="w-full h-48 object-cover"
-                />
-              </figure>
-              <section className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Landmark Court Decisions</h3>
-                <p className="text-gray-600 mb-4">
-                  Study significant constitutional court rulings that have shaped 
-                  interpretations of rights and governmental powers.
-                </p>
-                <a href="/collections/court-decisions" className="inline-flex items-center text-blue-600 hover:underline">
-                  Browse collection
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </section>
-            </article>
+            <div className="space-y-6">
+              {searchResults.results.map(result => (
+                <article key={result.id} className="border-b pb-6 last:border-0">
+                  <header className="mb-2">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-medium text-blue-700 hover:underline">
+                        <a href={`/document/${result.id}`}>{result.title}</a>
+                      </h3>
+                    </div>
+                    <div className="flex text-sm text-gray-500 mt-1 space-x-4">
+                      <span>{result.type}</span>
+                      <span>{result.country}</span>
+                      <span>{result.date}</span>
+                    </div>
+                  </header>
+                  <p className="text-gray-700">{result.excerpt}</p>
+                  <footer className="mt-3 flex">
+                    <a href={`/document/${result.id}`} className="text-blue-600 text-sm hover:underline flex items-center">
+                      View full document
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </a>
+                  </footer>
+                </article>
+              ))}
+            </div>
             
-            <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
-              <figure>
-                <img 
-                  src="/api/placeholder/800/400" 
-                  alt="Historical Constitutional Documents" 
-                  className="w-full h-48 object-cover"
-                />
-              </figure>
-              <section className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Historical Documents</h3>
-                <p className="text-gray-600 mb-4">
-                  Discover foundational texts like the Magna Carta, Declaration of 
-                  Rights of Man, and early democratic constitutions.
-                </p>
-                <a href="/collections/historical-documents" className="inline-flex items-center text-blue-600 hover:underline">
-                  Browse collection
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </section>
-            </article>
-          </section>
-        </div>
-      </section>
+            <footer className="mt-6 pt-4 border-t flex justify-between items-center">
+              <div>
+                <button 
+                  onClick={clearSearch}
+                  className="text-gray-700 border px-4 py-2 rounded hover:bg-gray-50"
+                >
+                  Clear Results
+                </button>
+              </div>
+            </footer>
+          </div>
+        </section>
+      )}
       
-      <section className="py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <header className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold">Recently Added Documents</h2>
-            <a href="/documents" className="text-blue-600 hover:underline inline-flex items-center">
-              View all
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </a>
-          </header>
-          
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
-              <header className="flex items-start mb-2">
-                <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
-                <section>
-                  <h3 className="font-medium">Kenya Constitutional Amendments (2023)</h3>
-                  <time dateTime="2025-04-02" className="text-sm text-gray-500">Added April 2, 2025</time>
-                </section>
-              </header>
-              <p className="text-gray-600 text-sm">
-                Recent amendments to the Kenyan Constitution focusing on judicial independence 
-                and devolution of powers to regional governments.
-              </p>
-            </article>
-            
-            <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
-              <header className="flex items-start mb-2">
-                <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
-                <section>
-                  <h3 className="font-medium">Brazilian Supreme Court Decision on Indigenous Rights</h3>
-                  <time dateTime="2025-03-29" className="text-sm text-gray-500">Added March 29, 2025</time>
-                </section>
-              </header>
-              <p className="text-gray-600 text-sm">
-                Landmark decision affirming constitutional protections for indigenous land rights 
-                and traditional territories.
-              </p>
-            </article>
-            
-            <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
-              <header className="flex items-start mb-2">
-                <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
-                <section>
-                  <h3 className="font-medium">Canadian Charter Analysis: 40 Years Later</h3>
-                  <time dateTime="2025-03-27" className="text-sm text-gray-500">Added March 27, 2025</time>
-                </section>
-              </header>
-              <p className="text-gray-600 text-sm">
-                Scholarly examination of the impact and evolution of the Canadian Charter of Rights 
-                and Freedoms four decades after its adoption.
-              </p>
-            </article>
-            
-            <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
-              <header className="flex items-start mb-2">
-                <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
-                <section>
-                  <h3 className="font-medium">European Constitutional Court Comparative Study</h3>
-                  <time dateTime="2025-03-25" className="text-sm text-gray-500">Added March 25, 2025</time>
-                </section>
-              </header>
-              <p className="text-gray-600 text-sm">
-                Analysis comparing the structure, powers, and landmark decisions of constitutional 
-                courts across European democracie.
-              </p>
-            </article>
+      {!searchResults && (
+        <>
+          <section className="py-12 bg-blue-50">
+            <div className="max-w-6xl mx-auto px-6">
+              <h2 className="text-2xl font-bold mb-8 text-center">Featured Collections</h2>
+              
+              <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+                  <figure>
+                    <img 
+                      src="/api/placeholder/800/400" 
+                      alt="Constitutions of Africa" 
+                      className="w-full h-48 object-cover"
+                    />
+                  </figure>
+                  <section className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">Constitutions of Africa</h3>
+                    <p className="text-gray-600 mb-4">
+                      Explore constitutional documents from across the African continent, 
+                      including post-colonial and modern democratic constitutions.
+                    </p>
+                    <a href="/collections/africa" className="inline-flex items-center text-blue-600 hover:underline">
+                      Browse collection
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </a>
+                  </section>
+                </article>
+                
+                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+                  <figure>
+                    <img 
+                      src="/api/placeholder/800/400" 
+                      alt="Landmark Court Decisions" 
+                      className="w-full h-48 object-cover"
+                    />
+                  </figure>
+                  <section className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">Landmark Court Decisions</h3>
+                    <p className="text-gray-600 mb-4">
+                      Study significant constitutional court rulings that have shaped 
+                      interpretations of rights and governmental powers.
+                    </p>
+                    <a href="/collections/court-decisions" className="inline-flex items-center text-blue-600 hover:underline">
+                      Browse collection
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </a>
+                  </section>
+                </article>
+                
+                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+                  <figure>
+                    <img 
+                      src="/api/placeholder/800/400" 
+                      alt="Historical Constitutional Documents" 
+                      className="w-full h-48 object-cover"
+                    />
+                  </figure>
+                  <section className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">Historical Documents</h3>
+                    <p className="text-gray-600 mb-4">
+                      Discover foundational texts like the Magna Carta, Declaration of 
+                      Rights of Man, and early democratic constitutions.
+                    </p>
+                    <a href="/collections/historical-documents" className="inline-flex items-center text-blue-600 hover:underline">
+                      Browse collection
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </a>
+                  </section>
+                </article>
+              </section>
+            </div>
           </section>
-        </div>
-      </section>
-      
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-2xl font-bold mb-8 text-center">Browse By Category</h2>
           
-          <nav className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="/browse?category=region" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
-              <Globe className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-              <h3 className="font-medium">By Region</h3>
-            </a>
-            
-            <a href="/browse?category=time-period" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
-              <Clock className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-              <h3 className="font-medium">By Time Period</h3>
-            </a>
-            
-            <a href="/browse?category=document-type" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
-              <Filter className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-              <h3 className="font-medium">By Document Type</h3>
-            </a>
-            
-            <a href="/browse?category=subject" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
-              <BookOpen className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-              <h3 className="font-medium">By Subject</h3>
-            </a>
-          </nav>
-        </div>
-      </section>
+          <section className="py-12">
+            <div className="max-w-6xl mx-auto px-6">
+              <header className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold">Recently Added Documents</h2>
+                <a href="/documents" className="text-blue-600 hover:underline inline-flex items-center">
+                  View all
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </a>
+              </header>
+              
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                  <header className="flex items-start mb-2">
+                    <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                    <section>
+                      <h3 className="font-medium">Kenya Constitutional Amendments (2023)</h3>
+                      <time dateTime="2025-04-02" className="text-sm text-gray-500">Added April 2, 2025</time>
+                    </section>
+                  </header>
+                  <p className="text-gray-600 text-sm">
+                    Recent amendments to the Kenyan Constitution focusing on judicial independence 
+                    and devolution of powers to regional governments.
+                  </p>
+                </article>
+                
+                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                  <header className="flex items-start mb-2">
+                    <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                    <section>
+                      <h3 className="font-medium">Brazilian Supreme Court Decision on Indigenous Rights</h3>
+                      <time dateTime="2025-03-29" className="text-sm text-gray-500">Added March 29, 2025</time>
+                    </section>
+                  </header>
+                  <p className="text-gray-600 text-sm">
+                    Landmark decision affirming constitutional protections for indigenous land rights 
+                    and traditional territories.
+                  </p>
+                </article>
+                
+                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                  <header className="flex items-start mb-2">
+                    <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                    <section>
+                      <h3 className="font-medium">Canadian Charter Analysis: 40 Years Later</h3>
+                      <time dateTime="2025-03-27" className="text-sm text-gray-500">Added March 27, 2025</time>
+                    </section>
+                  </header>
+                  <p className="text-gray-600 text-sm">
+                    Scholarly examination of the impact and evolution of the Canadian Charter of Rights 
+                    and Freedoms four decades after its adoption.
+                  </p>
+                </article>
+                
+                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                  <header className="flex items-start mb-2">
+                    <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                    <section>
+                      <h3 className="font-medium">European Constitutional Court Comparative Study</h3>
+                      <time dateTime="2025-03-25" className="text-sm text-gray-500">Added March 25, 2025</time>
+                    </section>
+                  </header>
+                  <p className="text-gray-600 text-sm">
+                    Analysis comparing the structure, powers, and landmark decisions of constitutional 
+                    courts across European democracies.
+                  </p>
+                </article>
+              </section>
+            </div>
+          </section>
+          
+          <section className="py-12 bg-gray-50">
+            <div className="max-w-6xl mx-auto px-6">
+              <h2 className="text-2xl font-bold mb-8 text-center">Browse By Category</h2>
+              
+              <nav className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="/browse?category=region" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
+                  <Globe className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <h3 className="font-medium">By Region</h3>
+                </a>
+                
+                <a href="/browse?category=time-period" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
+                  <Clock className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <h3 className="font-medium">By Time Period</h3>
+                </a>
+                
+                <a href="/browse?category=document-type" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
+                  <Filter className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <h3 className="font-medium">By Document Type</h3>
+                </a>
+                
+                <a href="/browse?category=subject" className="block bg-white rounded-lg p-6 text-center hover:shadow-md transition">
+                  <BookOpen className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <h3 className="font-medium">By Subject</h3>
+                </a>
+              </nav>
+            </div>
+          </section>
+        </>
+      )}
       
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-6xl mx-auto px-6">
