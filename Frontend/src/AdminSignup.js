@@ -1,7 +1,7 @@
 // Importing required dependencies and components
 import React, { useState } from 'react';
-import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react'; // Icons
-import { Link, useNavigate } from 'react-router-dom'; // Navigation & routing
+import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react'; // Icons for UI components
+import { Link, useNavigate } from 'react-router-dom'; // Navigation and routing components
 
 // AdminSignup Component: Handles admin registration logic and UI
 export default function AdminSignup() {
@@ -15,23 +15,23 @@ export default function AdminSignup() {
     accessCode: ''
   });
 
-  // Toggles for showing/hiding password fields
+  // States for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Loading indicator during API request
+  // State for loading indicator during API request
   const [isLoading, setIsLoading] = useState(false);
 
-  // Stores form validation errors
+  // State for storing form validation errors
   const [errors, setErrors] = useState({});
 
-  // Tracks if terms and conditions checkbox is checked
+  // State for tracking if terms and conditions checkbox is checked
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  // Hook for navigating programmatically
+  // Hook for navigating programmatically after successful signup
   const navigate = useNavigate();
 
-  // Updates form data state as user types
+  // Function to update form data as the user types
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -40,20 +40,27 @@ export default function AdminSignup() {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // Validates all form fields before submission
+  // Function to validate all form fields before submission
   const validateForm = () => {
     const newErrors = {};
+    // Check if first name is empty
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    // Check if last name is empty
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    // Validate email format
     if (!formData.email.match(/\S+@\S+\.\S+/)) newErrors.email = 'Invalid email address';
+    // Check if password is at least 8 characters long
     if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    // Check if passwords match
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    // Check if access code is empty
     if (!formData.accessCode.trim()) newErrors.accessCode = 'Access code is required';
+    // Ensure terms and conditions are accepted
     if (!termsAccepted) newErrors.terms = 'You must accept the terms';
     return newErrors;
   };
 
-  // Handles form submission logic
+  // Function to handle form submission logic
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
@@ -78,9 +85,9 @@ export default function AdminSignup() {
       });
 
       const data = await response.json(); // Parse JSON response
-      
+
+      // Check if response is successful, otherwise throw an error
       if (!response.ok) {
-        // If server responds with error, throw it
         throw new Error(data.error || 'Registration failed. Please try again.');
       }
 
@@ -111,7 +118,7 @@ export default function AdminSignup() {
         </nav>
       </header>
       
-      {/* Main content area with form */}
+      {/* Main content area with registration form */}
       <section className="flex-grow flex items-center justify-center px-6 py-12">
         <article className="bg-white rounded-xl shadow-lg max-w-lg w-full p-8">
           <header className="mb-8">

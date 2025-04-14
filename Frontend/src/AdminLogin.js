@@ -28,7 +28,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form reload
     setIsLoading(true); // Set loading to true during request
-    setError(''); // Clear any previous error
+    setError(''); // Clear any previous error to empty!!
 
     try {
       // Make login request to backend API
@@ -38,7 +38,7 @@ export default function AdminLogin() {
         body: JSON.stringify({ email, password }),
       });
 
-      // If login fails, throw error message from response
+      // If login fails, throw error message from response (login failed)
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Login failed. Please check your credentials.');
@@ -129,7 +129,7 @@ export default function AdminLogin() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"} // Show password if state is true
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -169,7 +169,7 @@ export default function AdminLogin() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading} // Disable button when loading
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
