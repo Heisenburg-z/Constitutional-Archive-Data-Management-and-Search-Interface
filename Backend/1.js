@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'your-secret-key';
 
-// invalid token
+// invalid tokens
 
 function adminAuth(req, res, next) {
   const authHeader = req.headers.authorization;
