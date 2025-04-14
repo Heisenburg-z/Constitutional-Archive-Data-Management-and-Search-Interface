@@ -33,14 +33,21 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
+      # Frontend workflow
       - name: Install Frontend Dependencies
         working-directory: ./Frontend
         run: npm ci
+
+      - name: Run Frontend Tests
+        working-directory: ./Frontend
+        run: npm run test:coverage
+        continue-on-error: true  # Allows deployment even if tests fail
 
       - name: Build Frontend
         working-directory: ./Frontend
         run: npm run build
 
+      # Backend workflow
       - name: Install Backend Dependencies
         working-directory: ./Backend
         run: npm ci
@@ -49,6 +56,7 @@ jobs:
         working-directory: ./Backend
         run: npm run build
 
+      # Deployment
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -60,7 +68,7 @@ jobs:
           output_location: "Frontend/build"
           app_build_command: "npm run build"
           api_build_command: "npm run build"
-          env:
+        env:
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
             MONGODB_URI: ${{ secrets.MONGODB_URI }}
             AZURE_STORAGE_SAS: ${{ secrets.AZURE_STORAGE_SAS }}
