@@ -7,7 +7,7 @@ import AdminSignup from './AdminSignup';
 
 
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('adminToken'); // Replace with your actual auth check
+  const isAuthenticated = localStorage.getItem('authToken'); // Replace with your actual auth check
   return isAuthenticated ? children : <Navigate to="/admin/login" />;
 };
 
