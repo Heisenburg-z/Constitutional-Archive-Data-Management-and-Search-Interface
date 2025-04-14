@@ -1,63 +1,78 @@
+// Import required dependencies and components
 import React, { useState } from 'react';
-import { BookMarked, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { BookMarked, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react'; // Icons
+import { useNavigate } from 'react-router-dom'; // Navigation hook
 
+// AdminLogin Component: Handles administrator authentication logic and UI
 export default function AdminLogin() {
+  // State for managing form inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // State to show/hide password input
   const [showPassword, setShowPassword] = useState(false);
+
+  // Tracks if "Remember Me" checkbox is selected
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Indicates form submission state
   const [isLoading, setIsLoading] = useState(false);
+
+  // Stores login error messages
   const [error, setError] = useState('');
 
+  // Hook to programmatically navigate to another route
   const navigate = useNavigate();
 
-// Update the successful login redirect
+  // Handles form submission for login
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form reload
+    setIsLoading(true); // Set loading to true during request
+    setError(''); // Clear any previous error
 
-  
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError('');
+    try {
+      // Make login request to backend API
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-  try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+      // If login fails, throw error message from response
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed. Please check your credentials.');
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Login failed. Please check your credentials.');
+      const data = await response.json();
+
+      // Store token and user info in local storage for session
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirect admin users to the admin dashboard
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        throw new Error('You do not have admin privileges');
+      }
+
+    } catch (error) {
+      // Set error message on failed login attempt
+      setError(error.message);
+    } finally {
+      setIsLoading(false); // Stop loading animation
     }
+  };
 
-    const data = await response.json();
-    
-    // Store authentication data
-    localStorage.setItem('authToken', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    
-    // Redirect to admin dashboard
-    if(data.user.role === 'admin') {
-      navigate('/admin');
-    } else {
-      throw new Error('You do not have admin privileges');
-    }
-    
-  } catch (error) {
-    setError(error.message);
-  } finally {
-    setIsLoading(false);
-  }
-};
-  
+  // Toggle visibility of password field
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+      {/* Header with logo */}
       <header className="bg-gray-900 text-white py-4">
         <nav className="max-w-6xl mx-auto px-6">
           <a href="/" className="flex items-center">
@@ -66,22 +81,27 @@ const handleSubmit = async (e) => {
           </a>
         </nav>
       </header>
-      
+
+      {/* Main login form section */}
       <section className="flex-grow flex items-center justify-center px-6 py-12">
         <article className="bg-white rounded-xl shadow-lg max-w-md w-full p-8">
           <header className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Admin Login</h2>
             <p className="text-gray-600 mt-2">Enter your credentials to access the admin panel</p>
           </header>
-          
+
+          {/* Error message if login fails */}
           {error && (
             <section role="alert" className="bg-red-50 text-red-800 p-4 rounded-lg mb-6">
               <p className="text-sm">{error}</p>
             </section>
           )}
-          
+
+          {/* Login form */}
           <form onSubmit={handleSubmit}>
             <fieldset className="space-y-6">
+
+              {/* Email Field */}
               <section>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -99,7 +119,8 @@ const handleSubmit = async (e) => {
                   />
                 </section>
               </section>
-              
+
+              {/* Password Field */}
               <section>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
@@ -115,6 +136,7 @@ const handleSubmit = async (e) => {
                     className="pl-10 pr-10 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Enter your password"
                   />
+                  {/* Toggle password visibility */}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
@@ -125,7 +147,8 @@ const handleSubmit = async (e) => {
                   </button>
                 </section>
               </section>
-              
+
+              {/* Remember Me and Forgot Password Links */}
               <section className="flex items-center justify-between">
                 <label className="flex items-center">
                   <input
@@ -136,18 +159,21 @@ const handleSubmit = async (e) => {
                   />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-                
+
+                {/* Link to password recovery */}
                 <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
                   Forgot password?
                 </a>
               </section>
-              
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
+                  // Spinner animation while loading
                   <span className="flex items-center justify-center">
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -156,6 +182,7 @@ const handleSubmit = async (e) => {
                     Logging in...
                   </span>
                 ) : (
+                  // Normal button text
                   <span className="flex items-center justify-center">
                     Login
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -164,15 +191,20 @@ const handleSubmit = async (e) => {
               </button>
             </fieldset>
           </form>
-          
+
+          {/* Footer prompt to register if not yet signed up */}
           <footer className="mt-8 pt-6 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an admin account? <a href="/admin/signup" className="text-blue-600 hover:underline font-medium">Sign up</a>
+              Don't have an admin account?{' '}
+              <a href="/admin/signup" className="text-blue-600 hover:underline font-medium">
+                Sign up
+              </a>
             </p>
           </footer>
         </article>
       </section>
-      
+
+      {/* Site footer */}
       <footer className="bg-gray-900 text-white py-4">
         <section className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-400">
           <p>&copy; 2025 Constitutional Archive. All rights reserved.</p>

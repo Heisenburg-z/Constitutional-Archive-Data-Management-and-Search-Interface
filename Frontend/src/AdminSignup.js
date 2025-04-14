@@ -1,8 +1,11 @@
+// Importing required dependencies and components
 import React, { useState } from 'react';
-import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react'; // Icons
+import { Link, useNavigate } from 'react-router-dom'; // Navigation & routing
 
+// AdminSignup Component: Handles admin registration logic and UI
 export default function AdminSignup() {
+  // State for managing form input values
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -11,19 +14,33 @@ export default function AdminSignup() {
     confirmPassword: '',
     accessCode: ''
   });
+
+  // Toggles for showing/hiding password fields
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Loading indicator during API request
   const [isLoading, setIsLoading] = useState(false);
+
+  // Stores form validation errors
   const [errors, setErrors] = useState({});
+
+  // Tracks if terms and conditions checkbox is checked
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // Hook for navigating programmatically
   const navigate = useNavigate();
 
+  // Updates form data state as user types
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear error for the current field if user starts typing again
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
+  // Validates all form fields before submission
   const validateForm = () => {
     const newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
@@ -36,15 +53,18 @@ export default function AdminSignup() {
     return newErrors;
   };
 
+  // Handles form submission logic
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formErrors = validateForm();
-    if (Object.keys(formErrors).length > 0) return setErrors(formErrors);
+    e.preventDefault(); // Prevent default form submission
 
-    setIsLoading(true);
-    setErrors({});
+    const formErrors = validateForm(); // Run validation
+    if (Object.keys(formErrors).length > 0) return setErrors(formErrors); // If errors, update state and stop
+
+    setIsLoading(true); // Start loading spinner
+    setErrors({}); // Clear previous errors
 
     try {
+      // Send POST request to the backend signup endpoint
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,25 +77,31 @@ export default function AdminSignup() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json(); // Parse JSON response
       
       if (!response.ok) {
+        // If server responds with error, throw it
         throw new Error(data.error || 'Registration failed. Please try again.');
       }
 
+      // Store authentication data locally (e.g. for session handling)
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Navigate to admin dashboard after successful signup
       navigate('/admin');
       
     } catch (error) {
+      // Catch any errors and display as general error
       setErrors({ general: error.message });
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading spinner
     }
   };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+      {/* Header with app logo and navigation */}
       <header className="bg-gray-900 text-white py-4">
         <nav className="max-w-6xl mx-auto px-6">
           <Link to="/" className="flex items-center">
@@ -85,13 +111,17 @@ export default function AdminSignup() {
         </nav>
       </header>
       
+      {/* Main content area with form */}
       <section className="flex-grow flex items-center justify-center px-6 py-12">
         <article className="bg-white rounded-xl shadow-lg max-w-lg w-full p-8">
           <header className="mb-8">
+            {/* Back to login link */}
             <Link to="/admin/login" className="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-4">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to login
             </Link>
+
+            {/* Form heading and description */}
             <section className="flex items-center mb-4">
               <Shield className="h-8 w-8 text-blue-600 mr-3" />
               <h2 className="text-2xl font-bold text-gray-800">Admin Registration</h2>
@@ -102,15 +132,19 @@ export default function AdminSignup() {
             </p>
           </header>
           
+          {/* Registration Form Starts */}
           <form onSubmit={handleSubmit}>
             <fieldset className="space-y-6">
+              {/* General error alert box */}
               {errors.general && (
                 <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm">
                   {errors.general}
                 </div>
               )}
 
+              {/* First and Last Name Inputs */}
               <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* First Name */}
                 <section>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
                     First Name
@@ -132,6 +166,7 @@ export default function AdminSignup() {
                   )}
                 </section>
                 
+                {/* Last Name */}
                 <section>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
                     Last Name
@@ -154,6 +189,7 @@ export default function AdminSignup() {
                 </section>
               </section>
               
+              {/* Email Field */}
               <section>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
@@ -175,6 +211,7 @@ export default function AdminSignup() {
                 )}
               </section>
               
+              {/* Password Field with toggle visibility */}
               <section>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
@@ -190,6 +227,7 @@ export default function AdminSignup() {
                     className="pl-10 pr-10 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Create a secure password"
                   />
+                  {/* Toggle visibility */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -207,6 +245,7 @@ export default function AdminSignup() {
                 </p>
               </section>
               
+              {/* Confirm Password */}
               <section>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                   Confirm Password
@@ -236,6 +275,7 @@ export default function AdminSignup() {
                 )}
               </section>
               
+              {/* Admin Access Code */}
               <section>
                 <label htmlFor="accessCode" className="block text-sm font-medium text-gray-700 mb-1">
                   Administrator Access Code
@@ -260,6 +300,7 @@ export default function AdminSignup() {
                 </p>
               </section>
               
+              {/* Terms and Conditions Checkbox */}
               <section>
                 <label className="flex items-start">
                   <input
@@ -278,6 +319,7 @@ export default function AdminSignup() {
                 )}
               </section>
               
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -300,6 +342,7 @@ export default function AdminSignup() {
         </article>
       </section>
       
+      {/* Footer */}
       <footer className="bg-gray-900 text-white py-4">
         <section className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-400">
           <p>&copy; 2025 Constitutional Archive. All rights reserved.</p>
