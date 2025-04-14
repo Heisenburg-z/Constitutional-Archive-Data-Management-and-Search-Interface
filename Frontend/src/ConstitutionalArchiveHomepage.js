@@ -15,7 +15,6 @@ export default function ConstitutionalArchiveHomepage() {
     setIsSearching(true);
     
     setTimeout(() => {
-      // Mock search results
       const mockResults = generateMockResults(searchQuery);
       setSearchResults(mockResults);
       setIsSearching(false);
@@ -27,12 +26,10 @@ export default function ConstitutionalArchiveHomepage() {
     setSearchResults(null);
   };
 
-  // Mock search results
   const generateMockResults = (query) => {
     const lowerQuery = query.toLowerCase();
     const results = [];
     
-    // Mock data
     if (lowerQuery.includes('freedom') || lowerQuery.includes('speech') || lowerQuery.includes('expression')) {
       results.push({
         id: 1,
@@ -93,7 +90,6 @@ export default function ConstitutionalArchiveHomepage() {
         date: "1948",
       });
     } else {
-      // Default results for any other query
       results.push({
         id: 8,
         title: "South African Constitution, Section 39",
@@ -180,28 +176,28 @@ export default function ConstitutionalArchiveHomepage() {
       
       {searchResults && (
         <section className="pb-16 px-6 max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-lg border p-6">
+          <article className="bg-white rounded-xl shadow-lg border p-6">
             <header className="mb-6">
               <h2 className="text-xl font-semibold">
-                Search results for: <span className="italic font-normal">"{searchResults.query}"</span>
+                Search results for: <em className="font-normal">"{searchResults.query}"</em>
               </h2>
               <p className="text-gray-600">Found {searchResults.count} relevant documents</p>
             </header>
             
-            <div className="space-y-6">
+            <ul className="space-y-6">
               {searchResults.results.map(result => (
-                <article key={result.id} className="border-b pb-6 last:border-0">
+                <li key={result.id} className="border-b pb-6 last:border-0">
                   <header className="mb-2">
-                    <div className="flex justify-between items-start">
+                    <section className="flex justify-between items-start">
                       <h3 className="text-lg font-medium text-blue-700 hover:underline">
                         <a href={`/document/${result.id}`}>{result.title}</a>
                       </h3>
-                    </div>
-                    <div className="flex text-sm text-gray-500 mt-1 space-x-4">
-                      <span>{result.type}</span>
-                      <span>{result.country}</span>
-                      <span>{result.date}</span>
-                    </div>
+                    </section>
+                    <ul className="flex text-sm text-gray-500 mt-1 space-x-4">
+                      <li>{result.type}</li>
+                      <li>{result.country}</li>
+                      <li>{result.date}</li>
+                    </ul>
                   </header>
                   <p className="text-gray-700">{result.excerpt}</p>
                   <footer className="mt-3 flex">
@@ -210,32 +206,32 @@ export default function ConstitutionalArchiveHomepage() {
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </a>
                   </footer>
-                </article>
+                </li>
               ))}
-            </div>
+            </ul>
             
             <footer className="mt-6 pt-4 border-t flex justify-between items-center">
-              <div>
+              <section>
                 <button 
                   onClick={clearSearch}
                   className="text-gray-700 border px-4 py-2 rounded hover:bg-gray-50"
                 >
                   Clear Results
                 </button>
-              </div>
+              </section>
             </footer>
-          </div>
+          </article>
         </section>
       )}
       
       {!searchResults && (
         <>
           <section className="py-12 bg-blue-50">
-            <div className="max-w-6xl mx-auto px-6">
+            <section className="max-w-6xl mx-auto px-6">
               <h2 className="text-2xl font-bold mb-8 text-center">Featured Collections</h2>
               
-              <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+              <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <li className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
                   <figure>
                     <img 
                       src="/api/placeholder/800/400" 
@@ -254,9 +250,9 @@ export default function ConstitutionalArchiveHomepage() {
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </a>
                   </section>
-                </article>
+                </li>
                 
-                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+                <li className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
                   <figure>
                     <img 
                       src="/api/placeholder/800/400" 
@@ -275,9 +271,9 @@ export default function ConstitutionalArchiveHomepage() {
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </a>
                   </section>
-                </article>
+                </li>
                 
-                <article className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
+                <li className="bg-white rounded-xl shadow overflow-hidden hover:shadow-md transition">
                   <figure>
                     <img 
                       src="/api/placeholder/800/400" 
@@ -296,13 +292,13 @@ export default function ConstitutionalArchiveHomepage() {
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </a>
                   </section>
-                </article>
-              </section>
-            </div>
+                </li>
+              </ul>
+            </section>
           </section>
           
           <section className="py-12">
-            <div className="max-w-6xl mx-auto px-6">
+            <section className="max-w-6xl mx-auto px-6">
               <header className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold">Recently Added Documents</h2>
                 <a href="/documents" className="text-blue-600 hover:underline inline-flex items-center">
@@ -311,8 +307,8 @@ export default function ConstitutionalArchiveHomepage() {
                 </a>
               </header>
               
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <li className="border rounded-lg p-4 hover:bg-gray-50 transition">
                   <header className="flex items-start mb-2">
                     <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
                     <section>
@@ -324,9 +320,9 @@ export default function ConstitutionalArchiveHomepage() {
                     Recent amendments to the Kenyan Constitution focusing on judicial independence 
                     and devolution of powers to regional governments.
                   </p>
-                </article>
+                </li>
                 
-                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                <li className="border rounded-lg p-4 hover:bg-gray-50 transition">
                   <header className="flex items-start mb-2">
                     <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
                     <section>
@@ -338,9 +334,9 @@ export default function ConstitutionalArchiveHomepage() {
                     Landmark decision affirming constitutional protections for indigenous land rights 
                     and traditional territories.
                   </p>
-                </article>
+                </li>
                 
-                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                <li className="border rounded-lg p-4 hover:bg-gray-50 transition">
                   <header className="flex items-start mb-2">
                     <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
                     <section>
@@ -352,9 +348,9 @@ export default function ConstitutionalArchiveHomepage() {
                     Scholarly examination of the impact and evolution of the Canadian Charter of Rights 
                     and Freedoms four decades after its adoption.
                   </p>
-                </article>
+                </li>
                 
-                <article className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                <li className="border rounded-lg p-4 hover:bg-gray-50 transition">
                   <header className="flex items-start mb-2">
                     <FileText className="h-5 w-5 mr-2 text-blue-600 mt-1 flex-shrink-0" />
                     <section>
@@ -366,13 +362,13 @@ export default function ConstitutionalArchiveHomepage() {
                     Analysis comparing the structure, powers, and landmark decisions of constitutional 
                     courts across European democracies.
                   </p>
-                </article>
-              </section>
-            </div>
+                </li>
+              </ul>
+            </section>
           </section>
           
           <section className="py-12 bg-gray-50">
-            <div className="max-w-6xl mx-auto px-6">
+            <section className="max-w-6xl mx-auto px-6">
               <h2 className="text-2xl font-bold mb-8 text-center">Browse By Category</h2>
               
               <nav className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -396,13 +392,13 @@ export default function ConstitutionalArchiveHomepage() {
                   <h3 className="font-medium">By Subject</h3>
                 </a>
               </nav>
-            </div>
+            </section>
           </section>
         </>
       )}
       
       <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-6">
+        <section className="max-w-6xl mx-auto px-6">
           <section className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <section>
               <h2 className="text-lg font-semibold mb-4">Constitutional Archive</h2>
@@ -464,7 +460,7 @@ export default function ConstitutionalArchiveHomepage() {
           <section className="mt-8 pt-8 border-t border-gray-800 text-sm text-gray-400 text-center">
             <p>&copy; 2025 Constitutional Archive. All rights reserved.</p>
           </section>
-        </div>
+        </section>
       </footer>
     </main>
   );
