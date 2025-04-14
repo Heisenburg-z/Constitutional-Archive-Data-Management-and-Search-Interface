@@ -12,8 +12,111 @@ export default function ConstitutionalArchiveHomepage() {
   
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Handle search submission mimi
-    console.log('Search submitted:', searchQuery);
+    setIsSearching(true);
+    
+    setTimeout(() => {
+      // Mock search results
+      const mockResults = generateMockResults(searchQuery);
+      setSearchResults(mockResults);
+      setIsSearching(false);
+    }, 800);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults(null);
+  };
+
+  // Mock search results
+  const generateMockResults = (query) => {
+    const lowerQuery = query.toLowerCase();
+    const results = [];
+    
+    // Mock data
+    if (lowerQuery.includes('freedom') || lowerQuery.includes('speech') || lowerQuery.includes('expression')) {
+      results.push({
+        id: 1,
+        title: "First Amendment to the U.S. Constitution",
+        excerpt: "Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press...",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 2,
+        title: "Article 19 of the Universal Declaration of Human Rights",
+        excerpt: "Everyone has the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media...",
+        type: "International Declaration",
+        country: "United Nations",
+        date: "1948",
+      });
+      results.push({
+        id: 3,
+        title: "Section 2(b) of the Canadian Charter of Rights and Freedoms",
+        excerpt: "Everyone has the following fundamental freedoms: ... (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media of communication...",
+        type: "Constitutional Charter",
+        country: "Canada",
+        date: "1982",
+      });
+    } else if (lowerQuery.includes('right') && lowerQuery.includes('privacy')) {
+      results.push({
+        id: 4,
+        title: "Fourth Amendment to the U.S. Constitution",
+        excerpt: "The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated...",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 5,
+        title: "Article 8 of the European Convention on Human Rights",
+        excerpt: "Everyone has the right to respect for his private and family life, his home and his correspondence...",
+        type: "International Convention",
+        country: "Europe",
+        date: "1950",
+      });
+    } else if (lowerQuery.includes('property') || lowerQuery.includes('ownership')) {
+      results.push({
+        id: 6,
+        title: "Fifth Amendment to the U.S. Constitution",
+        excerpt: "...nor shall private property be taken for public use, without just compensation.",
+        type: "Constitutional Amendment",
+        country: "United States",
+        date: "1791",
+      });
+      results.push({
+        id: 7,
+        title: "Article 17 of the Universal Declaration of Human Rights",
+        excerpt: "Everyone has the right to own property alone as well as in association with others. No one shall be arbitrarily deprived of his property.",
+        type: "International Declaration",
+        country: "United Nations",
+        date: "1948",
+      });
+    } else {
+      // Default results for any other query
+      results.push({
+        id: 8,
+        title: "South African Constitution, Section 39",
+        excerpt: "When interpreting the Bill of Rights, a court, tribunal or forum must promote the values that underlie an open and democratic society based on human dignity, equality and freedom...",
+        type: "Constitution",
+        country: "South Africa",
+        date: "1996",
+      });
+      results.push({
+        id: 9,
+        title: "Article 1 of the German Basic Law",
+        excerpt: "Human dignity shall be inviolable. To respect and protect it shall be the duty of all state authority.",
+        type: "Basic Law",
+        country: "Germany",
+        date: "1949",
+      });
+    }
+    
+    return {
+      query: query,
+      count: results.length,
+      results: results
+    };
   };
 
   return (
