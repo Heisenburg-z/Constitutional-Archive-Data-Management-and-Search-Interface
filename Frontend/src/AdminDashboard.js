@@ -1,8 +1,13 @@
 import { BarChart, Upload, Folder, Users, Settings, FileText, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState,useEffect } from 'react';
+import UploadModal from './components/UploadModal';
+
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [showUploadModal, setShowUploadModal] = useState(false);
+const [directories, setDirectories] = useState([]);
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/');
@@ -18,6 +23,34 @@ const AdminDashboard = () => {
     { name: "Amendments", type: "Directory", date: "2025-04-02", size: "48 KB" }
   ];
 
+  useEffect(() => {
+    const fetchDirectories = async () => {
+      const response = await fetch('/api/archives?type=directory');
+      const data = await response.json();
+      setDirectories(data);
+    };
+    fetchDirectories();
+  }, []);
+
+  
+  {showUploadModal && (
+    <UploadModal
+      directories={directories}
+      onClose={() => setShowUploadModal(false)}
+      onSubmit={async (formData) => {
+        try {
+          const response = await fetch('/api/archives/upload', {
+            method: 'POST',
+            body: formData
+          });
+          if (!response.ok) throw new Error('Upload failed');
+          // Refresh the recent uploads list
+        } catch (error) {
+          console.error('Upload error:', error);
+        }
+      }}
+    />
+  )}
   return (
     <main className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm fixed top-0 left-0 h-full w-64 p-6">
@@ -82,10 +115,13 @@ const AdminDashboard = () => {
         <section className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <header className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Recent Uploads</h2>
-            <button className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
-              <Plus size={16} />
-              New Upload
-            </button>
+            <button 
+  onClick={() => setShowUploadModal(true)}
+  className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+>
+  <Plus size={16} />
+  New Upload
+</button>
           </header>
           
           <table className="w-full">
