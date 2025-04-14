@@ -9,12 +9,19 @@ on:
 env:
   NODE_VERSION: 18.x
   REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  AZURE_STORAGE_SAS: ${{ secrets.AZURE_STORAGE_SAS }}
 
 jobs:
   deploy_frontend:
     runs-on: ubuntu-latest
+    name: Build and Deploy Frontend
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -27,10 +34,9 @@ jobs:
         working-directory: ./Frontend
         run: npm ci
 
-      # TEMPORARY TEST DISABLE - Remove this block entirely later
       - name: Run tests (non-blocking)
         working-directory: ./Frontend
-        run: npm run test:coverage || true  # Force success regardless of test results
+        run: npm run test:coverage || true
 
       - name: Build project
         working-directory: ./Frontend
@@ -40,5 +46,14 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
           app_location: "Frontend"
           output_location: "build"
+          api_location: ""  # Clear if not using API in this deployment
+          app_build_command: "npm run build"
+          api_build_command: ""  # Clear if not building API
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          AZURE_STORAGE_SAS: ${{ secrets.AZURE_STORAGE_SAS }}
