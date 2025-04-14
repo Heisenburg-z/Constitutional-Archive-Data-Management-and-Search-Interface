@@ -63,11 +63,14 @@ const [directories, setDirectories] = useState([]);
             </a>
           </li>
           <li>
-            <a href="#upload" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
-              <Upload size={20} />
-              Upload
-            </a>
-          </li>
+  <div
+    onClick={() => setShowUploadModal(true)}
+    className="cursor-pointer flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+  >
+    <Upload size={20} />
+    Upload
+  </div>
+</li>
           <li>
             <a href="#manage" className="flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg">
               <Folder size={20} />
