@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react'; // Icons for UI components
 import { Link, useNavigate } from 'react-router-dom'; // Navigation and routing components
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 // AdminSignup Component: Handles admin registration logic and UI
 export default function AdminSignup() {
@@ -43,20 +44,40 @@ export default function AdminSignup() {
   // Function to validate all form fields before submission
   const validateForm = () => {
     const newErrors = {};
+    
     // Check if first name is empty
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    
     // Check if last name is empty
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    
     // Validate email format
     if (!formData.email.match(/\S+@\S+\.\S+/)) newErrors.email = 'Invalid email address';
-    // Check if password is at least 8 characters long
-    if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+    
+    // Enhanced password validation
+    if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!formData.password.match(/[A-Z]/)) {
+      newErrors.password = 'Password must contain at least one uppercase letter';
+    } else if (!formData.password.match(/[a-z]/)) {
+      newErrors.password = 'Password must contain at least one lowercase letter';
+    } else if (!formData.password.match(/[0-9]/)) {
+      newErrors.password = 'Password must contain at least one number';
+    } else if (!formData.password.match(/[^A-Za-z0-9]/)) {
+      newErrors.password = 'Password must contain at least one special character';
+    }
+    
     // Check if passwords match
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
     // Check if access code is empty
     if (!formData.accessCode.trim()) newErrors.accessCode = 'Access code is required';
+    
     // Ensure terms and conditions are accepted
     if (!termsAccepted) newErrors.terms = 'You must accept the terms';
+    
     return newErrors;
   };
 
@@ -325,7 +346,50 @@ export default function AdminSignup() {
                   <p className="mt-1 text-sm text-red-600">{errors.terms}</p>
                 )}
               </section>
-              
+              <section className="space-y-4">
+                {/*  */}
+  <figure className="relative">
+    <figcaption className="absolute inset-0 flex items-center">
+      <hr className="w-full border-t border-gray-300" />
+    </figcaption>
+    <figcaption className="relative flex justify-center text-sm">
+      <mark className="px-2 bg-white text-gray-500">Or continue with</mark>
+    </figcaption>
+  </figure>
+
+
+  <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+    <GoogleLogin
+      onSuccess={async (credentialResponse) => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential: credentialResponse.credential }),
+          });
+          const data = await response.json();
+          
+          if (data.requiresAdditionalInfo) {
+            navigate('/complete-signup', { state: { token: data.tempToken } });
+          } else {
+            localStorage.setItem('authToken', data.token);
+            navigate('/admin');
+          }
+        } catch (error) {
+          setErrors({ general: error.message });
+        }
+      }}
+      onError={() => {
+        setErrors({ general: 'Google authentication failed' });
+      }}
+      theme="filled_blue"
+      shape="rectangular"
+      size="large"
+      text="signup_with"
+      width="100%"
+    />
+  </GoogleOAuthProvider>
+</section>
               {/* Submit Button */}
               <button
                 type="submit"

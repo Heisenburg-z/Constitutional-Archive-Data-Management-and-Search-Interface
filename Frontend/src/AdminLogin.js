@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { BookMarked, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react'; // Icons
 import { useNavigate } from 'react-router-dom'; // Navigation hook
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 // AdminLogin Component: Handles administrator authentication logic and UI
 export default function AdminLogin() {
@@ -26,42 +27,60 @@ export default function AdminLogin() {
 
   // Handles form submission for login
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form reload
-    setIsLoading(true); // Set loading to true during request
-    setError(''); // Clear any previous error to empty!!
-
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    
     try {
-      // Make login request to backend API
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
-      // If login fails, throw error message from response (login failed)
+      
+      // First check if response is OK
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed. Please check your credentials.');
+        let errorMessage = 'Login failed. Please check your credentials.';
+        
+        // Try to read response as text first
+        const textResponse = await response.text();
+        console.log('Raw response:', textResponse);
+        
+        // Only try to parse as JSON if it looks like JSON
+        if (textResponse.trim().startsWith('{') || textResponse.trim().startsWith('[')) {
+          try {
+            const errorData = JSON.parse(textResponse);
+            errorMessage = errorData.error || errorMessage;
+          } catch (e) {
+            // If parsing fails, use the text response
+            errorMessage = textResponse || errorMessage;
+          }
+        } else {
+          // If not JSON-like, use text directly
+          errorMessage = textResponse || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
       }
-
-      const data = await response.json();
-
-      // Store token and user info in local storage for session
+      
+      // For successful responses, safely parse JSON
+      const responseText = await response.text();
+      const data = responseText ? JSON.parse(responseText) : {};
+      
+      // Store token and user info
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Redirect admin users to the admin dashboard
+      
+      // Redirect based on role
       if (data.user.role === 'admin') {
         navigate('/admin');
       } else {
         throw new Error('You do not have admin privileges');
       }
-
     } catch (error) {
-      // Set error message on failed login attempt
       setError(error.message);
     } finally {
-      setIsLoading(false); // Stop loading animation
+      setIsLoading(false);
     }
   };
 
@@ -165,7 +184,35 @@ export default function AdminLogin() {
                   Forgot password?
                 </a>
               </section>
-
+              <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+  <GoogleLogin
+    onSuccess={async (credentialResponse) => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/google`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ credential: credentialResponse.credential }),
+        });
+        const data = await response.json();
+        
+        if (data.requiresAdditionalInfo) {
+          navigate('/complete-signup', { state: { token: data.tempToken } });
+        } else {
+          localStorage.setItem('authToken', data.token);
+          navigate('/admin');
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    }}
+    onError={() => {
+      setError('Google login failed');
+    }}
+    useOneTap
+  />
+</GoogleOAuthProvider>
               {/* Submit Button */}
               <button
                 type="submit"

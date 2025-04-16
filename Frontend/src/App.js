@@ -4,10 +4,10 @@ import ConstitutionalArchiveHomepage from './ConstitutionalArchiveHomepage';
 import AdminDashboard from './AdminDashboard';
 import AdminLogin from './AdminLogin';
 import AdminSignup from './AdminSignup';
-
+import CompleteSignup from './CompleteSignup'; 
 
 const PrivateRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('authToken'); // Replace with your actual auth check
+  const isAuthenticated = localStorage.getItem('authToken');
   return isAuthenticated ? children : <Navigate to="/admin/login" />;
 };
 
@@ -18,6 +18,9 @@ function App() {
         <Route path="/" element={<ConstitutionalArchiveHomepage />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
+        {/* Add this new route for Google signup completion */}
+        <Route path="/complete-signup" element={<CompleteSignup />} />
+        
         <Route 
           path="/admin/*" 
           element={
@@ -28,8 +31,6 @@ function App() {
         />
       </Routes>
     </Router>
-
-
   );
 }
 

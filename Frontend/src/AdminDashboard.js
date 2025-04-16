@@ -18,7 +18,7 @@ const AdminDashboard = () => {
   const [recentUploads, setRecentUploads] = useState([]);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('authToken');
     navigate('/');
   };
 
