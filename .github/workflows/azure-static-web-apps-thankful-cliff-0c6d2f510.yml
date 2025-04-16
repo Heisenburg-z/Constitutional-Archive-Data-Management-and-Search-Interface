@@ -12,6 +12,8 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   MONGODB_URI: ${{ secrets.MONGODB_URI }}
   AZURE_STORAGE_SAS: ${{ secrets.AZURE_STORAGE_SAS }}
+  REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
 
 jobs:
   deploy_frontend:
