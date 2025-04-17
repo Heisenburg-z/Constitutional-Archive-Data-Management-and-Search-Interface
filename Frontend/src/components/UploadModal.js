@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen } from 'lucide-react';
+import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen, Loader } from 'lucide-react';
+import { uploadDocument, fetchDirectories } from '../services/uploadService';
 
-const UploadModal = ({ directories, onClose, onSubmit }) => {
+const UploadModal = ({ onClose, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
+  const [directories, setDirectories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [metadata, setMetadata] = useState({
     title: '',
     author: '',
@@ -17,6 +21,24 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
   const [parentId, setParentId] = useState(null);
   const [accessLevel, setAccessLevel] = useState('public');
   const [newKeyword, setNewKeyword] = useState('');
+
+  // Fetch directories on component mount
+  useEffect(() => {
+    const loadDirectories = async () => {
+      try {
+        setIsLoading(true);
+        const dirData = await fetchDirectories();
+        setDirectories(dirData);
+      } catch (err) {
+        setError('Failed to load directories');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDirectories();
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -41,20 +63,54 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', file.name);
-    formData.append('type', 'file');
-    formData.append('parentId', parentId);
-    formData.append('accessLevel', accessLevel);
-    formData.append('metadata', JSON.stringify(metadata));
     
-    await onSubmit(formData);
-    onClose();
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('name', file.name);
+      formData.append('type', 'file');
+      
+      if (parentId) {
+        formData.append('parentId', parentId);
+      }
+      
+      formData.append('accessLevel', accessLevel);
+      formData.append('metadata', JSON.stringify(metadata));
+      
+      const result = await uploadDocument(formData);
+      
+      // Call the success callback with the result
+      if (onUploadSuccess) {
+        onUploadSuccess(result);
+      }
+      
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Upload failed');
+      console.error('Upload error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to render directory options with proper indentation
+  const renderDirectoryOptions = (dirs, level = 0) => {
+    return dirs.map(dir => (
+      <React.Fragment key={dir._id}>
+        <option value={dir._id}>
+          {"\u00A0".repeat(level * 2)}{level > 0 ? "└─ " : ""}{dir.name}
+        </option>
+        {dir.children && dir.children.length > 0 && 
+          renderDirectoryOptions(dir.children.filter(child => child.type === 'directory'), level + 1)}
+      </React.Fragment>
+    ));
   };
 
   return (
-    <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true">
       <main className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <header className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">Upload New Document</h2>
@@ -62,6 +118,12 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
             <X size={20} />
           </button>
         </header>
+
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <section
@@ -89,11 +151,10 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
               className="w-full p-2 border rounded-lg"
               value={parentId || ''}
               onChange={(e) => setParentId(e.target.value || null)}
+              disabled={isLoading}
             >
               <option value="">Root Directory</option>
-              {directories.map(dir => (
-                <option key={dir._id} value={dir._id}>{dir.name}</option>
-              ))}
+              {renderDirectoryOptions(directories)}
             </select>
           </fieldset>
 
@@ -106,6 +167,7 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
               className="w-full p-2 border rounded-lg"
               value={accessLevel}
               onChange={(e) => setAccessLevel(e.target.value)}
+              disabled={isLoading}
             >
               <option value="public">Public</option>
               <option value="private">Private</option>
@@ -123,6 +185,7 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
                 value={metadata.title}
                 onChange={(e) => setMetadata(prev => ({ ...prev, title: e.target.value }))}
                 required
+                disabled={isLoading}
               />
             </fieldset>
 
@@ -134,6 +197,7 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
                 className="w-full p-2 border rounded-lg"
                 value={metadata.documentType}
                 onChange={(e) => setMetadata(prev => ({ ...prev, documentType: e.target.value }))}
+                disabled={isLoading}
               >
                 <option value="constitution">Constitution</option>
                 <option value="amendment">Amendment</option>
@@ -152,6 +216,7 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
                 value={metadata.publicationDate}
                 onChange={(e) => setMetadata(prev => ({ ...prev, publicationDate: e.target.value }))}
                 required
+                disabled={isLoading}
               />
             </fieldset>
 
@@ -165,13 +230,15 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
                   className="flex-1 p-2 border rounded-lg"
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleKeywordAdd()}
+                  onKeyPress={(e) => e.key === 'Enter' && e.preventDefault() && handleKeywordAdd()}
                   placeholder="Add keyword..."
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={handleKeywordAdd}
-                  className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"
+                  className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 disabled:opacity-50"
+                  disabled={isLoading}
                 >
                   Add
                 </button>
@@ -180,9 +247,20 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
                 {metadata.keywords.map((keyword, index) => (
                   <li
                     key={index}
-                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm list-none"
+                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm flex items-center gap-1"
                   >
                     {keyword}
+                    <button
+                      type="button"
+                      onClick={() => setMetadata(prev => ({
+                        ...prev,
+                        keywords: prev.keywords.filter((_, i) => i !== index)
+                      }))}
+                      className="text-gray-500 hover:text-gray-700"
+                      disabled={isLoading}
+                    >
+                      <X size={14} />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -193,16 +271,23 @@ const UploadModal = ({ directories, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              disabled={!file}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 flex items-center gap-2"
+              disabled={!file || isLoading}
             >
-              Upload Document
+              {isLoading ? (
+                <>
+                  <Loader size={16} className="animate-spin" /> Uploading...
+                </>
+              ) : (
+                'Upload Document'
+              )}
             </button>
           </footer>
         </form>

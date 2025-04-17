@@ -18,13 +18,82 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 console.log('Azure Storage initialized for container:', containerName);
 
 module.exports = {
-  uploadFile: async (buffer, fileName, contentType) => {
-    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
-    await blockBlobClient.uploadData(buffer, {
-      blobHTTPHeaders: { blobContentType: contentType },
-      metadata: { uploadedBy: "ConstitutionalArchiveSystem" }
-    });
-    return blockBlobClient.url;
+  // Upload file with support for directory structure
+  uploadFile: async (buffer, fileName, contentType, parentPath = '') => {
+    try {
+      // Create blob path that includes parent directory structure
+      const blobPath = parentPath ? `${parentPath}/${fileName}` : fileName;
+      
+      console.log(`Uploading file to: ${blobPath}`);
+      
+      const blockBlobClient = containerClient.getBlockBlobClient(blobPath);
+      
+      const uploadResponse = await blockBlobClient.uploadData(buffer, {
+        blobHTTPHeaders: { blobContentType: contentType },
+        metadata: { 
+          uploadedBy: "ConstitutionalArchiveSystem",
+          originalName: fileName,
+          parentPath: parentPath || "root"
+        }
+      });
+      
+      console.log(`Upload successful. ETag: ${uploadResponse.etag}`);
+      
+      return blockBlobClient.url;
+    } catch (error) {
+      console.error("Azure upload error:", error);
+      throw new Error(`File upload to Azure failed: ${error.message}`);
+    }
+  },
+
+  // List all directories in the container
+  listDirectories: async () => {
+    try {
+      const directories = new Set();
+      
+      // Add the root directory
+      directories.add('');
+      
+      // List all blobs to extract directories from their paths
+      for await (const blob of containerClient.listBlobsFlat()) {
+        const blobName = blob.name;
+        const pathParts = blobName.split('/');
+        
+        // Skip the file name (last part)
+        pathParts.pop();
+        
+        // Build up directory paths
+        let currentPath = '';
+        for (const part of pathParts) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          directories.add(currentPath);
+        }
+      }
+      
+      return Array.from(directories);
+    } catch (error) {
+      console.error("Error listing directories:", error);
+      throw new Error(`Failed to list directories: ${error.message}`);
+    }
+  },
+
+  // Get blob properties and metadata
+  getBlobInfo: async (blobPath) => {
+    try {
+      const blockBlobClient = containerClient.getBlockBlobClient(blobPath);
+      const properties = await blockBlobClient.getProperties();
+      
+      return {
+        url: blockBlobClient.url,
+        contentType: properties.contentType,
+        contentLength: properties.contentLength,
+        metadata: properties.metadata,
+        lastModified: properties.lastModified
+      };
+    } catch (error) {
+      console.error("Error getting blob info:", error);
+      throw new Error(`Failed to get blob info: ${error.message}`);
+    }
   },
 
   verifyContainer: async () => {
