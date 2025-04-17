@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen, Loader } from 'lucide-react';
 import { uploadDocument, fetchDirectories } from '../services/uploadService';
