@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Archive = require('../models/Archive');
 const { uploadFile, listDirectories } = require('../utils/azureStorage');
-const authenticate = require('../middleware/auth');
+const authenticate = require('./auth');
 
 // Get all archives
 router.get('/', authenticate, async (req, res) => {
