@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Archive = require('../models/Archive');
-const { uploadFile, listDirectories } = require('../utils/azureStorage');
+const { uploadFile, listDirectories ,deleteBlob} = require('../utils/azureStorage');
 const authenticate = require('../middleware/auth');
 
 // Get all archives
@@ -12,6 +12,69 @@ router.get('/', authenticate, async (req, res) => {
     res.json(archives);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Update file metadata ,  This lets you send only the fields you want to change. It's flexible and safe.
+router.patch('/:id', authenticate, async (req, res) => {
+  try {
+    const archiveId = req.params.id;
+    const { metadata, accessLevel, name } = req.body;
+
+    const updatedArchive = await Archive.findByIdAndUpdate(
+      archiveId,
+      {
+        ...(metadata && { metadata }),
+        ...(accessLevel && { accessLevel }),
+        ...(name && { name })
+      },
+      { new: true }
+    );
+
+    if (!updatedArchive) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    res.status(200).json({ message: 'Metadata updated', archive: updatedArchive });
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ error: 'Failed to update metadata' });
+  }
+});
+
+// Delete file from archive
+// This function deletes the file from Azure and removes the reference from MongoDB 
+
+router.delete('/:id', authenticate, async (req, res) => {
+  try {
+    const archiveId = req.params.id;
+    const archive = await Archive.findById(archiveId);
+
+    if (!archive) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Extract blob path from contentUrl
+    const blobUrl = archive.contentUrl;
+    const blobPath = blobUrl.split('.blob.core.windows.net/')[1]; // gets the container/path/blob
+
+    // Delete from Azure
+    await deleteBlob(blobPath);
+
+    // Remove archive document
+    await Archive.findByIdAndDelete(archiveId);
+
+    // Remove reference from parent directory if needed
+    if (archive.parentId) {
+      await Archive.findByIdAndUpdate(archive.parentId, {
+        $pull: { children: archive._id }
+      });
+    }
+
+    res.status(200).json({ message: 'File deleted successfully' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete file' });
   }
 });
 

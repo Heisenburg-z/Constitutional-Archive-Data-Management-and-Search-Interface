@@ -1,5 +1,6 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
+
 console.log("Initializing Azure Storage...");
 
 // Get connection string from environment variables
@@ -76,6 +77,19 @@ module.exports = {
       throw new Error(`Failed to list directories: ${error.message}`);
     }
   },
+
+  deleteBlob: async (blobPath) => {
+    try {
+      // blobPath should be the path _inside_ the container, e.g. "folder/file.pdf"
+      const blockBlobClient = containerClient.getBlockBlobClient(blobPath);
+      const deleteResponse = await blockBlobClient.deleteIfExists();
+      console.log(`✅ Blob deleted: ${blobPath}`, deleteResponse);
+    } catch (err) {
+      console.error('Azure delete error:', err);
+      throw err;
+    }
+  },
+
 
   // Get blob properties and metadata
   getBlobInfo: async (blobPath) => {
