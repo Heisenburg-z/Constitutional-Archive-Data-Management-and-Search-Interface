@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen, Loader } from 'lucide-react';
 import { uploadDocument, fetchDirectories } from '../services/uploadService';
+import { toast } from 'react-toastify';
+
 
 const UploadModal = ({ onClose, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
@@ -86,8 +88,8 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
       if (onUploadSuccess) {
         onUploadSuccess(result);
       }
-      
-      onClose();
+      toast.success('🎉 Document uploaded successfully!');
+      setTimeout(() => onClose(), 500); 
     } catch (err) {
       setError(err.message || 'Upload failed');
       console.error('Upload error:', err);
