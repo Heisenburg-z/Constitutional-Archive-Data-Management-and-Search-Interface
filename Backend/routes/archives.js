@@ -131,8 +131,12 @@ router.post('/upload', authenticate, async (req, res) => {
         { $push: { children: savedArchive._id } }
       );
     }
+    console.log('✅ Upload successful. Sending response.');
+    res.status(200).json({
+      message: 'Upload successful',
+      archive: savedArchive
+    });
     
-    res.status(201).json(savedArchive);
     
   } catch (error) {
     console.error('Upload error:', error);

@@ -18,9 +18,10 @@ export const uploadDocument = async (formData) => {
         console.log(`Upload progress: ${percentCompleted}%`);
       }
     });
-    
+    console.log('✅ Axios upload response:', response);
     return response.data;
   } catch (error) {
+    console.error('❌ Axios upload error:', error.response?.data || error.message);
     const errorMessage = error.response?.data?.error || 'Upload failed';
     throw new Error(errorMessage);
   }
