@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, BookOpen, FileText, Clock, ArrowRight, Globe, Filter, BookMarked, X } from 'lucide-react';
+import { Search,  ArrowRight, BookMarked, X } from 'lucide-react';
 
 export default function ConstitutionalArchiveHomepage() {
   const [searchQuery, setSearchQuery] = useState('');
