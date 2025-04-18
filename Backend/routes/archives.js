@@ -1,8 +1,9 @@
+//Backend/routes/archives.js
 const express = require('express');
 const router = express.Router();
 const Archive = require('../models/Archive');
 const { uploadFile, listDirectories } = require('../utils/azureStorage');
-const authenticate = require('./auth');
+const authenticate = require('../middleware/auth');
 
 // Get all archives
 router.get('/', authenticate, async (req, res) => {
@@ -63,7 +64,7 @@ router.post('/directory', authenticate, async (req, res) => {
       type: 'directory',
       metadata,
       accessLevel: accessLevel || 'public',
-      createdBy: req.user.userId,
+      createdBy:req.user._id,
       createdAt: new Date()
     });
     
@@ -117,7 +118,7 @@ router.post('/upload', authenticate, async (req, res) => {
       fileType: mimetype,
       fileSize: data.byteLength,
       accessLevel: accessLevel || 'public',
-      createdBy: req.user.userId,
+      createdBy: req.user._id,
       createdAt: new Date()
     });
     

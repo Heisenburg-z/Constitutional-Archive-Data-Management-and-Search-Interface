@@ -5,7 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 export const uploadDocument = async (formData) => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     
     const response = await axios.post(`${API_URL}/api/archives/upload`, formData, {
       headers: {
@@ -28,7 +28,7 @@ export const uploadDocument = async (formData) => {
 
 export const fetchDirectories = async () => {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     
     const response = await axios.get(`${API_URL}/api/archives/directories`, {
       headers: {
