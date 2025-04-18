@@ -7,7 +7,7 @@ export const uploadDocument = async (formData) => {
   try {
     const token = localStorage.getItem('token');
     
-    const response = await axios.post(`${API_URL}/archives/upload`, formData, {
+    const response = await axios.post(`${API_URL}/api/archives/upload`, formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -30,7 +30,7 @@ export const fetchDirectories = async () => {
   try {
     const token = localStorage.getItem('token');
     
-    const response = await axios.get(`${API_URL}/archives/directories`, {
+    const response = await axios.get(`${API_URL}/api/archives/directories`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
