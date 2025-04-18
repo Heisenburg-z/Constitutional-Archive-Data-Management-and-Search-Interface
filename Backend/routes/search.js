@@ -1,49 +1,50 @@
+// backend/routes/search.js
 const express = require('express');
 const { SearchClient, AzureKeyCredential } = require('@azure/search-documents');
 const router = express.Router();
 
-const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
-const apiKey   = process.env.AZURE_SEARCH_API_KEY;
-const indexName = process.env.AZURE_SEARCH_INDEX_NAME;  // e.g., 'my-index'"
-
-
-console.log('🕵️ Azure Search config:', {
-    endpoint: process.env.AZURE_SEARCH_ENDPOINT,
-    apiKeySet: !!process.env.AZURE_SEARCH_API_KEY,
-    indexName: process.env.AZURE_SEARCH_INDEX_NAME
-  });
-// Check if the required environment variables are set  
-
-const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
-
+const endpoint  = process.env.AZURE_SEARCH_ENDPOINT;
+const apiKey    = process.env.AZURE_SEARCH_API_KEY;
+const indexName = process.env.AZURE_SEARCH_INDEX_NAME; // "azureblob-index"
+const client    = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
 
 router.get('/', async (req, res) => {
   const q = req.query.q || '';
   try {
-    const results = [];
-    const searchResults = client.search(q, {
+    // Start the search (async iterable)
+    const iterator = client.search(q, {
       top: 10,
       queryType: 'simple'
-      // For semantic: add semanticConfigurationName & queryType: 'semantic'
+      // includeTotalCount: true // optional
+        // filter: "metadata_storage_name eq 'example.txt'" // optional 
     });
 
-    for await (const r of searchResults.results) {
-      results.push({
-        id:      r.document.id,
-        name:    r.document.name,
-        snippet: r.document.content?.substring(0,200) + '…',
-        url:     r.document.contentUrl,
-        ...r.document.metadata
+    const hits = [];
+    // ⚡️ iterate over the iterable directly
+    // Note: The iterator is async, so we need to use for await
+    for await (const result of iterator) {
+      const doc = result.document;
+      hits.push({
+        id:      doc.metadata_storage_path,
+        name:    doc.metadata_storage_name,
+        snippet: (doc.content || '').substring(0, 200) + '…',
+        url:     doc.metadata_storage_path
       });
     }
-    res.json(results);
+
+    // Return in the format your React code expects
+    res.json({
+      value: hits,
+      '@odata.count': hits.length
+    });
+    // console.log('Search results:', hits);
   } catch (err) {
-    console.error('Search failed:', err);
-    // expose the real message for now:
+    console.error('Search error:', err);
     res.status(500).json({ error: err.message });
-    //res.status(500).json({ error: 'Search failed' });
   }
 });
+
+
 
 module.exports = router;
 // This route handles search requests to the Azure Search service.
