@@ -56,6 +56,8 @@ async function initializeApp() {
 app.use('/api/users', require('./routes/users'));
 app.use('/api/archives', require('./routes/archives'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/search', require('./routes/search'));
+
 
 // Error handler
 app.use((err, req, res, next) => {
