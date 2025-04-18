@@ -7,7 +7,15 @@ const apiKey   = process.env.AZURE_SEARCH_API_KEY;
 const indexName = process.env.AZURE_SEARCH_INDEX_NAME;  // e.g., 'my-index'"
 
 
+console.log('🕵️ Azure Search config:', {
+    endpoint: process.env.AZURE_SEARCH_ENDPOINT,
+    apiKeySet: !!process.env.AZURE_SEARCH_API_KEY,
+    indexName: process.env.AZURE_SEARCH_INDEX_NAME
+  });
+// Check if the required environment variables are set  
+
 const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
+
 
 router.get('/', async (req, res) => {
   const q = req.query.q || '';
@@ -31,7 +39,9 @@ router.get('/', async (req, res) => {
     res.json(results);
   } catch (err) {
     console.error('Search failed:', err);
-    res.status(500).json({ error: 'Search failed' });
+    // expose the real message for now:
+    res.status(500).json({ error: err.message });
+    //res.status(500).json({ error: 'Search failed' });
   }
 });
 
