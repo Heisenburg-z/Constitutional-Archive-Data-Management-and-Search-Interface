@@ -4,7 +4,8 @@ const router = express.Router();
 
 const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
 const apiKey   = process.env.AZURE_SEARCH_API_KEY;
-const indexName = 'archives-index';
+const indexName = process.env.AZURE_SEARCH_INDEX_NAME;  // e.g., 'my-index'"
+
 
 const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
 
