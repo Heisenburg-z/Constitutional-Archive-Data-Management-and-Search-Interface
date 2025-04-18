@@ -18,9 +18,9 @@ export default function ConstitutionalArchiveHomepage() {
 
     setIsSearching(true);
     setError(null);
-
+//fetch
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const data = await response.json();
