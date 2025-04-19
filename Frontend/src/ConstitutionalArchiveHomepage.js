@@ -221,7 +221,7 @@ export default function ConstitutionalArchiveHomepage() {
                 <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-700 transition-colors">
                   <a href={result.url} className="flex items-center">
                   <span className="mr-2">{getFileIcon(result.type)}</span>
-                    <BookMarked className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" />
+                    {/* <BookMarked className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" /> */}
                     {result.name}
                   </a>
                 </h3>
