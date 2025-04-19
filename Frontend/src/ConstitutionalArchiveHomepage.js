@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Search,  ArrowRight, BookMarked, X } from 'lucide-react';
+import { Search, ArrowRight, BookMarked, X, Loader2, AlertTriangle } from 'lucide-react';
+
+// Importing icons from lucide-react
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export default function ConstitutionalArchiveHomepage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -10,7 +13,31 @@ export default function ConstitutionalArchiveHomepage() {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
-  
+  const getFileIcon = (contentType) => {
+    const icons = {
+      'application/pdf': '📄',
+      'text/html': '🌐',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
+      // Add more mappings as needed
+    };
+    return icons[contentType] || '📁';
+  };
+  const decodeAzureBlobPath = (encodedPath) => {
+    if (!encodedPath) return '#';
+    
+    try {
+      // Handle URL-safe base64 (replace - with +, _ with /)
+      const base64 = encodedPath.replace(/-/g, '+').replace(/_/g, '/');
+      // Pad with '=' if needed
+      const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      const decoded = atob(padded);
+      return decodeURIComponent(decoded);
+    } catch (error) {
+      console.error('Failed to decode blob path:', error);
+      return '#'; // Fallback URL
+    }
+  };
+
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     const query = searchQuery.trim();
@@ -24,12 +51,57 @@ export default function ConstitutionalArchiveHomepage() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const data = await response.json();
-      const hits = (data.value || []).map((doc, idx) => ({
-        id: doc.metadata_storage_path || doc.metadata_storage_name || idx,
-        name: doc.metadata_storage_name || doc.name || `Document ${idx + 1}`,
-        snippet: doc.content ? doc.content.substring(0, 200) + '…' : '',
-        url: doc.metadata_storage_path || '#'
-      }));
+      const hits = (data.value || []).map((doc, idx) => {
+        const content = doc.content || '';
+        const queryLower = query.toLowerCase();
+        const contentLower = content.toLowerCase();
+        const queryIndex = contentLower.indexOf(queryLower);
+      
+        let snippet = '';
+        if (queryIndex !== -1) {
+          // Calculate start/end positions for context
+          const start = Math.max(0, queryIndex - 150);
+          const end = Math.min(content.length, queryIndex + query.length + 350);
+          
+          // Extract context window and split into lines
+          const context = content.substring(start, end);
+          const lines = context.split('\n');
+          
+          // Find which line contains the search term
+          let targetLineIdx = 0;
+          let currentPos = 0;
+          for (const [idx, line] of lines.entries()) {
+            currentPos += line.length + 1; // +1 for newline character
+            if (currentPos > (queryIndex - start)) {
+              targetLineIdx = idx;
+              break;
+            }
+          }
+      
+          // Take 2 lines before and 2 after the matched line (total 5 lines)
+          const startLine = Math.max(0, targetLineIdx - 2);
+          const endLine = Math.min(lines.length, targetLineIdx + 3);
+          snippet = lines.slice(startLine, endLine).join('\n');
+          
+          // Add ellipsis if needed
+          if (start > 0) snippet = `…${snippet}`;
+          if (end < content.length) snippet += '…';
+        } else {
+          // Fallback to first 5 lines
+          snippet = content.split('\n').slice(0, 5).join('\n');
+          if (content.length > snippet.length) snippet += '…';
+        }
+      
+        const decodedUrl = decodeAzureBlobPath(doc.metadata_storage_path);
+        return {
+          id: doc.metadata_storage_path || doc.metadata_storage_name || idx,
+          name: doc.metadata_storage_name || doc.name || `Document ${idx + 1}`,
+          snippet: snippet,
+          url: decodedUrl,
+          type: doc.metadata_content_type,
+          date: doc.metadata_creation_date 
+        };
+      });
 
       setSearchResults({
         query,
@@ -103,54 +175,93 @@ export default function ConstitutionalArchiveHomepage() {
           <button 
             type="submit" 
             disabled={isSearching}
-            className="absolute right-3 top-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
+            className="absolute right-3 top-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 flex items-center gap-2"
           >
-            {isSearching ? 'Searching...' : 'Search'}
+            {isSearching ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Searching...
+              </>
+            ) : (
+              'Search'
+            )}
           </button>
         </form>
-        {error && <p className="mt-4 text-red-600">{error}</p>}
+              {error && (
+        <div className="mt-4 bg-red-50 p-4 rounded-lg flex items-center text-red-700">
+          <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
       </section>
       
       {searchResults && (
-        <section className="pb-16 px-6 max-w-4xl mx-auto">
-          <article className="bg-white rounded-xl shadow-lg border p-6">
-            <header className="mb-6">
-              <h2 className="text-xl font-semibold">
-                Results for: <em className="font-normal">"{searchResults.query}"</em>
-              </h2>
-              <p className="text-gray-600">Found {searchResults.count} document{searchResults.count !== 1 ? 's' : ''}</p>
-            </header>
-            
-            <ul className="space-y-6">
-              {searchResults.results.map(result => (
-                <li key={result.id} className="border-b pb-6 last:border-0">
-                  <header className="mb-2">
-                    <h3 className="text-lg font-medium text-blue-700 hover:underline">
-                      <a href={result.url}>{result.name}</a>
-                    </h3>
-                  </header>
-                  <p className="text-gray-700">{result.snippet}</p>
-                  <footer className="mt-3 flex">
-                    <a href={result.url} className="text-blue-600 text-sm hover:underline flex items-center">
-                      View full document
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </a>
-                  </footer>
-                </li>
-              ))}
-            </ul>
-            
-            <div className="mt-6 flex justify-between">
-              <button 
-                onClick={clearSearch}
-                className="text-gray-700 border px-4 py-2 rounded hover:bg-gray-50"
-              >
-                Clear Results
-              </button>
+  <section className="pb-16 px-6 max-w-4xl mx-auto animate-fade-in">
+    <article className="bg-white rounded-xl shadow-2xl border p-6 transform transition-all duration-200 hover:shadow-3xl">
+      <header className="mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">
+            Results for: <span className="text-blue-600 font-semibold">"{searchResults.query}"</span>
+          </h2>
+          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+            {searchResults.count} result{searchResults.count !== 1 ? 's' : ''}
+          </span>
+        </div>
+      </header>
+
+      <div className="space-y-6">
+        {searchResults.results.map((result) => (
+          <div 
+            key={result.id}
+            className="group relative p-6 rounded-lg border border-gray-200 hover:border-blue-200 hover:bg-blue-50 transition-all duration-200"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+            <div className="relative">
+              <header className="mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-700 transition-colors">
+                  <a href={result.url} className="flex items-center">
+                  <span className="mr-2">{getFileIcon(result.type)}</span>
+                    <BookMarked className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" />
+                    {result.name}
+                  </a>
+                </h3>
+              </header>
+                          <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+              {result.snippet.split(new RegExp(`(${escapeRegExp(searchResults.query)})`, 'gi')).map((part, i) =>
+                i % 2 === 1 ? (
+                  <mark key={i} className="bg-yellow-200/70 px-1 rounded-sm">
+                    {part}
+                  </mark>
+                ) : (
+                  part
+                )
+              )}
+            </p>
+              <footer className="mt-4 flex items-center">
+                <a
+                  href={result.url}
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  Explore Document
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </footer>
             </div>
-          </article>
-        </section>
-      )}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={clearSearch}
+          className="px-6 py-2 bg-white border-2 border-blue-600 text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition-colors"
+        >
+          Clear Results
+        </button>
+      </div>
+    </article>
+  </section>
+)}
       
       {!searchResults && (
         <>
@@ -229,7 +340,7 @@ export default function ConstitutionalArchiveHomepage() {
               <h2 className="text-lg font-semibold mb-4">Contact</h2>
               <address className="text-sm text-gray-400 not-italic">
                 <p>Email: info@constitutionalarchive.org</p>
-                <p className="mt-2">Phone: +1 (555) 123-4567</p>
+                <p className="mt-2">Phone: +2 (77) 123-4567</p>
               </address>
               <nav className="mt-4 flex space-x-4">
                 <a href="https://twitter.com/constitutional-archive" className="text-gray-400 hover:text-white">
