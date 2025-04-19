@@ -38,4 +38,4 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
-// Note: This code assumes you have already set up the necessary environment variables  
+ 

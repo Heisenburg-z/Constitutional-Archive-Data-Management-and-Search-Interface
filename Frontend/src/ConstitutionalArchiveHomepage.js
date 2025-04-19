@@ -14,15 +14,15 @@ export default function ConstitutionalArchiveHomepage() {
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
-  const getFileIcon = (contentType) => {
-    const icons = {
-      'application/pdf': '📄',
-      'text/html': '🌐',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
-      // Add more mappings as needed
-    };
-    return icons[contentType] || '📁';
-  };
+  // const getFileIcon = (contentType) => {
+  //   const icons = {
+  //     'application/pdf': '📄',
+  //     'text/html': '🌐',
+  //     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
+  //     // Add more mappings as needed
+  //   };
+  //   return icons[contentType] || '📁';
+  // };
   const decodeAzureBlobPath = (encodedPath) => {
     if (!encodedPath) return '#';
     
@@ -176,7 +176,7 @@ export default function ConstitutionalArchiveHomepage() {
           <button 
             type="submit" 
             disabled={isSearching}
-            className="absolute right-3 top-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 flex items-center gap-2"
+            className="absolute right-1 top-3 bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 flex items-center gap-2"
           >
             {isSearching ? (
               <>
