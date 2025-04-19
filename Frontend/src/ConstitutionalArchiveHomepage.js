@@ -376,8 +376,9 @@ export default function ConstitutionalArchiveHomepage() {
       
       {!searchResults && (
         <>
+        <DocumentPreviewShowcase/>
           <section className="py-12 bg-blue-50">
-          <DocumentPreviewShowcase/>
+          
             <section className="max-w-6xl mx-auto px-6">
 
               
