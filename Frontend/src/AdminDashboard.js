@@ -132,26 +132,31 @@ const AdminDashboard = () => {
             </button>
           </header>
 
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="pb-3">Name</th>
-                <th className="pb-3">Type</th>
-                <th className="pb-3">Date</th>
-                <th className="pb-3">Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentUploads.map((upload) => (
-                <tr key={upload.name} className="border-b last:border-b-0 hover:bg-gray-50">
-                  <td className="py-4">{upload.name}</td>
-                  <td className="py-4">{upload.type}</td>
-                  <td className="py-4">{upload.date}</td>
-                  <td className="py-4">{upload.size}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {recentUploads.length > 0 ? (
+  <table className="w-full">
+    <thead>
+      <tr className="text-left text-gray-500 border-b">
+        <th className="pb-3">Name</th>
+        <th className="pb-3">Type</th>
+        <th className="pb-3">Date</th>
+        <th className="pb-3">Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      {recentUploads.map((upload) => (
+        <tr key={upload.name} className="border-b last:border-b-0 hover:bg-gray-50">
+          <td className="py-4">{upload.name}</td>
+          <td className="py-4">{upload.type}</td>
+          <td className="py-4">{upload.date}</td>
+          <td className="py-4">{upload.size}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <p className="text-gray-500">No recent uploads yet.</p>
+)}
+
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
