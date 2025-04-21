@@ -1,99 +1,149 @@
 
+---
 
+```markdown
 [![codecov](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface/branch/main/graph/badge.svg?token=K30OTOQXFK)](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface)
+
 # 📚 Constitutional Archive Data Management and Search Interface
 
-A web-based platform designed to manage, search, and present South Africa's constitutional archive. Built using **React**, **Tailwind CSS**, and **Firebase**, and deployed on **Microsoft Azure**.
+A modern web platform for managing and exploring South Africa’s constitutional archives. Built with **React**, **Tailwind CSS**, **Express**, and **MongoDB**, powered by **Azure services** like Blob Storage, Cognitive Search AI, and Azure OpenAI.
+
+---
+
+## 🌐 Live Links
+
+- **Frontend:** [thankful-cliff (Azure Static Web App)](https://thankful-cliff-0c6d2f510.6.azurestaticapps.net/)
+- **Backend API:** [Azure Web App](https://constitutional-archive-data-management-api-cvcscmdvcmfscweq.southafricanorth-01.azurewebsites.net)
+- **Blob Storage:** [`ndlovu.blob.core.windows.net/constitutional-archive`](https://ndlovu.blob.core.windows.net/constitutional-archive)
+- **GitHub:** [Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface](https://github.com/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface)
 
 ---
 
 ## 🚀 Project Overview
 
-This platform allows admin users to upload constitutional documents, manage metadata, and securely store content. Public users can browse and search archives through a clean and intuitive interface.
+This platform enables administrators to upload constitutional documents, tag them with metadata, and make them searchable. The public can browse and search historical documents using natural language, powered by Azure AI.
 
 ---
 
 ## 🧰 Tech Stack
 
-- **Frontend:** React, Tailwind CSS  
-- **Backend/Database:** Firebase (Auth + Firestore + Storage)  
-- **Deployment:** Microsoft Azure  
-- **CI/CD:** GitHub Actions
+### 🔧 Backend
+- **Node.js**, **Express**
+- **MongoDB Atlas**
+- **Axios** for HTTP requests
+
+### 💾 Storage & Search
+- **Azure Blob Storage** for file management
+- **Azure Cognitive Search AI** for natural language search
+- **Azure OpenAI** for future intelligent features
+
+### 🌐 Frontend
+- **React** (with functional components and hooks)
+- **Tailwind CSS** for utility-first styling
+- **Azure Static Web Apps** for deployment
 
 ---
 
 ## 🔑 Core Features
 
-### Admin Side
-- Secure authentication (Firebase Auth)
-- Document upload with metadata form
-- File storage and database linking
-- Route protection and access control
+### Admin Portal
+- Secure upload of PDF or text documents
+- Metadata entry: title, language, region, keywords, type
+- Azure Blob upload + MongoDB metadata sync
+- Parent-child directory relationships
 
-### Public Side
-- Search interface for constitutional documents
-- Responsive, user-friendly design
-- Read-only access to public archives
-
----
+### Public Interface
+- Natural language search via Azure Cognitive Search AI
+- Filter by topic, region, type
+- Mobile-friendly and accessible UI
 
 ---
 
 ## 🧪 Testing & UAT
 
-All features are built according to user stories and undergo User Acceptance Testing (UAT). Test coverage reports are generated through CI pipelines.
+- Manual and automated User Acceptance Testing (UAT)
+- CI/CD testing pipeline integrated with GitHub Actions
+- Code coverage tracked via Codecov
 
 ---
 
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the Repo
+
 ```bash
-git clone https://github.com/<your-team>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface.git
+cd Constitutional-Archive-Data-Management-and-Search-Interface
 ```
 
-### 2. Install Dependencies
+### 2. Install Dependencies (Backend + Frontend)
+
 ```bash
+cd backend
+npm install
+
+cd ../frontend
 npm install
 ```
 
+### 3. Run Backend Locally
 
-### 4. Run Locally
 ```bash
+cd backend
 npm run dev
 ```
 
-### 5. Deploy to Azure
-Deployment is automated via GitHub Actions. On push to `main`, the app builds and deploys to Azure.
+### 4. Run Frontend Locally
+
+```bash
+cd frontend
+npm start
+```
+
+> ⚠️ Ensure your `.env` is configured with valid Azure Storage, MongoDB, and Search API keys.
+
+---
+
+## ☁️ Deployment
+
+### Azure Static Web Apps (Frontend)
+Automatically builds on push to `main`.
+
+### Azure Web Apps (Backend)
+Deployed using Azure Pipelines or manual publish.
 
 ---
 
 ## 👥 Team
 
-- **Frontend Developers:** []  
-- **Firebase Integrators:** [Thapelo Ndlovu and ]  
-- **Deployment Lead:** []  
-- **Documentation & Testing:** [Mivuyo and ]
+- **Fullstack Dev:** 
+- **Testing & QA:** 
+- **DevOps & Deployment:**
+- **Mentorship:** University of the Witwatersrand – Software Design 2025
 
 ---
 
 ## 📄 License
 
-This project is developed for academic purposes under the University of the Witwatersrand’s Software Design 2025 module.
+Academic project under Wits University’s Software Engineering module.
 
 ---
 
 ## 🙌 Contributions
 
-We welcome suggestions and improvements! Fork the repo or open issues.
+We welcome pull requests, feedback, and suggestions. Open an issue or fork the repo to start contributing.
 
 ---
 
-## 🔗 Useful Links
+## 📚 Resources
 
-- Firebase Console: [https://console.firebase.google.com](https://console.firebase.google.com)  
-- Azure Portal: [https://portal.azure.com](https://portal.azure.com)  
-- React Docs: [https://reactjs.org](https://reactjs.org)  
-- Tailwind CSS: [https://tailwindcss.com](https://tailwindcss.com)
+- [Azure Blob Storage Docs](https://learn.microsoft.com/en-us/azure/storage/blobs/)
+- [Azure Cognitive Search Docs](https://learn.microsoft.com/en-us/azure/search/)
+- [React Documentation](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [MongoDB Atlas](https://www.mongodb.com/atlas)
+
 ```
+
+---
+
