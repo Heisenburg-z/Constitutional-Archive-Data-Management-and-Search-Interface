@@ -1,7 +1,7 @@
 
 ---
 
-```markdown
+
 [![codecov](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface/branch/main/graph/badge.svg?token=K30OTOQXFK)](https://codecov.io/gh/Heisenburg-z/Constitutional-Archive-Data-Management-and-Search-Interface)
 
 # 📚 Constitutional Archive Data Management and Search Interface
