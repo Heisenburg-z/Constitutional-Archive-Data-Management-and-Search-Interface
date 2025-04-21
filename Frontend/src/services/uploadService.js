@@ -1,7 +1,7 @@
 // src/services/uploadService.js
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || '/api';
+const API_URL = 'https://constitutional-archive-data-management-api-cvcscmdvcmfscweq.southafricanorth-01.azurewebsites.net'
 
 export const uploadDocument = async (formData) => {
   try {
