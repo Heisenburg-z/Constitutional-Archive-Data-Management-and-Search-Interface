@@ -1,13 +1,13 @@
 // src/services/uploadService.js
 import axios from 'axios';
 
-const API_URL = 'https://constitutional-archive-data-management-api-cvcscmdvcmfscweq.southafricanorth-01.azurewebsites.net'
+
 
 export const uploadDocument = async (formData) => {
   try {
     const token = localStorage.getItem('authToken');
     
-    const response = await axios.post(`${API_URL}/api/archives/upload`, formData, {
+    const response = await axios.post(`/api/archives/upload`, formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -31,7 +31,7 @@ export const fetchDirectories = async () => {
   try {
     const token = localStorage.getItem('authToken');
     
-    const response = await axios.get(`${API_URL}/api/archives/directories`, {
+    const response = await axios.get(`/api/archives/directories`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

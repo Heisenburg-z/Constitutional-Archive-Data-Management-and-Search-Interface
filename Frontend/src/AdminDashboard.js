@@ -14,7 +14,6 @@ import ConfirmDialog from './components/ConfirmDialog';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE_URL = 'https://constitutional-archive-data-management-api-cvcscmdvcmfscweq.southafricanorth-01.azurewebsites.net'
 
 
 const formatFileSize = (bytes) => {
@@ -46,7 +45,7 @@ const AdminDashboard = () => {
 
   const handleUpload = async (formData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/archives/upload`, {
+      const response = await fetch(`/api/archives/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -81,7 +80,7 @@ const AdminDashboard = () => {
   const fetchRecentUploads = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/archives?sort=-createdAt&limit=10`, 
+        `/api/archives?sort=-createdAt&limit=10`, 
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -107,7 +106,7 @@ const AdminDashboard = () => {
     setIsDeleting(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/archives/${documentToDelete}`,
+        `/api/archives/${documentToDelete}`,
         {
           method: 'DELETE',
           headers: {
