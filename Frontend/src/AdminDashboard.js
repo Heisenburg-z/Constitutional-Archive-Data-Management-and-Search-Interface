@@ -10,16 +10,57 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
+import ConfirmDialog from './components/ConfirmDialog';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]);
+};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [directories, setDirectories] = useState([]);
   const [recentUploads, setRecentUploads] = useState([]);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/');
+  };
+
+  const handleUpload = async (formData) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/archives/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: formData
+      });
+  
+      const result = await response.json();
+      console.log('Upload result:', result); // Debug log
+  
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload failed');
+      }
+  
+      // Refresh the list and close modal
+      await fetchRecentUploads();
+      setShowUploadModal(false);
+      toast.success('Document uploaded successfully!');
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Failed to upload document');
+    }
   };
 
   const stats = [
@@ -35,10 +76,62 @@ const AdminDashboard = () => {
   };
 
   const fetchRecentUploads = async () => {
-    const response = await fetch('/api/archives?sort=recent');
-    const data = await response.json();
-    setRecentUploads(data);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/archives?sort=-createdAt&limit=10`, 
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        }
+      );
+  
+      const data = await response.json();
+      console.log('Recent uploads:', data); // Debug log
+  
+      if (!response.ok) throw new Error(data.message || 'Failed to fetch uploads');
+      
+      setRecentUploads(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast.error('Failed to load recent documents');
+    }
   };
+  const handleDeleteDocument = async () => {
+    if (!documentToDelete) return;
+  
+    setIsDeleting(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/archives/${documentToDelete}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+  
+      const result = await response.json();
+      console.log('Delete response:', result); // Debug log
+  
+      if (!response.ok) throw new Error(result.message || 'Delete failed');
+  
+      // Optimistic UI update
+      setRecentUploads(prev => prev.filter(doc => doc._id !== documentToDelete));
+      toast.success('Document deleted successfully');
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error(error.message || 'Failed to delete document');
+      // Refresh to ensure consistency
+      await fetchRecentUploads();
+    } finally {
+      setIsDeleting(false);
+      setDocumentToDelete(null);
+    }
+  };
+
 
   useEffect(() => {
     fetchDirectories();
@@ -139,6 +232,7 @@ const AdminDashboard = () => {
                 <th className="pb-3">Type</th>
                 <th className="pb-3">Date</th>
                 <th className="pb-3">Size</th>
+                <th className="pb-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -146,8 +240,17 @@ const AdminDashboard = () => {
                 <tr key={upload.name} className="border-b last:border-b-0 hover:bg-gray-50">
                   <td className="py-4">{upload.name}</td>
                   <td className="py-4">{upload.type}</td>
-                  <td className="py-4">{upload.date}</td>
-                  <td className="py-4">{upload.size}</td>
+                  <td className="py-4">{new Date(upload.createdAt).toLocaleDateString()}</td>
+                  <td className="py-4">{formatFileSize(upload.fileSize)}</td>
+                  <td className="py-4">
+                  <button 
+                      onClick={() => setDocumentToDelete(upload._id)}
+                      className="text-red-600 hover:text-red-800 p-1 disabled:text-red-300"
+                      disabled={isDeleting}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -190,24 +293,22 @@ const AdminDashboard = () => {
       </section>
 
       {showUploadModal && (
-        <UploadModal
-          directories={directories}
-          onClose={() => setShowUploadModal(false)}
-          onSubmit={async (formData) => {
-            try {
-              const response = await fetch('/api/archives/upload', {
-                method: 'POST',
-                body: formData,
-              });
-              if (!response.ok) throw new Error('Upload failed');
-              await fetchRecentUploads(); // Refresh list after upload
-              setShowUploadModal(false);
-            } catch (error) {
-              console.error('Upload error:', error);
-            }
-          }}
-        />
-      )}
+  <UploadModal
+    directories={directories}
+    onClose={() => setShowUploadModal(false)}
+    onSubmit={handleUpload}  
+  />
+)}
+       <ConfirmDialog
+        isOpen={!!documentToDelete}
+        onClose={() => setDocumentToDelete(null)}
+        onConfirm={handleDeleteDocument}
+        title="Delete Document"
+        message="Are you sure you want to delete this document? This action cannot be undone."
+        confirmText="Delete"
+        isProcessing={isDeleting}
+      />
+
     </main>
   );
 };

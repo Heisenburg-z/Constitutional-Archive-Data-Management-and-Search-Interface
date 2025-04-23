@@ -54,6 +54,11 @@ router.delete('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'File not found' });
     }
 
+     // Verify user has permission to delete (admin or owner)
+     if (req.user.role !== 'admin' && archive.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Unauthorized to delete this file' });
+    }
+
     // Extract blob path from contentUrl
     const blobUrl = archive.contentUrl;
     const blobPath = blobUrl.split('.blob.core.windows.net/')[1]; // gets the container/path/blob
@@ -74,6 +79,15 @@ router.delete('/:id', authenticate, async (req, res) => {
     res.status(200).json({ message: 'File deleted successfully' });
   } catch (error) {
     console.error('Delete error:', error);
+
+    let errorMessage = 'Failed to delete file';
+    if (error.message.includes('BlobNotFound')) {
+      errorMessage = 'File not found in storage';
+    } else if (error.message.includes('unauthorized')) {
+      errorMessage = 'Unauthorized to perform this action';
+    }
+
+
     res.status(500).json({ error: 'Failed to delete file' });
   }
 });

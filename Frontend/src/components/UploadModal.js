@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen, Loader } from 'lucide-react';
+import { Upload, X, Folder, Globe, Lock, Tag, Calendar, BookOpen, Loader, File, Image, Video, Music } from 'lucide-react';
 import { uploadDocument, fetchDirectories } from '../services/uploadService';
 import { toast } from 'react-toastify';
 
@@ -47,11 +47,31 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
       'application/pdf': ['.pdf'],
       'text/plain': ['.txt'],
       'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+      'audio/*': ['.mp3', '.wav', '.ogg', '.m4a'],
+      'video/*': ['.mp4', '.webm', '.mov', '.avi']
     },
     multiple: false,
     onDrop: acceptedFiles => setFile(acceptedFiles[0])
   });
+  const getFileIcon = () => {
+    if (!file) return <File size={24} />;
+    if (file.type.startsWith('image/')) return <Image size={24} />;
+    if (file.type.startsWith('video/')) return <Video size={24} />;
+    if (file.type.startsWith('audio/')) return <Music size={24} />;
+    return <File size={24} />;
+  };
+
+  const getFileType = () => {
+    if (!file) return 'file';
+    if (file.type.startsWith('image/')) return 'image';
+    if (file.type.startsWith('video/')) return 'video';
+    if (file.type.startsWith('audio/')) return 'audio';
+    return 'file';
+  };
+
+
 
   const handleKeywordAdd = () => {
     if (newKeyword.trim() && !metadata.keywords.includes(newKeyword.trim())) {
@@ -65,6 +85,10 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!file) {
+      setError('Please select a file to upload');
+      return;
+    }
     
     try {
       setIsLoading(true);
@@ -73,7 +97,7 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('name', file.name);
-      formData.append('type', 'file');
+      formData.append('type', getFileType());
       
       if (parentId) {
         formData.append('parentId', parentId);
@@ -115,7 +139,7 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
     <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" role="dialog" aria-modal="true">
       <main className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <header className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-semibold">Upload New Document</h2>
+          <h2 className="text-xl font-semibold">Upload New File</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close modal">
             <X size={20} />
           </button>
@@ -134,16 +158,39 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
               ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
           >
             <input {...getInputProps()} />
-            <figure>
-              <Upload className="mx-auto mb-4 text-gray-600" size={24} />
+           <figure>
+              <div className="mx-auto mb-4 text-gray-600">
+                {getFileIcon()}
+              </div>
               <figcaption className="text-gray-600">
-                {file ? file.name : 'Drag & drop file here, or click to select'}
+                {file ? (
+                  <div className="flex flex-col items-center">
+                    <span>{file.name}</span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </div>
+                ) : (
+                  'Drag & drop file here, or click to select'
+                )}
               </figcaption>
               <p className="text-sm text-gray-500 mt-2">
-                Supported formats: PDF, DOC, DOCX, TXT (Max 100MB)
+                Supported formats: Documents, Images, Audio, Video (Max 100MB)
               </p>
             </figure>
           </section>
+
+          {file && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => setFile(null)}
+                className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-1"
+              >
+                <X size={14} /> Remove File
+              </button>
+            </div>
+          )}
 
           <fieldset className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -179,7 +226,7 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
           <article className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <fieldset className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <BookOpen size={18} /> Document Title
+                <BookOpen size={18} /> File Title
               </label>
               <input
                 type="text"
@@ -193,7 +240,7 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
 
             <fieldset className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                <Tag size={18} /> Document Type
+                <Tag size={18} /> File Type
               </label>
               <select
                 className="w-full p-2 border rounded-lg"
@@ -205,6 +252,10 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
                 <option value="amendment">Amendment</option>
                 <option value="bill">Bill</option>
                 <option value="report">Report</option>
+                <option value="image">Image</option>
+                <option value="audio">Audio</option>
+                <option value="video">Video</option>
+                <option value="other">Other</option>
               </select>
             </fieldset>
 
@@ -288,7 +339,9 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
                   <Loader size={16} className="animate-spin" /> Uploading...
                 </>
               ) : (
-                'Upload Document'
+                <>
+                  <Upload size={16} /> Upload File
+                </>
               )}
             </button>
           </footer>
