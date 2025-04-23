@@ -1,11 +1,15 @@
 // Import required dependencies and components
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookMarked, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react'; // Icons
-import { useNavigate } from 'react-router-dom'; // Navigation hook
+import { useNavigate, useParams } from 'react-router-dom'; // Added useParams
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import ForgotPasswordModal from './components/ForgotPasswordModal';
 
 // AdminLogin Component: Handles administrator authentication logic and UI
 export default function AdminLogin() {
+  // Get token from URL params if it exists
+  const { token } = useParams();
+
   // State for managing form inputs
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +28,16 @@ export default function AdminLogin() {
 
   // Hook to programmatically navigate to another route
   const navigate = useNavigate();
+
+  // State to show the Forgot Password Modal
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+
+  // Check if URL has token parameter and show reset modal accordingly
+  useEffect(() => {
+    if (token) {
+      setShowForgotPasswordModal(true);
+    }
+  }, [token]);
 
   // Handles form submission for login
   const handleSubmit = async (e) => {
@@ -87,6 +101,20 @@ export default function AdminLogin() {
   // Toggle visibility of password field
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  // Open Forgot Password Modal
+  const openForgotPasswordModal = () => {
+    setShowForgotPasswordModal(true);
+  };
+
+  // Close Forgot Password Modal
+  const closeForgotPasswordModal = () => {
+    setShowForgotPasswordModal(false);
+    // If we're on the reset password route, navigate back to login
+    if (token) {
+      navigate('/admin/login');
+    }
   };
 
   return (
@@ -180,9 +208,13 @@ export default function AdminLogin() {
                 </label>
 
                 {/* Link to password recovery */}
-                <a href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                <button
+                  type="button"
+                  onClick={openForgotPasswordModal}
+                  className="text-sm text-blue-600 hover:underline"
+                >
                   Forgot password?
-                </a>
+                </button>
               </section>
               <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
   <GoogleLogin
@@ -213,6 +245,13 @@ export default function AdminLogin() {
     useOneTap
   />
 </GoogleOAuthProvider>
+              {showForgotPasswordModal && (
+                <ForgotPasswordModal 
+                  closeModal={closeForgotPasswordModal} 
+                  token={token} 
+                />
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
