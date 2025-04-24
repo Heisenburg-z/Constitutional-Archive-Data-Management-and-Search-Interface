@@ -1,3 +1,4 @@
+//AdminSignup.js
 // Importing required dependencies and components
 import React, { useState } from 'react';
 import { BookMarked, User, Mail, Lock, Eye, EyeOff, ChevronLeft, Shield } from 'lucide-react'; // Icons for UI components

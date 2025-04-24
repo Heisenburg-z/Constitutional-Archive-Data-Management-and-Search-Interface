@@ -26,13 +26,13 @@ const userSchema = new mongoose.Schema({
   lastLogin: Date
 });
 
-// Add validation for email/password users
-userSchema.pre('save', function(next) {
-  if (this.authMethod === 'email-password' && !this.passwordHash) {
-    next(new Error('Password is required for email/password users'));
-  } else {
-    next();
-  }
-});
+// // Add validation for email/password users
+// userSchema.pre('save', function(next) {
+//   if (this.authMethod === 'email-password' && !this.passwordHash) {
+//     next(new Error('Password is required for email/password users'));
+//   } else {
+//     next();
+//   }
+// });
 
 module.exports = mongoose.model('User', userSchema);
