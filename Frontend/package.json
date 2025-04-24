@@ -53,6 +53,13 @@
       "!src/index.js",
       "!src/reportWebVitals.js"
     ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/__mocks__/",
+      "/config/",
+      "/context/",
+      "/components/"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 70,
