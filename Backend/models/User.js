@@ -13,8 +13,6 @@ const userSchema = new mongoose.Schema({
     enum: ['email-password', 'google'],
     required: true,
     default: 'email-password',
-    resetToken: { type: String },
-    resetTokenExpiry: { type: Date }
   },
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },
