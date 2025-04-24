@@ -7,6 +7,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+
   Download,
   Eye,
   File,
@@ -14,6 +15,9 @@ import {
   FileImage,
   FileVideo,
   FileArchive
+
+  Download
+
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -58,7 +62,9 @@ const AdminDashboard = () => {
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [documentToPreview, setDocumentToPreview] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [currentView, setCurrentView] = useState('featured');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
@@ -531,12 +537,14 @@ const AdminDashboard = () => {
           onSubmit={handleUpload}  
         />
       )}
+
                       {showPreviewModal && documentToPreview && (
           <DocumentPreviewModal
             document={documentToPreview}
             onClose={() => setShowPreviewModal(false)}
           />
         )}
+
       <ConfirmDialog
         isOpen={!!documentToDelete}
         onClose={() => setDocumentToDelete(null)}
