@@ -248,7 +248,7 @@ export default function AdminLogin() {
               {showForgotPasswordModal && (
                 <ForgotPasswordModal 
                   closeModal={closeForgotPasswordModal} 
-                  token={token} 
+
                 />
               )}
 

@@ -24,6 +24,9 @@ transporter.verify((error, success) => {
     console.log('Email service ready');
   }
 });
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -135,6 +138,8 @@ router.delete('/:id', async (req, res) => {
 });
 
 // @route POST /api/users/request-reset
+// ... (previous imports remain the same)
+
 router.post('/request-reset', async (req, res) => {
   const { email } = req.body;
 
@@ -142,43 +147,45 @@ router.post('/request-reset', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    // Prevent password reset for Google users
+    if (user.authMethod !== 'email-password') {
+      return res.status(400).json({ message: 'Use Google Sign-In for this account' });
+    }
+
     const token = crypto.randomBytes(20).toString('hex');
-    const expiry = Date.now() + 3600000; // 1 hour
+    const expiry = Date.now() + 3600000;
 
     user.resetToken = token;
     user.resetTokenExpiry = expiry;
     await user.save();
 
-    // Replace console.log with actual email sending
     try {
-      const resetUrl = `http://localhost:3000/reset-password/${token}`;
-      
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset - Constitutional Archive',
         html: `
           <h1>Password Reset Request</h1>
-          <p>You requested a password reset for your Constitutional Archive account.</p>
-          <p>Please click the link below to reset your password. This link will expire in 1 hour.</p>
-          <a href="${resetUrl}" style="padding: 10px 15px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-          <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+          <p>Click this link to reset your password:</p>
+          <a href="${resetUrl}">${resetUrl}</a> <!-- THIS LINE WAS MISSING -->
+          <p>Link expires in 1 hour.</p>
         `
       };
-
+      
       await transporter.sendMail(mailOptions);
       res.json({ message: 'Password reset link has been sent to your email' });
     } catch (emailErr) {
       console.error("Email sending error:", emailErr);
-      // If email fails, still provide the token (for development or fallback)
-      console.log(`Reset link for development: http://localhost:3000/reset-password/${token}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Reset link: ${resetUrl}`);
+      }
       res.json({ message: 'Password reset prepared, but email delivery failed. Please contact support.' });
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
 // @route PUT /api/users/reset-password/:token
 router.put('/reset-password/:token', async (req, res) => {
   const { token } = req.params;
