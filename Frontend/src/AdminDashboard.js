@@ -1,4 +1,4 @@
-import {
+import { 
   BarChart,
   Upload,
   Folder,
@@ -7,12 +7,19 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Download
+  Download,
+  Eye,
+  File,
+  FileSpreadsheet,
+  FileImage,
+  FileVideo,
+  FileArchive
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
 import ConfirmDialog from './components/ConfirmDialog';
+import DocumentPreviewModal from './components/DocumentPreviewModal'; // New component
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,14 +31,34 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]);
 };
 
+const getFileIcon = (mimeType) => {
+  const type = mimeType.split('/')[0];
+  switch(type) {
+    case 'application':
+      return <FileSpreadsheet className="text-blue-400" size={40} />;
+    case 'image':
+      return <FileImage className="text-green-400" size={40} />;
+    case 'video':
+      return <FileVideo className="text-red-400" size={40} />;
+    case 'text':
+      return <FileText className="text-purple-400" size={40} />;
+    case 'application/zip':
+    case 'application/x-zip-compressed':
+      return <FileArchive className="text-yellow-400" size={40} />;
+    default:
+      return <File className="text-gray-400" size={40} />;
+  }
+};
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [directories, setDirectories] = useState([]);
   const [recentUploads, setRecentUploads] = useState([]);
   const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [documentToPreview, setDocumentToPreview] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [currentView, setCurrentView] = useState('featured'); // 'featured' or 'all'
+  const [currentView, setCurrentView] = useState('featured');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
@@ -39,6 +66,11 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/');
+  };
+
+  const handlePreviewDocument = (doc) => {
+    setDocumentToPreview(doc);
+    setShowPreviewModal(true);
   };
 
   const handleUpload = async (formData) => {
@@ -67,6 +99,68 @@ const AdminDashboard = () => {
       toast.error(error.message || 'Failed to upload document');
     }
   };
+
+    
+  const handleDownloadDocument = async (doc) => {
+    try {
+      const response = await fetch(doc.contentUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Download started');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download document');
+    }
+  };
+
+  const DocumentCard = ({ doc }) => (
+    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div className="flex justify-center mb-4">
+        {getFileIcon(doc.fileType)}
+      </div>
+      <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
+      <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
+        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+          {doc.type}
+        </span>
+        <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+      </div>
+      <div className="text-sm text-gray-600 mb-4">
+        {formatFileSize(doc.fileSize)}
+      </div>
+      <div className="flex justify-between">
+        <button 
+          onClick={() => handlePreviewDocument(doc)}
+          className="text-blue-600 hover:text-blue-800 text-sm"
+        >
+          Preview
+        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => handleDownloadDocument(doc)}
+            className="text-green-600 hover:text-green-800 text-sm"
+          >
+            Download
+          </button>
+          <button 
+            onClick={() => setDocumentToDelete(doc._id)}
+            className="text-red-600 hover:text-red-800 text-sm"
+            disabled={isDeleting}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
 
   const stats = [
     { title: 'Total Documents', value: recentUploads.length, icon: FileText },
@@ -437,7 +531,12 @@ const AdminDashboard = () => {
           onSubmit={handleUpload}  
         />
       )}
-      
+                      {showPreviewModal && documentToPreview && (
+          <DocumentPreviewModal
+            document={documentToPreview}
+            onClose={() => setShowPreviewModal(false)}
+          />
+        )}
       <ConfirmDialog
         isOpen={!!documentToDelete}
         onClose={() => setDocumentToDelete(null)}
