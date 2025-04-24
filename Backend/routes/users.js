@@ -25,7 +25,7 @@ transporter.verify((error, success) => {
   }
 });
 
-const nodemailer = require('nodemailer');
+
 
 
 // Password hashing configuration
