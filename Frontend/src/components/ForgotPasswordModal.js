@@ -25,28 +25,40 @@ function ForgotPasswordModal({ closeModal }) {
     setStatus('loading');
     
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/request-reset`, {
+      console.log('Attempting to send reset email to:', email);
+      
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/request-reset`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ email }),
       });
+  
+      console.log('Received response status:', response.status);
       
-      const data = await res.json();
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
       
-      if (res.ok) {
-        setStatus('success');
-        setMessage(data.message || 'Password reset link sent to your email');
-      } else {
-        setStatus('error');
-        setMessage(data.message || 'Failed to send reset link');
+      const data = responseText ? JSON.parse(responseText) : {};
+  
+      if (!response.ok) {
+        console.error('Server error details:', data);
+        throw new Error(data.message || `Request failed with status ${response.status}`);
       }
+  
+      setStatus('success');
+      setMessage(data.message || 'Password reset link sent to your email');
     } catch (err) {
+      console.error('Full error:', err);
       setStatus('error');
-      setMessage('An error occurred. Please try again.');
-      console.error(err);
+      setMessage(err.message.includes('Failed to fetch') 
+        ? 'Network error - check your connection'
+        : err.message || 'An error occurred. Please try again.'
+      );
     }
   };
-
   // Handle the password reset form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
