@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-
 function ForgotPasswordModal({ closeModal }) {
+
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
+
   const { token } = useParams();
+
   const [mode] = useState(token ? 'reset' : 'request');
 
   // Toggle password visibility

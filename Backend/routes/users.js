@@ -24,6 +24,9 @@ transporter.verify((error, success) => {
     console.log('Email service ready');
   }
 });
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
