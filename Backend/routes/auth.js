@@ -194,4 +194,25 @@ router.post('/signup', async (req, res) => {
     }
   });
 
+  // At the start of your forgot password route handler
+router.post('/forgot-password', async (req, res) => {
+  console.log('PASSWORD RESET ROUTE HIT:', req.body.email);
+  
+  try {
+    // Your existing code...
+    console.log('USER FOUND, GENERATING TOKEN');
+    
+    // Before sending email
+    console.log('ATTEMPTING TO SEND EMAIL');
+    
+    // After sending email
+    console.log('EMAIL SENT SUCCESSFULLY');
+    
+    // Rest of your code...
+  } catch (error) {
+    console.error('PASSWORD RESET ERROR:', error.message);
+    // Your error handling...
+  }
+});
+
 module.exports = router;
