@@ -142,13 +142,18 @@ router.delete('/:id', async (req, res) => {
 
 router.post('/request-reset', async (req, res) => {
   const { email } = req.body;
+  console.log('Password reset requested for:', email);
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user){
+      console.log('User not found');
+      return res.status(404).json({ message: 'User not found' });
+    } 
 
     // Prevent password reset for Google users
     if (user.authMethod !== 'email-password') {
+      console.log('User uses Google auth'); // Add this line
       return res.status(400).json({ message: 'Use Google Sign-In for this account' });
     }
 
@@ -158,6 +163,7 @@ router.post('/request-reset', async (req, res) => {
     user.resetToken = token;
     user.resetTokenExpiry = expiry;
     await user.save();
+    console.log('User saved with reset token');
 
     try {
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
@@ -183,6 +189,7 @@ router.post('/request-reset', async (req, res) => {
       res.json({ message: 'Password reset prepared, but email delivery failed. Please contact support.' });
     }
   } catch (err) {
+    console.error('Error in request-reset:', err);
     res.status(500).json({ message: err.message });
   }
 });
