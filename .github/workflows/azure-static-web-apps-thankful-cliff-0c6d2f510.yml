@@ -60,7 +60,7 @@ jobs:
           output_location: "build"
           api_location: ""  # Clear if not using API in this deployment
           app_build_command: "npm run build"
-          api_build_command: ""  # Clear if not building API
+          api_build_command: ""  # Clear if not building APIs
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
