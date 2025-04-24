@@ -33,7 +33,9 @@ const formatFileSize = (bytes) => {
 };
 
 const getFileIcon = (mimeType) => {
-  const type = mimeType.split('/')[0];
+  //  fallback for undefined/null
+  const type = (mimeType || '').split('/')[0]; 
+
   switch(type) {
     case 'application':
       return <FileSpreadsheet className="text-blue-400" size={40} />;
@@ -43,8 +45,8 @@ const getFileIcon = (mimeType) => {
       return <FileVideo className="text-red-400" size={40} />;
     case 'text':
       return <FileText className="text-purple-400" size={40} />;
-    case 'application/zip':
-    case 'application/x-zip-compressed':
+    case 'zip':
+    case 'x-zip-compressed':
       return <FileArchive className="text-yellow-400" size={40} />;
     default:
       return <File className="text-gray-400" size={40} />;
