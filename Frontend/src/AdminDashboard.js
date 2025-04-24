@@ -121,7 +121,7 @@ const handleDownloadDocument = (doc) => {
     document.body.removeChild(link);
 
     // Optional: Track successful download
-    toast.success(Downloading ${doc.name});
+toast.success(`Downloading ${doc.name}`);
   } catch (error) {
     console.error('Download error:', error);
     toast.error(error.message || 'Failed to start download');
