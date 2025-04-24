@@ -493,33 +493,9 @@ const AdminDashboard = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredDocuments.map((doc) => (
-                    <div key={doc._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-center mb-4">
-                        <FileText size={40} className="text-blue-400" />
-                      </div>
-                      <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
-                      <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">{doc.type}</span>
-                        <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <div className="text-sm text-gray-600 mb-4">
-                        {formatFileSize(doc.fileSize)}
-                      </div>
-                      <div className="flex justify-between">
-                        <button className="text-blue-600 hover:text-blue-800 text-sm">
-                          Details
-                        </button>
-                        <button 
-                          onClick={() => setDocumentToDelete(doc._id)}
-                          className="text-red-600 hover:text-red-800 text-sm"
-                          disabled={isDeleting}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+{filteredDocuments.map((doc) => (
+  <DocumentCard key={doc._id} doc={doc} />
+))}
                 </div>
               )}
             </div>
