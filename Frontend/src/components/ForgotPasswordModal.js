@@ -8,7 +8,7 @@ function ForgotPasswordModal({ closeModal, token = null }) {
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
-  const [mode, setMode] = useState(token ? 'reset' : 'request');
+  const [mode] = useState(token ? 'reset' : 'request');
 
   // Toggle password visibility
   const togglePasswordVisibility = () => {
