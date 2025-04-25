@@ -59,7 +59,7 @@
       "/__mocks__/",
       "/config/",
       "/context/",
-      "/services/",
+      "/services/"
     ],
     "coverageThreshold": {
       "global": {
