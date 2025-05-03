@@ -60,7 +60,6 @@
       "/config/",
       "/context/",
       "/services/",
-      "/src/(?!components)",
       "src/index.(js|ts)x?", 
       "src/App.(js|ts)x?"
     ],

@@ -7,14 +7,17 @@ const fileUpload = require('express-fileupload');
 
 // Middleware setup
 app.use(express.json());
-app.use(cors({
-  origin: [
-    'https://thankful-cliff-0c6d2f510.6.azurestaticapps.net',
-    'http://localhost:3000'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// app.use(cors({
+//   origin: [
+//     'https://thankful-cliff-0c6d2f510.6.azurestaticapps.net',
+//     'http://localhost:3000'
+//   ],
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+
+app.use(cors()); // Allow all origins, methods, and headers
+
 app.use(fileUpload({
   limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
 }));
