@@ -15,8 +15,8 @@ app.use(express.json());
 //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 //   allowedHeaders: ['Content-Type', 'Authorization']
 // }));
-
-app.use(cors()); // Allow all origins, methods, and headers
+app.use(cors());
+app.options('*', cors()); // Enable CORS for all routes
 
 app.use(fileUpload({
   limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
