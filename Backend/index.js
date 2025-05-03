@@ -5,22 +5,22 @@ const cors = require('cors');
 const app = express();
 const fileUpload = require('express-fileupload');
 
+// Fixed CORS configuration
+const corsOptions = {
+  origin: [
+    'https://thankful-cliff-0c6d2f510.6.azurestaticapps.net',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+};
+
 // Middleware setup
-app.use(cors());
-app.options('*', cors()); // Enable CORS for all routes
+app.use(cors(corsOptions));
 app.use(express.json());
-// app.use(cors({
-//   origin: [
-//     'https://thankful-cliff-0c6d2f510.6.azurestaticapps.net',
-//     'http://localhost:3000'
-//   ],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
-
-
 app.use(fileUpload({
-  limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit
+  limits: { fileSize: 100 * 1024 * 1024 }
 }));
 
 // Health check endpoint
@@ -32,36 +32,35 @@ app.get('/api/health', (req, res) => {
   res.status(200).json(status);
 });
 
-// Database connection with storage verification
+// Improved startup sequence
 async function initializeApp() {
+  // Start server first
+  const port = process.env.PORT || 3000;
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
+  });
+
   try {
-    // 1. Connect to MongoDB
+    // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // 2. Verify Azure Storage
+    // Verify Azure Storage
     const azureStorage = require('./utils/azureStorage');
     await azureStorage.verifyContainer();
     console.log('Azure Storage verified');
 
-    // 3. Start server only after successful connections
-    const port = process.env.PORT || 3000;
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Server running on port ${port} (accessible from outside)`);
-    });
-
   } catch (error) {
-    console.error('Fatal startup error:', error);
-    process.exit(1); // Exit with failure code
+    console.error('Non-fatal service error:', error);
+    // Don't exit process - server remains running
   }
 }
 
-// Route registration (after middleware, before server start)
+// Route registration (MUST come after CORS setup)
 app.use('/api/users', require('./routes/users'));
 app.use('/api/archives', require('./routes/archives'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/search', require('./routes/search'));
-
 
 // Error handler
 app.use((err, req, res, next) => {

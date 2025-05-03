@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   try {
     // Build the URL
     const url = `${endpoint}/indexes/${encodeURIComponent(indexName)}/docs`;
-    // Call Azure Search REST API :contentReference[oaicite:0]{index=0}
+    // Call Azure Search REST API :contentReference[oaicite:0]{index=0} 
     const response = await axios.get(url, {
       params: {
         'api-version': apiVersion,
