@@ -1,6 +1,5 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 
-
 console.log("Initializing Azure Storage...");
 
 // Get connection string from environment variables
@@ -18,15 +17,119 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 
 console.log('Azure Storage initialized for container:', containerName);
 
+// Configure CORS settings for the blob service
+async function configureCors() {
+  try {
+    await blobServiceClient.setProperties({
+      cors: [
+        {
+          allowedOrigins: ['*'], // For development, replace with your domain in production
+          allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+          allowedHeaders: ['*'],
+          exposedHeaders: ['*'],
+          maxAgeInSeconds: 86400 // 24 hours
+        }
+      ]
+    });
+    console.log('CORS configuration updated successfully');
+    return true;
+  } catch (error) {
+    console.error('Failed to configure CORS:', error);
+    return false;
+  }
+}
+
+// Function to get blob stream
 async function getBlobStream(blobPath) {
-  const { BlobServiceClient } = require('@azure/storage-blob');
-  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
-  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
-  
-  const blobClient = containerClient.getBlobClient(blobPath);
-  const downloadResponse = await blobClient.download();
-  
-  return downloadResponse.readableStreamBody;
+  try {
+    console.log(`Attempting to download blob: ${blobPath}`);
+    
+    const blobClient = containerClient.getBlobClient(blobPath);
+    
+    // Verify blob exists first
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.error(`Blob not found: ${blobPath}`);
+      return null;
+    }
+    
+    const downloadResponse = await blobClient.download(0);
+    
+    if (!downloadResponse.readableStreamBody) {
+      console.error('No stream body received for blob:', blobPath);
+      return null;
+    }
+    
+    // Get blob properties for headers
+    const properties = await blobClient.getProperties();
+    
+    return {
+      stream: downloadResponse.readableStreamBody,
+      properties: {
+        contentType: properties.contentType,
+        contentLength: properties.contentLength,
+        metadata: properties.metadata,
+        lastModified: properties.lastModified,
+        etag: properties.etag
+      }
+    };
+  } catch (error) {
+    console.error(`Error in getBlobStream for ${blobPath}:`, error);
+    return null;
+  }
+}
+
+// Verify blob access
+async function verifyBlobAccess(blobPath) {
+  try {
+    const blobClient = containerClient.getBlobClient(blobPath);
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.error(`Blob access verification failed: ${blobPath} does not exist`);
+      return false;
+    }
+    
+    // Verify we have read permissions
+    try {
+      await blobClient.getProperties();
+      return true;
+    } catch (error) {
+      console.error(`Blob access denied for ${blobPath}:`, error);
+      return false;
+    }
+  } catch (error) {
+    console.error('Blob access verification failed:', error);
+    return false;
+  }
+}
+
+// Enhanced download function with proper headers
+async function downloadBlob(blobPath) {
+  try {
+    const blobClient = containerClient.getBlobClient(blobPath);
+    const exists = await blobClient.exists();
+    if (!exists) {
+      console.error(`Blob not found for download: ${blobPath}`);
+      return null;
+    }
+
+    const properties = await blobClient.getProperties();
+    const downloadResponse = await blobClient.download();
+
+    return {
+      stream: downloadResponse.readableStreamBody,
+      properties: {
+        contentType: properties.contentType || 'application/octet-stream',
+        contentLength: properties.contentLength,
+        contentDisposition: `attachment; filename="${encodeURIComponent(blobPath.split('/').pop())}"`,
+        lastModified: properties.lastModified,
+        etag: properties.etag
+      }
+    };
+  } catch (error) {
+    console.error(`Download failed for ${blobPath}:`, error);
+    return null;
+  }
 }
 
 module.exports = {
@@ -41,7 +144,10 @@ module.exports = {
       const blockBlobClient = containerClient.getBlockBlobClient(blobPath);
       
       const uploadResponse = await blockBlobClient.uploadData(buffer, {
-        blobHTTPHeaders: { blobContentType: contentType },
+        blobHTTPHeaders: { 
+          blobContentType: contentType,
+          blobContentDisposition: `attachment; filename="${encodeURIComponent(fileName)}"`
+        },
         metadata: { 
           uploadedBy: "ConstitutionalArchiveSystem",
           originalName: fileName,
@@ -101,7 +207,6 @@ module.exports = {
     }
   },
 
-
   // Get blob properties and metadata
   getBlobInfo: async (blobPath) => {
     try {
@@ -124,13 +229,18 @@ module.exports = {
     console.log(`Verifying container ${containerName}...`);
     try {
       // Create container if it doesn't exist
-      const createResponse = await containerClient.createIfNotExists();
+      const createResponse = await containerClient.createIfNotExists({
+        access: 'blob' // Set public access level
+      });
       
       if (createResponse.succeeded) {
         console.log(`Container ${containerName} created successfully`);
       } else {
         console.log(`Container ${containerName} already exists`);
       }
+
+      // Configure CORS settings
+      await configureCors();
 
       // Verify container accessibility by getting properties
       const properties = await containerClient.getProperties();
@@ -155,12 +265,13 @@ module.exports = {
         console.error('Detailed Error Code:', error.details.errorCode);
       }
       
-      // Throw error instead of exiting to allow proper error handling upstream
       throw new Error(`Container verification failed: ${error.message}`);
     }
-  }
-  ,
-  getBlobStream,
-  // Verify Azure Storage connection and container existence
+  },
 
+  // Utility functions
+  verifyBlobAccess,
+  downloadBlob,
+  getBlobStream,
+  configureCors
 };

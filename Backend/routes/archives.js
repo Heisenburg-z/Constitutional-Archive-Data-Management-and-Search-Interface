@@ -224,46 +224,37 @@ router.post('/upload', authenticate, async (req, res) => {
   }
 });
 
-// Add this route to archives.js
-router.get('/download/:id', authenticate, async (req, res) => {
+const { BlobServiceClient } = require('@azure/storage-blob');
+
+router.get('/api/download', async (req, res) => {
   try {
-    const archive = await Archive.findById(req.params.id);
-    if (!archive) {
-      return res.status(404).json({ error: 'File not found' });
+    const blobPath = req.query.path;
+    if (!blobPath) {
+      return res.status(400).send('File path is required');
     }
 
-    // Verify user has permission to download
-    if (archive.accessLevel === 'private' && 
-        req.user.role !== 'admin' && 
-        archive.createdBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ error: 'Unauthorized to download this file' });
+    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+    const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
+    const blobClient = containerClient.getBlobClient(blobPath);
+
+    const exists = await blobClient.exists();
+    if (!exists) {
+      return res.status(404).send('File not found');
     }
 
-    // Extract the blob path from the URL
-    const blobUrl = archive.contentUrl;
-    const blobPath = blobUrl.split('.blob.core.windows.net/')[1];
-    
-    // Set appropriate headers for download
+    const properties = await blobClient.getProperties();
+    const downloadResponse = await blobClient.download();
+
     res.set({
-      'Content-Type': archive.fileType,
-      'Content-Disposition': `attachment; filename="${archive.name}"`,
-      'Content-Length': archive.fileSize
+      'Content-Type': properties.contentType || 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${blobPath.split('/').pop()}"`,
+      'Content-Length': properties.contentLength
     });
 
-    // Stream the file from Azure to the client
-    const { getBlobStream } = require('../utils/azureStorage');
-    const stream = await getBlobStream(blobPath);
-    
-    stream.on('error', (err) => {
-      console.error('Stream error:', err);
-      res.status(500).end();
-    });
-    
-    stream.pipe(res);
-    
+    downloadResponse.readableStreamBody.pipe(res);
   } catch (error) {
     console.error('Download error:', error);
-    res.status(500).json({ error: 'Failed to download file' });
+    res.status(500).send('Download failed');
   }
 });
 
@@ -292,6 +283,7 @@ async function buildDirectoryPath(directoryId) {
     console.error('Error building directory path:', error);
     throw error;
   }
+  
 }
 
 module.exports = router;

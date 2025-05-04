@@ -1,4 +1,44 @@
+// src/components/DocumentPreviewModal.js
 import { X, Download } from 'lucide-react';
+import { toast } from 'react-toastify'; // Optional if you're using toasts
+
+const handleDownload = async (doc, event = null) => {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  try {
+    const url = doc?.url || doc?.contentUrl;
+    if (!url) throw new Error('Document URL not found');
+
+    let downloadUrl = url;
+
+    // Add SAS token if needed (i.e., for activeDocument-style URLs)
+    if (doc?.url && !doc?.contentUrl) {
+      const baseUrl = url.split('?')[0];
+      const sasToken = '?sp=racwdl&st=2025-04-12T12:41:12Z&se=2026-04-12T20:41:12Z&sv=2024-11-04&sr=c&sig=E0aYEFCm7MiPZeGi2ucCXoqeReWcITSD0LAkbmfY%2Bg8%3D';
+      downloadUrl = `${baseUrl}${sasToken}`;
+    }
+
+    const response = await fetch(downloadUrl);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = (doc?.title || doc?.name || 'document') + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(blobUrl);
+    toast?.success?.(`Downloading ${doc.name || doc.title}`);
+  } catch (error) {
+    console.error('Download failed:', error);
+    toast?.error?.(error.message || 'Download failed');
+  }
+};
 
 const DocumentPreviewModal = ({ document, onClose }) => {
   return (
@@ -28,42 +68,13 @@ const DocumentPreviewModal = ({ document, onClose }) => {
         </div>
 
         <div className="mt-4 flex justify-end gap-4">
-
-
-        <button
-  className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-  onClick={async (e) => {
-    e.preventDefault();
-    try {
-      // Fetch the file
-      const response = await fetch(document.contentUrl);
-      const blob = await response.blob();
-      
-      // Create a blob URL
-      const blobUrl = window.URL.createObjectURL(blob);
-      
-      // Create a hidden anchor element
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = blobUrl;
-      a.download = document.name || 'document';
-      
-      // Append to body, click, and clean up
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-      alert('Download failed. Please try again.');
-    }
-  }}
->
-  <Download className="h-5 w-5" />
-  Download
-</button>
+          <button
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+            onClick={(e) => handleDownload(document, e)}
+          >
+            <Download className="h-5 w-5" />
+            Download
+          </button>
         </div>
       </div>
     </div>
