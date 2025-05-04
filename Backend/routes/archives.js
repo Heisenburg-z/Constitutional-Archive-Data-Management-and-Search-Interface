@@ -18,6 +18,16 @@ router.get('/', authenticate, async (req, res) => {
 // Update file metadata ,  This lets you send only the fields you want to change. It's flexible and safe.
 router.patch('/:id', authenticate, async (req, res) => {
   try {
+
+    if (req.body.metadata) {
+      const metadata = req.body.metadata;
+      // Example: Validate no fields exceed certain length
+      for (const [key, value] of Object.entries(metadata)) {
+        if (typeof value !== 'string' || value.length > 500) {
+          return res.status(400).json({ error: `Metadata field ${key} is invalid` });
+        }
+      }
+    }
     const archiveId = req.params.id;
     const { metadata, accessLevel, name } = req.body;
 

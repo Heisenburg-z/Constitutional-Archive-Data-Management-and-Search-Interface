@@ -13,8 +13,8 @@ import {
   FileSpreadsheet,
   FileImage,
   FileVideo,
-  FileArchive
-
+  FileArchive,
+  Edit
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -60,10 +60,12 @@ const AdminDashboard = () => {
   const [recentUploads, setRecentUploads] = useState([]);
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [documentToPreview, setDocumentToPreview] = useState(null);
+  const [documentToEdit, setDocumentToEdit] = useState(null);
+  const [metadataForm, setMetadataForm] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [currentView, setCurrentView] = useState('featured');
-
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
@@ -150,12 +152,17 @@ toast.success(`Downloading ${doc.name}`);
         >
           Preview
         </button>
-        <div className="flex gap-4">
+        <button 
+          onClick={() => handleEditMetadata(doc)}
+          className="text-purple-600 hover:text-purple-800 text-sm flex items-center gap-1"
+        >
+          <Edit size={14} /> Edit
+        </button>
           <button 
             onClick={() => handleDownloadDocument(doc)}
             className="text-green-600 hover:text-green-800 text-sm"
           >
-            Download
+            <Download size={14} /> Download
           </button>
           <button 
             onClick={() => setDocumentToDelete(doc._id)}
@@ -164,10 +171,56 @@ toast.success(`Downloading ${doc.name}`);
           >
             Delete
           </button>
-        </div>
       </div>
     </div>
   );
+
+
+
+  const handleEditMetadata = (doc) => {
+    setDocumentToEdit(doc);
+    setMetadataForm({
+      accessLevel: doc.accessLevel || 'public',
+      title: doc.metadata?.title || '',
+      documentType: doc.metadata?.documentType || 'constitution',
+      publicationDate: doc.metadata?.publicationDate?.split('T')[0] || ''
+    });
+  };
+
+  const updateMetadata = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/archives/${documentToEdit._id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            accessLevel: metadataForm.accessLevel,
+            metadata: {
+              title: metadataForm.title,
+              documentType: metadataForm.documentType,
+              publicationDate: metadataForm.publicationDate
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message ||'Failed to save changes');
+      }
+
+      toast.success('File updated successfully');
+      setDocumentToEdit(null);
+      fetchRecentUploads();
+    } catch (error) {
+      toast.error(error.message || 'Failed to save document changes');
+      console.error('Document update error:', error);
+    }
+  };
 
 
   const stats = [
@@ -391,7 +444,14 @@ toast.success(`Downloading ${doc.name}`);
                             <Download size={18} />
                             Download
                           </button>
-                            <button 
+                          <button 
+                            onClick={() => handleEditMetadata(recentUploads[currentDocIndex])}
+                            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800"
+                          >
+                            <Edit size={18} />
+                            Edit
+                          </button>
+                          <button 
                               onClick={() => setDocumentToDelete(recentUploads[currentDocIndex]?._id)}
                               className="inline-flex items-center gap-2 text-red-600 hover:text-red-800"
                               disabled={isDeleting}
@@ -502,6 +562,7 @@ toast.success(`Downloading ${doc.name}`);
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
 {filteredDocuments.map((doc) => (
   <DocumentCard key={doc._id} doc={doc} />
 ))}
@@ -511,6 +572,104 @@ toast.success(`Downloading ${doc.name}`);
           </section>
         )}
       </section>
+      {documentToEdit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Edit size={20} />
+              Edit File: {documentToEdit.name}
+            </h3>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Access Level
+                  </label>
+                  <select
+                    name="accessLevel"
+                    value={metadataForm.accessLevel}
+                    onChange={(e) => setMetadataForm({...metadataForm, accessLevel: e.target.value})}
+                    className="block w-full border border-gray-300 rounded-md p-2"
+                  >
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    File Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={metadataForm.title}
+                    onChange={(e) => setMetadataForm({...metadataForm, title: e.target.value})}
+                    className="block w-full border border-gray-300 rounded-md p-2"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    File Type
+                  </label>
+                  <select
+                    name="documentType"
+                    value={metadataForm.documentType}
+                    onChange={(e) => setMetadataForm({...metadataForm, documentType: e.target.value})}
+                    className="block w-full border border-gray-300 rounded-md p-2"
+                  >
+                    <option value="constitution">Constitution</option>
+                    <option value="amendment">Amendment</option>
+                    <option value="bill">Bill</option>
+                    <option value="report">Report</option>
+                    <option value="image">Image</option>
+                    <option value="audio">Audio</option>
+                    <option value="video">Video</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Publication Date
+                  </label>
+                  <input
+                    type="date"
+                    name="publicationDate"
+                    value={metadataForm.publicationDate}
+                    onChange={(e) => setMetadataForm({...metadataForm, publicationDate: e.target.value})}
+                    className="block w-full border border-gray-300 rounded-md p-2"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 border-t pt-4">
+              <button
+                onClick={() => setDocumentToEdit(null)}
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateMetadata}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
 
       {showUploadModal && (
         <UploadModal
