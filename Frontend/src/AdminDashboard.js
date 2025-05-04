@@ -56,8 +56,6 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
-  const [downloadInProgress, setDownloadInProgress] = useState(false);
-  const [downloadSuccess, setDownloadSuccess] = useState(null);
   const [downloadingDocs, setDownloadingDocs] = useState({}); 
 
   const handleLogout = () => {
