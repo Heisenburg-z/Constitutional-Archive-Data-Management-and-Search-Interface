@@ -225,7 +225,6 @@ module.exports = {
       throw new Error(`Failed to get blob info: ${error.message}`);
     }
   },
-
   verifyContainer: async () => {
     console.log(`Verifying container ${containerName}...`);
     try {
