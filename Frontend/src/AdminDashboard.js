@@ -61,7 +61,10 @@ const AdminDashboard = () => {
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [documentToPreview, setDocumentToPreview] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
+  // 1. Add state variables for modal and selected document
+  const [documents, setDocuments] = useState([]);
+  const [showModal, setShowModal] = useState(false);  // for modal visibility
+  const [selectedDocument, setSelectedDocument] = useState(null);  // for selected document
   const [currentView, setCurrentView] = useState('featured');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,6 +75,118 @@ const AdminDashboard = () => {
     localStorage.removeItem('authToken');
     navigate('/');
   };
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch('/api/documents');
+        const data = await response.json();
+        setDocuments(data);
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      }
+    };
+
+    fetchDocuments();
+  }, []);
+
+  // 3. Function to open the modal with the selected document
+  const openPreviewModal = (document) => {
+    setSelectedDocument(document);
+    setShowModal(true);  // Show the modal
+  };
+
+  // 4. Function to close the modal
+  const closePreviewModal = () => {
+    setShowModal(false);  // Hide the modal
+    setSelectedDocument(null);  // Reset selected document
+  };
+
+  return (
+    <div className="admin-dashboard">
+      <h1>Admin Dashboard</h1>
+
+      {/* Document List */}
+      <div className="document-list">
+        {documents.map((doc) => (
+          <div
+            key={doc.id}
+            className="document-item"
+            onClick={() => openPreviewModal(doc)}  // Open preview modal when clicked
+            style={{
+              padding: '10px',
+              border: '1px solid #ccc',
+              margin: '5px',
+              cursor: 'pointer',
+            }}
+          >
+            <p>{doc.name}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Document Preview */}
+      {showModal && selectedDocument && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}>
+          <div className="modal-content" style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '80%',
+            maxWidth: '900px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          }}>
+            <h2>Preview: {selectedDocument.name}</h2>
+            <button onClick={closePreviewModal} style={{
+              backgroundColor: '#ff4d4d',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}>Close</button>
+
+            {/* Conditional rendering based on file type */}
+            {selectedDocument.fileType?.includes('image') && (
+              <img
+                src={selectedDocument.path}
+                alt={selectedDocument.name}
+                style={{ width: '100%', height: 'auto', marginTop: '20px' }}
+              />
+            )}
+            {selectedDocument.fileType?.includes('pdf') && (
+              <iframe
+                src={selectedDocument.path}
+                width="100%"
+                height="500px"
+                title={selectedDocument.name}
+                style={{ marginTop: '20px' }}
+              />
+            )}
+            {selectedDocument.fileType?.includes('text') && (
+              <pre style={{ marginTop: '20px' }}>
+                {`Content of ${selectedDocument.name}`}
+              </pre>
+            )}
+            {selectedDocument.fileType?.includes('zip') && (
+              <p style={{ marginTop: '20px' }}>This is a ZIP archive. Preview not available.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
   const handlePreviewDocument = (doc) => {
     setDocumentToPreview(doc);
@@ -537,6 +652,125 @@ toast.success(`Downloading ${doc.name}`);
         isProcessing={isDeleting}
       />
     </main>
+  );
+const AdminDashboard = () => {
+  // State for managing documents and modal
+  const [documents, setDocuments] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
+
+  // Fetch documents from the backend API when component mounts
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        // Assuming '/api/documents' is your API endpoint
+        const response = await fetch('/api/documents');
+        const data = await response.json();
+        setDocuments(data); // Store fetched documents in state
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      }
+    };
+
+    fetchDocuments(); // Call the function to fetch documents
+  }, []);
+
+  // Function to open the preview modal with the selected document
+  const openPreviewModal = (document) => {
+    setSelectedDocument(document);  // Set selected document
+    setShowModal(true);             // Show the modal
+  };
+
+  // Function to close the modal
+  const closePreviewModal = () => {
+    setShowModal(false);            // Close the modal
+    setSelectedDocument(null);      // Reset selected document
+  };
+
+  return (
+    <div className="admin-dashboard">
+      <h1>Admin Dashboard</h1>
+
+      {/* Document List */}
+      <div className="document-list">
+        {documents.map((doc) => (
+          <div
+            key={doc.id}
+            className="document-item"
+            onClick={() => openPreviewModal(doc)}  // Open preview modal when clicked
+            style={{
+              padding: '10px',
+              border: '1px solid #ccc',
+              margin: '5px',
+              cursor: 'pointer',
+            }}
+          >
+            <p>{doc.name}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Document Preview */}
+      {showModal && selectedDocument && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}>
+          <div className="modal-content" style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '80%',
+            maxWidth: '900px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          }}>
+            <h2>Preview: {selectedDocument.name}</h2>
+            <button onClick={closePreviewModal} style={{
+              backgroundColor: '#ff4d4d',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}>Close</button>
+
+            {/* Conditional rendering based on file type */}
+            {selectedDocument.fileType?.includes('image') && (
+              <img
+                src={selectedDocument.path}
+                alt={selectedDocument.name}
+                style={{ width: '100%', height: 'auto', marginTop: '20px' }}
+              />
+            )}
+            {selectedDocument.fileType?.includes('pdf') && (
+              <iframe
+                src={selectedDocument.path}
+                width="100%"
+                height="500px"
+                title={selectedDocument.name}
+                style={{ marginTop: '20px' }}
+              />
+            )}
+            {selectedDocument.fileType?.includes('text') && (
+              <pre style={{ marginTop: '20px' }}>
+                {`Content of ${selectedDocument.name}`}
+              </pre>
+            )}
+            {selectedDocument.fileType?.includes('zip') && (
+              <p style={{ marginTop: '20px' }}>This is a ZIP archive. Preview not available.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
