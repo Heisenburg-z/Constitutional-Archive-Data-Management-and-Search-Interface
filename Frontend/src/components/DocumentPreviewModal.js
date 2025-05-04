@@ -28,14 +28,42 @@ const DocumentPreviewModal = ({ document, onClose }) => {
         </div>
 
         <div className="mt-4 flex justify-end gap-4">
-          <a
-            href={document.contentUrl}
-            download={document.name}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-          >
-            <Download className="h-5 w-5" />
-            Download
-          </a>
+
+
+        <button
+  className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+  onClick={async (e) => {
+    e.preventDefault();
+    try {
+      // Fetch the file
+      const response = await fetch(document.contentUrl);
+      const blob = await response.blob();
+      
+      // Create a blob URL
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Create a hidden anchor element
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = blobUrl;
+      a.download = document.name || 'document';
+      
+      // Append to body, click, and clean up
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
+    }
+  }}
+>
+  <Download className="h-5 w-5" />
+  Download
+</button>
         </div>
       </div>
     </div>

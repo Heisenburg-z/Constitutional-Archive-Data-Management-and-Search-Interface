@@ -18,6 +18,17 @@ const containerClient = blobServiceClient.getContainerClient(containerName);
 
 console.log('Azure Storage initialized for container:', containerName);
 
+async function getBlobStream(blobPath) {
+  const { BlobServiceClient } = require('@azure/storage-blob');
+  const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+  const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
+  
+  const blobClient = containerClient.getBlobClient(blobPath);
+  const downloadResponse = await blobClient.download();
+  
+  return downloadResponse.readableStreamBody;
+}
+
 module.exports = {
   // Upload file with support for directory structure
   uploadFile: async (buffer, fileName, contentType, parentPath = '') => {
@@ -109,7 +120,6 @@ module.exports = {
       throw new Error(`Failed to get blob info: ${error.message}`);
     }
   },
-
   verifyContainer: async () => {
     console.log(`Verifying container ${containerName}...`);
     try {
@@ -149,4 +159,8 @@ module.exports = {
       throw new Error(`Container verification failed: ${error.message}`);
     }
   }
+  ,
+  getBlobStream,
+  // Verify Azure Storage connection and container existence
+
 };

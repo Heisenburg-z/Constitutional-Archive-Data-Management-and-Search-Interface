@@ -224,6 +224,49 @@ router.post('/upload', authenticate, async (req, res) => {
   }
 });
 
+// Add this route to archives.js
+router.get('/download/:id', authenticate, async (req, res) => {
+  try {
+    const archive = await Archive.findById(req.params.id);
+    if (!archive) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Verify user has permission to download
+    if (archive.accessLevel === 'private' && 
+        req.user.role !== 'admin' && 
+        archive.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Unauthorized to download this file' });
+    }
+
+    // Extract the blob path from the URL
+    const blobUrl = archive.contentUrl;
+    const blobPath = blobUrl.split('.blob.core.windows.net/')[1];
+    
+    // Set appropriate headers for download
+    res.set({
+      'Content-Type': archive.fileType,
+      'Content-Disposition': `attachment; filename="${archive.name}"`,
+      'Content-Length': archive.fileSize
+    });
+
+    // Stream the file from Azure to the client
+    const { getBlobStream } = require('../utils/azureStorage');
+    const stream = await getBlobStream(blobPath);
+    
+    stream.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.status(500).end();
+    });
+    
+    stream.pipe(res);
+    
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
 // Helper function to build the full path for a directory
 async function buildDirectoryPath(directoryId) {
   try {

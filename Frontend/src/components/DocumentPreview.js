@@ -262,15 +262,19 @@ export default function DocumentPreviewShowcase() {
                   </a>
                   
                   <div className="flex gap-2">
-                    <a 
-                      href={activeDocument.url}
-                      download
-                      className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <Download className="h-5 w-5" />
-                      Download
-                    </a>
-                    
+
+                  <a 
+  href={`${process.env.REACT_APP_API_URL}/api/archives/download/${activeDocument._id}`}
+  download={activeDocument.name || "document"}
+  className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+  onClick={(e) => {
+    // Prevent default behavior if you want to handle it differently
+    // e.preventDefault();
+  }}
+>
+  <Download className="h-5 w-5" />
+  Download here!
+</a>    
                     <button 
                       onClick={() => openModal(activeDocument)}
                       className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
