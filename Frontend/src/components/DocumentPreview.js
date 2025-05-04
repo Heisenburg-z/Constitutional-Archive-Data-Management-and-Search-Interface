@@ -132,6 +132,8 @@ export default function DocumentPreviewShowcase() {
   const [modalDocument, setModalDocument] = useState(null);
   const [showAllDocuments, setShowAllDocuments] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [downloadInProgress, setDownloadInProgress] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(null);
   
   const activeDocument = featuredDocuments[activeIndex];
   const colorClasses = getColorClasses(activeDocument.color);
@@ -157,6 +159,62 @@ export default function DocumentPreviewShowcase() {
     setShowAllDocuments(!showAllDocuments);
   };
   
+  // Enhanced direct download function using Fetch API
+  const downloadDocument = async (doc) => {
+  try {
+    setDownloadInProgress(true);
+    setDownloadSuccess(null);
+
+    // Use your proxy or direct URL
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(doc.url)}`;
+    const directUrl = doc.url;
+
+    // Try direct download first
+    let response;
+    try {
+      response = await fetch(directUrl, {
+        mode: 'cors',
+        cache: 'no-store'
+      });
+      
+      if (!response.ok) throw new Error('Direct download failed');
+    } catch (directError) {
+      console.log('Trying proxy...');
+      response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error('Proxy download failed');
+    }
+
+    const blob = await response.blob();
+    if (blob.size === 0) throw new Error('Empty file received');
+
+    const filename = doc.title.replace(/[^a-z0-9]/gi, '_') + '.pdf';
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 100);
+
+    setDownloadSuccess(true);
+  } catch (error) {
+    console.error("Download failed:", error);
+    setDownloadSuccess(false);
+    
+    // Ultimate fallback - open in new tab
+    window.open(doc.url, '_blank');
+  } finally {
+    setDownloadInProgress(false);
+  }
+};
+  // Combined download handler
+  const handleDownload = (doc) => {
+    downloadDocument(doc);
+  };
+  
   const filteredDocuments = showAllDocuments 
     ? featuredDocuments.filter(doc => 
         searchQuery ? 
@@ -166,6 +224,18 @@ export default function DocumentPreviewShowcase() {
         : true
       )
     : [];
+  
+  // Status message for download
+  const getDownloadStatusMessage = () => {
+    if (downloadInProgress) {
+      return "Downloading...";
+    } else if (downloadSuccess === true) {
+      return "Download successful!";
+    } else if (downloadSuccess === false) {
+      return "Download failed. Try again.";
+    }
+    return null;
+  };
   
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
@@ -255,6 +325,8 @@ export default function DocumentPreviewShowcase() {
                 <div className="mt-auto space-y-3">
                   <a 
                     href={activeDocument.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`w-full flex items-center justify-center gap-2 p-3 rounded-lg ${colorClasses.accent} text-white font-medium transition-transform hover:scale-105`}
                   >
                     <ExternalLink className="h-5 w-5" />
@@ -262,14 +334,29 @@ export default function DocumentPreviewShowcase() {
                   </a>
                   
                   <div className="flex gap-2">
-                    <a 
-                      href={activeDocument.url}
-                      download
-                      className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    <button
+                      onClick={() => handleDownload(activeDocument)}
+                      disabled={downloadInProgress}
+                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors relative ${downloadInProgress ? 'opacity-75 cursor-not-allowed' : ''}`}
                     >
-                      <Download className="h-5 w-5" />
+                      {downloadInProgress ? (
+                        <div className="h-5 w-5 border-2 border-t-transparent border-gray-600 rounded-full animate-spin"></div>
+                      ) : (
+                        <Download className="h-5 w-5" />
+                      )}
                       Download
-                    </a>
+                      
+                      {/* Download status message tooltip */}
+                      {getDownloadStatusMessage() && (
+                        <div className={`absolute -bottom-10 left-0 right-0 text-center text-sm py-1 px-2 rounded ${
+                          downloadSuccess === true ? 'bg-green-100 text-green-800' : 
+                          downloadSuccess === false ? 'bg-red-100 text-red-800' : 
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {getDownloadStatusMessage()}
+                        </div>
+                      )}
+                    </button>
                     
                     <button 
                       onClick={() => openModal(activeDocument)}
@@ -320,17 +407,28 @@ export default function DocumentPreviewShowcase() {
                   <div className="flex justify-between items-center">
                     <a
                       href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={`text-sm font-medium ${getColorClasses(doc.color).text} hover:underline flex items-center`}
                     >
                       View Document
                       <ExternalLink className="ml-1 h-3 w-3" />
                     </a>
-                    <button
-                      onClick={() => openModal(doc)}
-                      className="text-sm text-gray-600 hover:text-gray-900"
-                    >
-                      Details
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDownload(doc)}
+                        className="text-sm text-gray-600 hover:text-gray-900 flex items-center"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </button>
+                      <button
+                        onClick={() => openModal(doc)}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                      >
+                        Details
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -405,20 +503,43 @@ export default function DocumentPreviewShowcase() {
             <div className="border-t p-4 flex justify-end gap-3">
               <button 
                 onClick={closeModal}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"  
               >
                 Close
               </button>
-              <a 
-                href={modalDocument.url}
-                className={`px-4 py-2 rounded-lg text-white ${getColorClasses(modalDocument.color).accent}`}
-              >
-                View Document
-              </a>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleDownload(modalDocument)}
+                  disabled={downloadInProgress}
+                  className={`px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center ${downloadInProgress ? 'opacity-75 cursor-not-allowed' : ''}`}
+                >
+                  {downloadInProgress ? (
+                    <div className="h-4 w-4 border-2 border-t-transparent border-gray-600 rounded-full animate-spin mr-2"></div>
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  Download
+                </button>
+                <a 
+                  href={modalDocument.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`px-4 py-2 rounded-lg text-white ${getColorClasses(modalDocument.color).accent}`}
+                >
+                  View Document
+                </a>
+              </div>
             </div>
           </div>
         </div>
       )}
+      
+      {/* Hidden download frame to handle fallback downloads */}
+      <iframe 
+        id="downloadFrame" 
+        style={{ display: 'none' }} 
+        title="Download Frame"
+      />
     </div>
   );
 }
