@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-
+const authenticate = require('../middleware/auth'); 
 // Create a transporter (you'll need to install nodemailer: npm install nodemailer)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -50,6 +50,20 @@ router.get('/:id', async (req, res) => {
 
     const user = await User.findById(req.params.id).select('-passwordHash -__v');
     if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    // The authenticate middleware already attached the user to req.user
+    const user = await User.findById(req.user._id).select('-passwordHash -__v');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -12,7 +12,9 @@ import {
   FileSpreadsheet,
   FileImage,
   FileVideo,
-  FileArchive
+  FileArchive,
+  User,
+  Mail
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -57,6 +59,37 @@ const AdminDashboard = () => {
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
   const [downloadingDocs, setDownloadingDocs] = useState({}); 
+  const [userProfile, setUserProfile] = useState(null); 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUserProfile(JSON.parse(userData));
+        } else {
+          // If not in localStorage, fetch from API
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setUserProfile(data);
+            localStorage.setItem('user', JSON.stringify(data));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+    fetchDirectories();
+    fetchRecentUploads();
+  }, []);
+
+
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -203,6 +236,7 @@ const AdminDashboard = () => {
   const stats = [
     { title: 'Total Documents', value: recentUploads.length, icon: FileText },
     { title: 'Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0)), icon: Folder },
+    { title: 'Account', value: userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...', icon: User },
   ];
 
   const fetchDirectories = async () => {
@@ -353,7 +387,14 @@ const AdminDashboard = () => {
             <header className="mb-8 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Document Dashboard</h1>
-                <p className="text-gray-600">Manage your constitutional documents</p>
+                <p className="text-gray-600">Welcome back, {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Admin'}</p>
+
+              {userProfile && (
+                  <div className="mt-2 flex items-center text-sm text-gray-600">
+                    <Mail className="h-4 w-4 mr-1" />
+                    <span>{userProfile.email}</span>
+                  </div>
+                )}
               </div>
               <button 
                 onClick={() => setCurrentView('all')}
