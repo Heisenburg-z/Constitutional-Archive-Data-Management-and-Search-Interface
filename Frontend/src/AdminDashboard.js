@@ -1,4 +1,3 @@
-
 import { 
   BarChart,
   Upload,
@@ -8,20 +7,21 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-
   Download,
   File,
   FileSpreadsheet,
   FileImage,
   FileVideo,
   FileArchive,
+  User,
+  Mail,
   Edit
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
 import ConfirmDialog from './components/ConfirmDialog';
-import DocumentPreviewModal from './components/DocumentPreviewModal'; // New component
+import DocumentPreviewModal from './components/DocumentPreviewModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -34,25 +34,18 @@ const formatFileSize = (bytes) => {
 };
 
 const getFileIcon = (mimeType) => {
-  //  fallback for undefined/null
   const type = (mimeType || '').split('/')[0]; 
-
   switch(type) {
-    case 'application':
-      return <FileSpreadsheet className="text-blue-400" size={40} />;
-    case 'image':
-      return <FileImage className="text-green-400" size={40} />;
-    case 'video':
-      return <FileVideo className="text-red-400" size={40} />;
-    case 'text':
-      return <FileText className="text-purple-400" size={40} />;
+    case 'application': return <FileSpreadsheet className="text-blue-400" size={40} />;
+    case 'image': return <FileImage className="text-green-400" size={40} />;
+    case 'video': return <FileVideo className="text-red-400" size={40} />;
+    case 'text': return <FileText className="text-purple-400" size={40} />;
     case 'zip':
-    case 'x-zip-compressed':
-      return <FileArchive className="text-yellow-400" size={40} />;
-    default:
-      return <File className="text-gray-400" size={40} />;
+    case 'x-zip-compressed': return <FileArchive className="text-yellow-400" size={40} />;
+    default: return <File className="text-gray-400" size={40} />;
   }
 };
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -64,12 +57,40 @@ const AdminDashboard = () => {
   const [documentToEdit, setDocumentToEdit] = useState(null);
   const [metadataForm, setMetadataForm] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
-
   const [currentView, setCurrentView] = useState('featured');
-  
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
+  const [downloadingDocs, setDownloadingDocs] = useState({}); 
+  const [userProfile, setUserProfile] = useState(null); 
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUserProfile(JSON.parse(userData));
+        } else {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setUserProfile(data);
+            localStorage.setItem('user', JSON.stringify(data));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+    fetchDirectories();
+    fetchRecentUploads();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -92,91 +113,71 @@ const AdminDashboard = () => {
       });
   
       const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Upload failed');
   
-      if (!response.ok) {
-        throw new Error(result.message || 'Upload failed');
-      }
-  
-      // Refresh the list and close modal
       await fetchRecentUploads();
       setShowUploadModal(false);
       toast.success('Document uploaded successfully!');
-      
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.message || 'Failed to upload document');
     }
   };
 
-    
-const handleDownloadDocument = (doc) => {
-  try {
-    if (!doc?.contentUrl) {
-      throw new Error('Document URL not found');
+  const downloadDocument = async (doc) => {
+    try {
+      setDownloadingDocs(prev => ({ ...prev, [doc._id]: true }));
+      
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(doc.contentUrl)}`;
+      const directUrl = doc.contentUrl;
+  
+      let response;
+      try {
+        response = await fetch(directUrl, {
+          mode: 'cors',
+          cache: 'no-store'
+        });
+        if (!response.ok) throw new Error('Direct download failed');
+      } catch (directError) {
+        console.log('Trying proxy...');
+        response = await fetch(proxyUrl, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
+        if (!response.ok) throw new Error('Proxy download failed');
+      }
+  
+      const blob = await response.blob();
+      if (blob.size === 0) throw new Error('Empty file received');
+  
+      const filename = doc.name.replace(/[^a-z0-9]/gi, '_') + '.pdf';
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+  
+      toast.success(`Downloaded ${doc.name}`);
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error('Download failed. Trying fallback...');
+      window.open(doc.contentUrl, '_blank');
+    } finally {
+      setDownloadingDocs(prev => ({ ...prev, [doc._id]: false }));
     }
+  };
 
-    // Create temporary link for direct download
-    const link = document.createElement('a');
-    link.href = doc.contentUrl;
-    link.download = doc.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Optional: Track successful download
-toast.success(`Downloading ${doc.name}`);
-  } catch (error) {
-    console.error('Download error:', error);
-    toast.error(error.message || 'Failed to start download');
-  }
-};
-
-  const DocumentCard = ({ doc }) => (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex justify-center mb-4">
-        {getFileIcon(doc.fileType)}
-      </div>
-      <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
-      <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
-        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
-          {doc.type}
-        </span>
-        <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-      </div>
-      <div className="text-sm text-gray-600 mb-4">
-        {formatFileSize(doc.fileSize)}
-      </div>
-      <div className="flex justify-between">
-        <button 
-          onClick={() => handlePreviewDocument(doc)}
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          Preview
-        </button>
-        <button 
-          onClick={() => handleEditMetadata(doc)}
-          className="text-purple-600 hover:text-purple-800 text-sm flex items-center gap-1"
-        >
-          <Edit size={14} /> Edit
-        </button>
-          <button 
-            onClick={() => handleDownloadDocument(doc)}
-            className="text-green-600 hover:text-green-800 text-sm"
-          >
-            <Download size={14} /> Download
-          </button>
-          <button 
-            onClick={() => setDocumentToDelete(doc._id)}
-            className="text-red-600 hover:text-red-800 text-sm"
-            disabled={isDeleting}
-          >
-            Delete
-          </button>
-      </div>
-    </div>
-  );
-
-
+  const handleDownloadDocument = (doc) => {
+    downloadDocument(doc);
+  };
 
   const handleEditMetadata = (doc) => {
     setDocumentToEdit(doc);
@@ -223,10 +224,67 @@ toast.success(`Downloading ${doc.name}`);
     }
   };
 
+  const DocumentCard = ({ doc }) => {
+    const isDownloading = downloadingDocs[doc._id] || false;
+    
+    return (
+      <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="flex justify-center mb-4">
+          {getFileIcon(doc.fileType)}
+        </div>
+        <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
+        <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
+          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+            {doc.type}
+          </span>
+          <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
+        </div>
+        <div className="text-sm text-gray-600 mb-4">
+          {formatFileSize(doc.fileSize)}
+        </div>
+        <div className="flex justify-between">
+          <button 
+            onClick={() => handlePreviewDocument(doc)}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+          >
+            Preview
+          </button>
+          <div className="flex gap-4">
+            <button 
+              onClick={() => handleEditMetadata(doc)}
+              className="text-purple-600 hover:text-purple-800 text-sm flex items-center gap-1"
+            >
+              <Edit size={14} /> Edit
+            </button>
+            <button 
+              onClick={() => handleDownloadDocument(doc)}
+              className="text-green-600 hover:text-green-800 text-sm"
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <span className="inline-block h-4 w-4 border-2 border-t-transparent border-green-600 rounded-full animate-spin mr-1"></span>
+                  Downloading
+                </>
+              ) : 'Download'}
+            </button>
+            <button 
+              onClick={() => setDocumentToDelete(doc._id)}
+              className="text-red-600 hover:text-red-800 text-sm"
+              disabled={isDeleting}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const stats = [
     { title: 'Total Documents', value: recentUploads.length, icon: FileText },
     { title: 'Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0)), icon: Folder },
+    { title: 'Account', value: userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...', icon: User },
   ];
 
   const fetchDirectories = async () => {
@@ -242,7 +300,6 @@ toast.success(`Downloading ${doc.name}`);
       
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to fetch directories');
-      
       setDirectories(data);
     } catch (error) {
       console.error('Fetch error:', error);
@@ -262,7 +319,6 @@ toast.success(`Downloading ${doc.name}`);
       );
   
       const data = await response.json();
-  
       if (!response.ok) throw new Error(data.message || 'Failed to fetch uploads');
       
       setRecentUploads(data);
@@ -290,17 +346,14 @@ toast.success(`Downloading ${doc.name}`);
       );
   
       const result = await response.json();
-  
       if (!response.ok) throw new Error(result.message || 'Delete failed');
   
-      // Optimistic UI update
       setRecentUploads(prev => prev.filter(doc => doc._id !== documentToDelete));
       setFilteredDocuments(prev => prev.filter(doc => doc._id !== documentToDelete));
       toast.success('Document deleted successfully');
     } catch (error) {
       console.error('Delete error:', error);
       toast.error(error.message || 'Failed to delete document');
-      // Refresh to ensure consistency
       await fetchRecentUploads();
     } finally {
       setIsDeleting(false);
@@ -338,11 +391,6 @@ toast.success(`Downloading ${doc.name}`);
   const goToDocumentIndex = (index) => {
     setCurrentDocIndex(index);
   };
-
-  useEffect(() => {
-    fetchDirectories();
-    fetchRecentUploads();
-  }, []);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -382,7 +430,14 @@ toast.success(`Downloading ${doc.name}`);
             <header className="mb-8 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Document Dashboard</h1>
-                <p className="text-gray-600">Manage your constitutional documents</p>
+                <p className="text-gray-600">Welcome back, {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Admin'}</p>
+
+                {userProfile && (
+                  <div className="mt-2 flex items-center text-sm text-gray-600">
+                    <Mail className="h-4 w-4 mr-1" />
+                    <span>{userProfile.email}</span>
+                  </div>
+                )}
               </div>
               <button 
                 onClick={() => setCurrentView('all')}
@@ -416,34 +471,39 @@ toast.success(`Downloading ${doc.name}`);
                   </button>
                 </header>
 
-                {recentUploads.length > 0 && (
-                  <div className="relative">
-                    <div className="bg-white rounded-lg p-6 border border-gray-200">
-                      <div className="flex items-start gap-8">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                              {recentUploads[currentDocIndex]?.type || 'Document'}
-                            </span>
-                            <span className="text-gray-500 text-sm">
-                              {new Date(recentUploads[currentDocIndex]?.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-3">
-                            {recentUploads[currentDocIndex]?.name || 'Untitled Document'}
-                          </h3>
-                          <p className="text-gray-600 mb-4">
-                            {formatFileSize(recentUploads[currentDocIndex]?.fileSize || 0)}
-                          </p>
-                          
-                          <div className="flex items-center gap-4 mt-6">
+                <div className="relative">
+                  <div className="bg-white rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-start gap-8">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            {recentUploads[currentDocIndex]?.type || 'Document'}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            {new Date(recentUploads[currentDocIndex]?.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">
+                          {recentUploads[currentDocIndex]?.name || 'Untitled Document'}
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          {formatFileSize(recentUploads[currentDocIndex]?.fileSize || 0)}
+                        </p>
+                        
+                        <div className="flex items-center gap-4 mt-6">
                           <button 
                             onClick={() => handleDownloadDocument(recentUploads[currentDocIndex])}
-                            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                            disabled={!recentUploads[currentDocIndex]?.contentUrl}
+                            className={`inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 ${
+                              downloadingDocs[recentUploads[currentDocIndex]?._id] ? 'opacity-75 cursor-not-allowed' : ''
+                            }`}
+                            disabled={downloadingDocs[recentUploads[currentDocIndex]?._id] || !recentUploads[currentDocIndex]?.contentUrl}
                           >
-                            <Download size={18} />
-                            Download
+                            {downloadingDocs[recentUploads[currentDocIndex]?._id] ? (
+                              <div className="h-4 w-4 border-2 border-t-transparent border-blue-600 rounded-full animate-spin"></div>
+                            ) : (
+                              <Download size={18} />
+                            )}
+                            {downloadingDocs[recentUploads[currentDocIndex]?._id] ? 'Downloading...' : 'Download'}
                           </button>
                           <button 
                             onClick={() => handleEditMetadata(recentUploads[currentDocIndex])}
@@ -453,55 +513,54 @@ toast.success(`Downloading ${doc.name}`);
                             Edit
                           </button>
                           <button 
-                              onClick={() => setDocumentToDelete(recentUploads[currentDocIndex]?._id)}
-                              className="inline-flex items-center gap-2 text-red-600 hover:text-red-800"
-                              disabled={isDeleting}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-gray-50 rounded-lg p-4 w-64 h-64 flex items-center justify-center">
-                          <FileText size={64} className="text-blue-400" />
+                            onClick={() => setDocumentToDelete(recentUploads[currentDocIndex]?._id)}
+                            className="inline-flex items-center gap-2 text-red-600 hover:text-red-800"
+                            disabled={isDeleting}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4">
-                      <button 
-                        onClick={prevDocument}
-                        aria-label="Go to previous document"
-                        className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                      >
-                        <ChevronLeft size={20} />
-                      </button>
-                    </div>
-                    
-                    <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4">
-                      <button 
-                        onClick={nextDocument}
-                        aria-label="Go to next document"
-                        className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                      >
-                        <ChevronRight size={20} />
-                      </button>
-                    </div>
-                    
-                    <div className="flex justify-center mt-4 gap-2">
-                      {recentUploads.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => goToDocumentIndex(index)}
-                          aria-label={`Go to document ${index + 1}`}
-                          className={`w-2 h-2 rounded-full ${
-                            currentDocIndex === index ? 'bg-blue-600' : 'bg-gray-300'
-                          }`}
-                        />
-                      ))}
+                      
+                      <div className="bg-gray-50 rounded-lg p-4 w-64 h-64 flex items-center justify-center">
+                        {getFileIcon(recentUploads[currentDocIndex]?.fileType)}
+                      </div>
                     </div>
                   </div>
-                )}
+                  
+                  <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4">
+                    <button 
+                      onClick={prevDocument}
+                      aria-label="Go to previous document"
+                      className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4">
+                    <button 
+                      onClick={nextDocument}
+                      aria-label="Go to next document"
+                      className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="flex justify-center mt-4 gap-2">
+                    {recentUploads.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToDocumentIndex(index)}
+                        aria-label={`Go to document ${index + 1}`}
+                        className={`w-2 h-2 rounded-full ${
+                          currentDocIndex === index ? 'bg-blue-600' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </section>
             )}
 
@@ -563,16 +622,16 @@ toast.success(`Downloading ${doc.name}`);
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-{filteredDocuments.map((doc) => (
-  <DocumentCard key={doc._id} doc={doc} />
-))}
+                  {filteredDocuments.map((doc) => (
+                    <DocumentCard key={doc._id} doc={doc} />
+                  ))}
                 </div>
               )}
             </div>
           </section>
         )}
       </section>
+
       {documentToEdit && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -670,7 +729,6 @@ toast.success(`Downloading ${doc.name}`);
           </div>
         </div>
       )}
-      
 
       {showUploadModal && (
         <UploadModal
@@ -680,12 +738,12 @@ toast.success(`Downloading ${doc.name}`);
         />
       )}
 
-                      {showPreviewModal && documentToPreview && (
-          <DocumentPreviewModal
-            document={documentToPreview}
-            onClose={() => setShowPreviewModal(false)}
-          />
-        )}
+      {showPreviewModal && documentToPreview && (
+        <DocumentPreviewModal
+          document={documentToPreview}
+          onClose={() => setShowPreviewModal(false)}
+        />
+      )}
 
       <ConfirmDialog
         isOpen={!!documentToDelete}
