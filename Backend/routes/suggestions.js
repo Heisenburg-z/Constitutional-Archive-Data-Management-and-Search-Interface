@@ -1,4 +1,3 @@
-// routes/suggestions.js
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
@@ -13,49 +12,52 @@ router.get('/', async (req, res) => {
   const q = req.query.q || '';
   
   try {
-    // Build the URL for suggestions
-    const url = `${endpoint}/indexes/${encodeURIComponent(indexName)}/docs/suggest`;
-    
-    const response = await axios.get(url, {
-      params: {
-        'api-version': apiVersion,
-        search: q,
-        $top: 5,
-        suggesterName: 'sg' // Make sure you have a suggester configured in Azure Search
-      },
-      headers: {
-        'api-key': apiKey,
-        'Accept': 'application/json'
-      }
-    });
+    // Only call Azure if query has at least 2 characters
+    if (q.length >= 2) {
+      const url = `${endpoint}/indexes/${encodeURIComponent(indexName)}/docs/suggest`;
+      
+      const response = await axios.get(url, {
+        params: {
+          'api-version': apiVersion,
+          search: q,
+          $top: 5,
+          suggesterName: 'metadata_storage_name' // Using your existing suggester
+        },
+        headers: {
+          'api-key': apiKey,
+          'Accept': 'application/json'
+        }
+      });
 
-    // Extract suggestions from response
-    const suggestions = response.data.value.map(item => item.text);
-    
-    // Add popular suggestions if query is empty
-    if (q.length === 0) {
-      suggestions.push(
-        'First Amendment',
-        'Property Rights',
-        'Judicial Review',
-        'Bill of Rights',
-        'Constitutional Amendments'
-      );
+      // Extract and return Azure suggestions
+      const suggestions = response.data.value.map(item => item.text);
+      return res.json({ suggestions });
     }
 
-    res.json({ suggestions });
+    // Return popular suggestions for empty/short queries
+    const popularSuggestions = [
+      'First Amendment',
+      'Property Rights',
+      'Judicial Review', 
+      'Bill of Rights',
+      'Constitutional Amendments'
+    ];
+
+    res.json({ suggestions: popularSuggestions });
+
   } catch (err) {
     console.error('Suggestions error:', err.message);
-    // Fallback to local suggestions if Azure fails
-    res.json({ 
-      suggestions: [
-        'Constitution',
-        'Amendment',
-        'Court Decision',
-        'Legal Analysis',
-        'Historical Document'
-      ] 
-    });
+    
+    // Fallback suggestions
+    const fallbackSuggestions = [
+      'Constitution',
+      'Amendment',
+      'Court Decision',
+      'Legal Analysis',
+      'Historical Document'
+    ];
+    
+    res.json({ suggestions: fallbackSuggestions });
   }
 });
 
