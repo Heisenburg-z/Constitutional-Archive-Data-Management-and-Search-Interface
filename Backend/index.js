@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const fileUpload = require('express-fileupload');
+const suggestionsRouter = require('./routes/suggestions');
+
+
 
 // Fixed CORS configuration
 const corsOptions = {
@@ -61,6 +64,8 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/archives', require('./routes/archives'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/search', require('./routes/search'));
+// Add this with your other route registrations
+app.use('/api/suggestions', suggestionsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
