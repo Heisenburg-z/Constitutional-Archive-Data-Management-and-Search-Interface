@@ -24,7 +24,7 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
   const [accessLevel, setAccessLevel] = useState('public');
   const [newKeyword, setNewKeyword] = useState('');
   const [isPreviewing, setIsPreviewing] = useState(false);
-  const fileInputRef = useRef(null);
+  //const fileInputRef = useRef(null);
 
   // Fetch directories on component mount
   useEffect(() => {
