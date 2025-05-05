@@ -18,6 +18,16 @@ router.get('/', authenticate, async (req, res) => {
 // Update file metadata ,  This lets you send only the fields you want to change. It's flexible and safe.
 router.patch('/:id', authenticate, async (req, res) => {
   try {
+
+    if (req.body.metadata) {
+      const metadata = req.body.metadata;
+      // Example: Validate no fields exceed certain length
+      for (const [key, value] of Object.entries(metadata)) {
+        if (typeof value !== 'string' || value.length > 500) {
+          return res.status(400).json({ error: `Metadata field ${key} is invalid` });
+        }
+      }
+    }
     const archiveId = req.params.id;
     const { metadata, accessLevel, name } = req.body;
 
@@ -224,40 +234,6 @@ router.post('/upload', authenticate, async (req, res) => {
   }
 });
 
-const { BlobServiceClient } = require('@azure/storage-blob');
-
-router.get('/api/download', async (req, res) => {
-  try {
-    const blobPath = req.query.path;
-    if (!blobPath) {
-      return res.status(400).send('File path is required');
-    }
-
-    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
-    const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_STORAGE_CONTAINER_NAME);
-    const blobClient = containerClient.getBlobClient(blobPath);
-
-    const exists = await blobClient.exists();
-    if (!exists) {
-      return res.status(404).send('File not found');
-    }
-
-    const properties = await blobClient.getProperties();
-    const downloadResponse = await blobClient.download();
-
-    res.set({
-      'Content-Type': properties.contentType || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${blobPath.split('/').pop()}"`,
-      'Content-Length': properties.contentLength
-    });
-
-    downloadResponse.readableStreamBody.pipe(res);
-  } catch (error) {
-    console.error('Download error:', error);
-    res.status(500).send('Download failed');
-  }
-});
-
 // Helper function to build the full path for a directory
 async function buildDirectoryPath(directoryId) {
   try {
@@ -283,7 +259,6 @@ async function buildDirectoryPath(directoryId) {
     console.error('Error building directory path:', error);
     throw error;
   }
-  
 }
 
 module.exports = router;
