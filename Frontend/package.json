@@ -9,7 +9,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.3.8",
-    "react-router-dom": "^7.5.0",
+    "react-router-dom": "^6.30.0",
     "react-scripts": "^5.0.1",
     "react-toastify": "^11.0.5"
   },
@@ -60,8 +60,9 @@
       "/config/",
       "/context/",
       "/services/",
-      "src/index.(js|ts)x?", 
-      "src/App.(js|ts)x?"
+      "src/index.(js|ts)x?",
+      "src/App.(js|ts)x?",
+      "src/ConstitutionalArchiveHomepage.test.js"
     ],
     "coverageThreshold": {
       "global": {
