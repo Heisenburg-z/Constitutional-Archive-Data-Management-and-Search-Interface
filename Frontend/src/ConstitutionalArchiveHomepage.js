@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight, BookMarked, X, Loader2, AlertTriangle,  ExternalLink,Clock,TrendingUp  } from 'lucide-react';
 import DocumentPreviewShowcase from './components/DocumentPreview';
+import AnimatedNavMenu from './components/AnimatedNavMenu';
 
 // Helper functions for colors (from DocumentPreview)
 const getColorClasses = (color) => {
@@ -299,13 +300,13 @@ const handleSearchChange = (e) => {
             <h1 className="text-2xl font-bold">Constitutional Archive</h1>
           </a>
           
-          <ul className="hidden md:flex space-x-8">
+          {/* <ul className="hidden md:flex space-x-8">
             <li><a href="/" className="font-medium hover:text-blue-300 transition">Home</a></li>
             <li><a href="/browse" className="font-medium hover:text-blue-300 transition">Browse Archive</a></li>
             <li><a href="/about" className="font-medium hover:text-blue-300 transition">About</a></li>
             <li><a href="/contact" className="font-medium hover:text-blue-300 transition">Contact</a></li>
-          </ul>
-          
+          </ul> */}
+          <AnimatedNavMenu />
           <a href="/admin" className="bg-blue-600 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-md">
             Admin Login
           </a>
