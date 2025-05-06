@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   const [directories, setDirectories] = useState([]);
   const [recentUploads, setRecentUploads] = useState([]);
   const [documentToDelete, setDocumentToDelete] = useState(null);
-  const [documentToPreview, setDocumentToPreview] = useState(null);
+  const [documentToPreview] = useState(null);
   const [documentToEdit, setDocumentToEdit] = useState(null);
   const [metadataForm, setMetadataForm] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
