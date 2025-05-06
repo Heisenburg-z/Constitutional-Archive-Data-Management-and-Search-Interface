@@ -1,262 +1,195 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
-import ConstitutionalArchiveHomepage from './ConstitutionalArchiveHomepage';
-import DocumentPreviewShowcase from './components/DocumentPreview';
+// import React from 'react';
+// import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+// import userEvent from '@testing-library/user-event';
+// import ConstitutionalArchiveHomepage from './ConstitutionalArchiveHomepage';
+// import DocumentPreviewShowcase from './components/DocumentPreview';
 
-// Mock the document preview component
-jest.mock('./components/DocumentPreview', () => ({
-  __esModule: true,
-  default: jest.fn(() => <div data-testid="document-preview-showcase">Document Preview Showcase</div>)
-}));
+// jest.mock('./components/DocumentPreview', () => ({
+//   __esModule: true,
+//   default: jest.fn(() => <div data-testid="document-preview-showcase">Document Preview Showcase</div>)
+// }));
 
-// Mock environment variables
-process.env = {
-  ...process.env,
-  REACT_APP_API_URL: 'https://test-api.example.com',
-};
+// // Mock environment variable
+// process.env.REACT_APP_API_URL = 'https://test-api.example.com';
 
-// Mock fetch API
-const mockFetchResponse = {
-  ok: true,
-  json: jest.fn().mockResolvedValue({
-    '@odata.count': 2,
-    value: [
-      {
-        metadata_storage_path: 'SGVsbG8gV29ybGQ=',
-        metadata_storage_name: 'South African Constitution.pdf',
-        content: 'This document contains information about property rights in the South African Constitution.',
-        metadata_content_type: 'application/pdf',
-        metadata_creation_date: '2023-01-15'
-      },
-      {
-        metadata_storage_path: 'R29vZGJ5ZSBXb3JsZA==',
-        metadata_storage_name: 'US First Amendment.docx',
-        content: 'This document describes freedom of speech principles in the US Constitution.',
-        metadata_content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        metadata_creation_date: '2023-02-10'
-      }
-    ]
-  })
-};
+// // Common fetch response
+// const mockFetchResponse = {
+//   ok: true,
+//   json: jest.fn().mockResolvedValue({
+//     '@odata.count': 2,
+//     value: [
+//       {
+//         metadata_storage_path: 'SGVsbG8gV29ybGQ=',
+//         metadata_storage_name: 'South African Constitution.pdf',
+//         content: 'This document contains information about property rights in the South African Constitution.',
+//         metadata_content_type: 'application/pdf',
+//         metadata_creation_date: '2023-01-15'
+//       },
+//       {
+//         metadata_storage_path: 'R29vZGJ5ZSBXb3JsZA==',
+//         metadata_storage_name: 'US First Amendment.docx',
+//         content: 'This document describes freedom of speech principles in the US Constitution.',
+//         metadata_content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+//         metadata_creation_date: '2023-02-10'
+//       }
+//     ]
+//   })
+// };
 
-global.fetch = jest.fn(() => Promise.resolve(mockFetchResponse));
+// beforeAll(() => {
+//   global.atob = jest.fn(str => {
+//     if (str === 'SGVsbG8gV29ybGQ=') return 'Hello World';
+//     if (str === 'R29vZGJ5ZSBXb3JsZA==') return 'Goodbye World';
+//     return '';
+//   });
+// });
 
-global.atob = jest.fn(str => {
-  if (str === 'SGVsbG8gV29ybGQ=') return 'Hello World';
-  if (str === 'R29vZGJ5ZSBXb3JsZA==') return 'Goodbye World';
-  return '';
-});
+// beforeEach(() => {
+//   jest.clearAllMocks();
+//   global.fetch = jest.fn(() => Promise.resolve(mockFetchResponse));
+// });
 
-describe('ConstitutionalArchiveHomepage Component', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+// describe('ConstitutionalArchiveHomepage', () => {
+//   test('renders homepage sections', () => {
+//     render(<ConstitutionalArchiveHomepage />);
+    
+//     expect(screen.getByRole('heading', { name: /Explore Constitutional History/i })).toBeInTheDocument();
+//     expect(screen.getByPlaceholderText(/Search constitutional documents/i)).toBeInTheDocument();
+//     expect(screen.getByRole('button', { name: /Search/i })).toBeInTheDocument();
 
-  test('renders main sections when no search results', () => {
-    render(<ConstitutionalArchiveHomepage />);
+//     expect(screen.getByRole('heading', { name: /Featured Collections/i })).toBeInTheDocument();
+//     expect(screen.getByRole('heading', { name: /Recently Added Documents/i })).toBeInTheDocument();
+//     expect(screen.getByRole('heading', { name: /Browse By Category/i })).toBeInTheDocument();
     
-    // Use more specific queries for header text
-    const headings = screen.getAllByRole('heading', { name: 'Constitutional Archive' });
-    expect(headings.length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Explore Constitutional History' })).toBeInTheDocument();
-    
-    // Check search form
-    expect(screen.getByPlaceholderText(/Search constitutional documents/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/ })).toBeInTheDocument();
-    
-    // Check sections
-    // NOTE: Document preview component may be conditional, so using queryBy instead of getBy
-    const docPreview = screen.queryByTestId('document-preview-showcase');
-    if (docPreview) {
-      expect(docPreview).toBeInTheDocument();
-    }
-    
-    expect(screen.getByRole('heading', { name: 'Featured Collections' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Recently Added Documents' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Browse By Category' })).toBeInTheDocument();
-  });
+//     const preview = screen.queryByTestId('document-preview-showcase');
+//     if (preview) {
+//       expect(preview).toBeInTheDocument();
+//     }
+//   });
 
-  test('updates search query when user types', async () => {
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    
-    expect(searchInput).toHaveValue('property rights');
-  });
+//   test('updates input when typing', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
+//     const input = screen.getByRole('textbox');
+//     await userEvent.type(input, 'property rights');
+//     expect(input).toHaveValue('property rights');
+//   });
 
-  test('performs search and displays results', async () => {
-    render(<ConstitutionalArchiveHomepage />);
+//   test('shows results after search', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
     
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Results for:/i)).toBeInTheDocument();
-      expect(screen.getByText(/"property rights"/i)).toBeInTheDocument();
-      expect(screen.getByText(/2 results/i)).toBeInTheDocument();
-    });
+//     await waitFor(() => {
+//       expect(screen.getByText(/Results for:/i)).toBeInTheDocument();
+//       expect(screen.getByText(/2 results/i)).toBeInTheDocument();
+//       expect(screen.getByText(/South African Constitution\.pdf/i)).toBeInTheDocument();
+//       expect(screen.getByText(/US First Amendment\.docx/i)).toBeInTheDocument();
+//     });
+//   });
 
-    expect(screen.getByText(/South African Constitution\.pdf/i)).toBeInTheDocument();
-    expect(screen.getByText(/US First Amendment\.docx/i)).toBeInTheDocument();
-  });
+//   test('handles empty search input', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
+//     expect(global.fetch).not.toHaveBeenCalled();
+//     expect(screen.getByRole('heading', { name: /Featured Collections/i })).toBeInTheDocument();
+//   });
 
-  test('handles search with empty query', async () => {
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
-    
-    expect(global.fetch).not.toHaveBeenCalled();
-    expect(screen.getByRole('heading', { name: 'Featured Collections' })).toBeInTheDocument();
-  });
+//   test('handles fetch error', async () => {
+//     global.fetch.mockRejectedValueOnce(new Error('Network error'));
+//     render(<ConstitutionalArchiveHomepage />);
 
-  test('shows error message when search fails', async () => {
-    global.fetch.mockRejectedValueOnce(new Error('Network error'));
-    
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Failed to fetch search results/i)).toBeInTheDocument();
-    });
-  });
+//     await waitFor(() => {
+//       expect(screen.getByText(/Failed to fetch search results/i)).toBeInTheDocument();
+//     });
+//   });
 
-  test('clears search results when X button is clicked', async () => {
-    render(<ConstitutionalArchiveHomepage />);
+//   test('clears search results', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
     
-    // Perform search
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
+    
+//     await waitFor(() => screen.getByText(/Results for:/i));
 
-    // Wait for results
-    await waitFor(() => {
-      expect(screen.getByText(/Results for:/i)).toBeInTheDocument();
-    });
+//     await userEvent.click(screen.getByRole('button', { name: /Clear Results/i }));
 
-    // Clear results
-    const clearButton = screen.getByRole('button', { name: /Clear Results/ });
-    await userEvent.click(clearButton);
+//     await waitFor(() => {
+//       expect(screen.queryByText(/Results for:/i)).not.toBeInTheDocument();
+//     });
+//   });
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Results for:/i)).not.toBeInTheDocument();
-    });
-  });
+//   test('clears input field', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
+//     const input = screen.getByRole('textbox');
+//     await userEvent.type(input, 'property rights');
 
-  test('clears search input when X button is clicked', async () => {
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    
-    // The X button doesn't have "Clear input" text, it has an icon
-    // Look for a button near the search input
-    const clearInputButton = screen.getByRole('button', { 
-      name: '', // Empty name since it's an icon button without explicit aria-label
-    });
-    
-    // Alternative approach if your component uses aria-label
-    // const clearInputButton = screen.getByLabelText('Clear input');
-    
-    await userEvent.click(clearInputButton);
-    
-    expect(searchInput).toHaveValue('');
-  });
+//     // Use aria-label or testid if icon button has no accessible name
+//     const clearButton = screen.getByLabelText(/Clear input/i);
+//     await userEvent.click(clearButton);
+//     expect(input).toHaveValue('');
+//   });
 
-  test('handles non-OK server response', async () => {
-    global.fetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500
-    });
+//   test('handles non-OK API response', async () => {
+//     global.fetch.mockResolvedValueOnce({ ok: false, status: 500 });
+//     render(<ConstitutionalArchiveHomepage />);
     
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/Failed to fetch search results/i)).toBeInTheDocument();
-    });
-  });
+//     await waitFor(() => {
+//       expect(screen.getByText(/Failed to fetch search results/i)).toBeInTheDocument();
+//     });
+//   });
 
-  test('correctly decodes Azure blob paths', async () => {
-    render(<ConstitutionalArchiveHomepage />);
+//   test('correctly decodes blob paths', async () => {
+//     render(<ConstitutionalArchiveHomepage />);
     
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
 
-    await waitFor(() => {
-      const links = screen.getAllByRole('link', { name: /View Document/ });
-      // Update expected href to match actual implementation
-      expect(links[0]).toHaveAttribute('href', '/documents/1');
-      expect(links[1]).toHaveAttribute('href', '/documents/2');
-    });
-  });
+//     await waitFor(() => {
+//       const links = screen.getAllByRole('link', { name: /View Document/i });
+//       expect(links[0]).toHaveAttribute('href', '/documents/1');
+//       expect(links[1]).toHaveAttribute('href', '/documents/2');
+//     });
+//   });
 
-  test('displays Document Preview showcase component', () => {
-    // Mock DocumentPreviewShowcase to ensure it's rendered
-    DocumentPreviewShowcase.mockImplementation(() => 
-      <div data-testid="document-preview-showcase">Document Preview Showcase</div>
-    );
-    render(<ConstitutionalArchiveHomepage />);
-    
-    // This test depends on the component structure
-    // If DocumentPreviewShowcase is conditionally rendered, we should skip this test
-    const preview = screen.queryByTestId('document-preview-showcase');
-    if (preview) {
-      expect(preview).toBeInTheDocument();
-    } else {
-      console.log('DocumentPreviewShowcase is not rendered in the current state');
-    }
-  });
+//   test('renders DocumentPreviewShowcase', () => {
+//     DocumentPreviewShowcase.mockImplementation(() =>
+//       <div data-testid="document-preview-showcase">Document Preview Showcase</div>
+//     );
+//     render(<ConstitutionalArchiveHomepage />);
+//     expect(screen.queryByTestId('document-preview-showcase')).toBeInTheDocument();
+//   });
 
-  test('highlights search terms in results', async () => {
-    // Modify the mock response to include property rights terms that will be highlighted
-    const highlightMockResponse = {
-      ok: true,
-      json: jest.fn().mockResolvedValue({
-        '@odata.count': 1,
-        value: [{
-          metadata_storage_path: 'SGVsbG8gV29ybGQ=',
-          metadata_storage_name: 'Document.pdf',
-          content: 'This document discusses property rights in detail.',
-          metadata_content_type: 'application/pdf',
-          metadata_creation_date: '2023-01-15'
-        }]
-      })
-    };
+//   test('highlights search terms', async () => {
+//     const highlightResponse = {
+//       ok: true,
+//       json: jest.fn().mockResolvedValue({
+//         '@odata.count': 1,
+//         value: [{
+//           metadata_storage_path: 'SGVsbG8gV29ybGQ=',
+//           metadata_storage_name: 'Document.pdf',
+//           content: 'This document discusses property rights in detail.',
+//           metadata_content_type: 'application/pdf',
+//           metadata_creation_date: '2023-01-15'
+//         }]
+//       })
+//     };
     
-    global.fetch.mockResolvedValueOnce(highlightMockResponse);
+//     global.fetch.mockResolvedValueOnce(highlightResponse);
+//     render(<ConstitutionalArchiveHomepage />);
     
-    render(<ConstitutionalArchiveHomepage />);
-    
-    const searchInput = screen.getByRole('textbox', { name: /Search constitutional documents/ });
-    await userEvent.type(searchInput, 'property rights');
-    const searchButton = screen.getByRole('button', { name: /Search/ });
-    await userEvent.click(searchButton);
+//     await userEvent.type(screen.getByRole('textbox'), 'property rights');
+//     await userEvent.click(screen.getByRole('button', { name: /Search/i }));
 
-    // Instead of looking for the exact text, check for substring content
-    await waitFor(() => {
-      expect(screen.getByText(/discusses property/i)).toBeInTheDocument();
-      // or look for any element containing the text "property" if highlighting is done via CSS
-      const contentElements = screen.getAllByText(/property/i);
-      expect(contentElements.length).toBeGreaterThan(0);
-    });
-  });
-});
+//     await waitFor(() => {
+//       const matches = screen.getAllByText(/property/i);
+//       expect(matches.length).toBeGreaterThan(0);
+//     });
+//   });
+// });

@@ -97,10 +97,10 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  const handlePreviewDocument = (doc) => {
-    setDocumentToPreview(doc);
-    setShowPreviewModal(true);
-  };
+  // const handlePreviewDocument = (doc) => {
+  //   setDocumentToPreview(doc);
+  //   setShowPreviewModal(true);
+  // };
 
   const handleUpload = async (formData) => {
     try {
@@ -228,7 +228,7 @@ const AdminDashboard = () => {
   const DocumentCard = ({ doc }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [isExpanded, setIsExpanded] = useState(false);
+   // const [isExpanded, setIsExpanded] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false); // Replace with your actual state
     const [isDeleting, setIsDeleting] = useState(false); // Replace with your actual state
     const cardRef = useRef(null);
@@ -237,7 +237,7 @@ const AdminDashboard = () => {
     const [showDetails, setShowDetails] = useState(false);
     
     // Simulate your state variables and handlers for demo
-    const downloadingDocs = {};
+    //const downloadingDocs = {};
     
     const handleMouseMove = (e) => {
       if (!cardRef.current) return;
