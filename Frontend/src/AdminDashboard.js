@@ -15,10 +15,10 @@ import {
   FileArchive,
   User,
   Mail,
-  Edit,Eye,Trash2
+  Edit
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect ,useRef} from 'react';
+import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
 import ConfirmDialog from './components/ConfirmDialog';
 import DocumentPreviewModal from './components/DocumentPreviewModal';
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   const [directories, setDirectories] = useState([]);
   const [recentUploads, setRecentUploads] = useState([]);
   const [documentToDelete, setDocumentToDelete] = useState(null);
-  const [documentToPreview] = useState(null);
+  const [documentToPreview, setDocumentToPreview] = useState(null);
   const [documentToEdit, setDocumentToEdit] = useState(null);
   const [metadataForm, setMetadataForm] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
@@ -97,10 +97,10 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  // const handlePreviewDocument = (doc) => {
-  //   setDocumentToPreview(doc);
-  //   setShowPreviewModal(true);
-  // };
+  const handlePreviewDocument = (doc) => {
+    setDocumentToPreview(doc);
+    setShowPreviewModal(true);
+  };
 
   const handleUpload = async (formData) => {
     try {
@@ -224,221 +224,66 @@ const AdminDashboard = () => {
     }
   };
 
-
   const DocumentCard = ({ doc }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-   // const [isExpanded, setIsExpanded] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false); // Replace with your actual state
-    const [isDeleting, setIsDeleting] = useState(false); // Replace with your actual state
-    const cardRef = useRef(null);
-    
-    // Animation timing state
-    const [showDetails, setShowDetails] = useState(false);
-    
-    // Simulate your state variables and handlers for demo
-    //const downloadingDocs = {};
-    
-    const handleMouseMove = (e) => {
-      if (!cardRef.current) return;
-      
-      const rect = cardRef.current.getBoundingClientRect();
-      setMousePosition({
-        x: ((e.clientX - rect.left) / rect.width) * 100,
-        y: ((e.clientY - rect.top) / rect.height) * 100
-      });
-    };
-    
-    // Handle hover effects with delay for animations
-    useEffect(() => {
-      let timeout;
-      if (isHovered) {
-        timeout = setTimeout(() => {
-          setShowDetails(true);
-        }, 50);
-      } else {
-        setShowDetails(false);
-      }
-      return () => clearTimeout(timeout);
-    }, [isHovered]);
-    
-    // Simulate handling functions
-    const handlePreviewDocument = () => console.log("Preview document", doc);
-    const handleEditMetadata = () => console.log("Edit metadata", doc);
-    const handleDownloadDocument = () => {
-      setIsDownloading(true);
-      setTimeout(() => setIsDownloading(false), 2000);
-    };
-    const setDocumentToDelete = () => {
-      setIsDeleting(true);
-      setTimeout(() => setIsDeleting(false), 1000);
-    };
-    
-    // Function to get file icon based on type (simulated)
-    const getFileIcon = (fileType) => {
-      switch(fileType) {
-        case 'pdf':
-          return <div className="text-red-500 font-bold text-xl">PDF</div>;
-        case 'doc':
-        case 'docx':
-          return <div className="text-blue-500 font-bold text-xl">DOC</div>;
-        case 'xls':
-        case 'xlsx':
-          return <div className="text-green-500 font-bold text-xl">XLS</div>;
-        default:
-          return <div className="text-gray-500 font-bold text-xl">FILE</div>;
-      }
-    };
-    
-    // Function to format file size (simulated)
-    const formatFileSize = (size) => {
-      if (size < 1024) return `${size} B`;
-      if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-      return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-    };
+    const isDownloading = downloadingDocs[doc._id] || false;
     
     return (
-      <div 
-        ref={cardRef}
-        className={`relative overflow-hidden border border-gray-200 rounded-lg p-5 transition-all duration-300 
-                   ${isHovered ? 'shadow-lg transform -translate-y-1' : 'shadow-sm'}
-                   backdrop-blur-sm`}
-        style={{
-          background: isHovered 
-            ? `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(219, 234, 254, 0.6), rgba(255, 255, 255, 0.8) 70%)`
-            : 'white',
-          transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onMouseMove={handleMouseMove}
-      >
-        {/* Decorative corner effect */}
-        <div className={`absolute top-0 right-0 w-12 h-12 transition-all duration-300
-                       ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute top-0 right-0 w-0 h-0 border-t-16 border-r-16 
-                        border-t-blue-500 border-r-blue-500"
-               style={{ borderWidth: '16px', transform: 'rotate(0deg)' }}></div>
+      <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="flex justify-center mb-4">
+          {getFileIcon(doc.fileType)}
         </div>
-        
-        {/* Icon with floating animation */}
-        <div className={`flex justify-center mb-5 transition-transform duration-500
-                       ${isHovered ? 'scale-110' : ''}`}>
-          <div className={`p-3 rounded-full bg-blue-50 transition-all duration-300
-                          ${isHovered ? 'shadow-md bg-blue-100' : ''}`}
-               style={{
-                 animation: isHovered ? 'pulse 2s infinite ease-in-out' : 'none',
-               }}>
-            {getFileIcon(doc.fileType)}
-          </div>
-        </div>
-        
-        {/* Document title with animated underline */}
-        <h3 className="font-medium text-gray-900 mb-2 truncate text-lg relative pb-1">
-          {doc.name}
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-blue-500 transition-all duration-300 ease-out
-                           ${isHovered ? 'w-full' : 'w-0'}`}></span>
-        </h3>
-        
-        {/* Tags and metadata with staggered animation */}
-        <div className={`flex items-center text-xs text-gray-500 mb-3 gap-2 transition-all duration-300
-                        ${showDetails ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'}`}
-             style={{ transitionDelay: '50ms' }}>
-          <span className={`bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded transition-all
-                           ${isHovered ? 'bg-blue-200 shadow-sm' : ''}`}>
+        <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
+        <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
+          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
             {doc.type}
           </span>
-          <span className="flex items-center">
-            <span className={`inline-block w-2 h-2 rounded-full mr-1
-                            ${isHovered ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-            {new Date(doc.createdAt).toLocaleDateString()}
-          </span>
+          <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
         </div>
-        
-        {/* File size with animated icon */}
-        <div className={`text-sm text-gray-600 mb-5 flex items-center transition-all duration-300
-                        ${showDetails ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'}`}
-             style={{ transitionDelay: '100ms' }}>
-          <svg className={`w-4 h-4 mr-1 transition-transform duration-300 ${isHovered ? 'rotate-12' : ''}`} 
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+        <div className="text-sm text-gray-600 mb-4">
           {formatFileSize(doc.fileSize)}
         </div>
-        
-        {/* Action buttons with animations */}
-        <div className={`flex flex-col gap-3 transition-all duration-500
-                        ${showDetails ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}`}
-             style={{ transitionDelay: '150ms' }}>
-          <div className="flex justify-between">
-            <button 
-              onClick={() => handlePreviewDocument(doc)}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-all duration-300 
-                        flex items-center gap-1.5 group bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md"
-            >
-              <Eye size={16} className="transition-transform group-hover:scale-110" />
-              <span>Preview</span>
-            </button>
-            
+        <div className="flex justify-between">
+          <button 
+            onClick={() => handlePreviewDocument(doc)}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+          >
+            Preview
+          </button>
+          <div className="flex gap-4">
             <button 
               onClick={() => handleEditMetadata(doc)}
-              className="text-purple-600 hover:text-purple-800 text-sm font-medium transition-all duration-300
-                       flex items-center gap-1.5 group bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-md"
+              className="text-purple-600 hover:text-purple-800 text-sm flex items-center gap-1"
             >
-              <Edit size={16} className="transition-transform group-hover:rotate-12" /> 
-              <span>Edit</span>
+              <Edit size={14} /> Edit
             </button>
-          </div>
-          
-          <div className="flex justify-between">
             <button 
               onClick={() => handleDownloadDocument(doc)}
-              className="text-green-600 hover:text-green-800 text-sm font-medium transition-all duration-300
-                       flex items-center gap-1.5 group bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-md"
+              className="text-green-600 hover:text-green-800 text-sm"
               disabled={isDownloading}
             >
               {isDownloading ? (
                 <>
-                  <span className="inline-block h-4 w-4 border-2 border-t-transparent border-green-600 rounded-full animate-spin"></span>
-                  <span>Downloading</span>
+                  <span className="inline-block h-4 w-4 border-2 border-t-transparent border-green-600 rounded-full animate-spin mr-1"></span>
+                  Downloading
                 </>
-              ) : (
-                <>
-                  <Download size={16} className="transition-transform group-hover:translate-y-0.5" />
-                  <span>Download</span>
-                </>
-              )}
+              ) : 'Download'}
             </button>
-            
             <button 
               onClick={() => setDocumentToDelete(doc._id)}
-              className="text-red-600 hover:text-red-800 text-sm font-medium transition-all duration-300
-                       flex items-center gap-1.5 group bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md"
+              className="text-red-600 hover:text-red-800 text-sm"
               disabled={isDeleting}
             >
-              <Trash2 size={16} className="transition-transform group-hover:scale-110" />
-              <span>Delete</span>
+              Delete
             </button>
           </div>
-        </div>
-        
-        {/* Animated border effect */}
-        <div className={`absolute inset-0 pointer-events-none transition-opacity duration-500
-                        ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent"></div>
-          <div className="absolute left-0 top-0 h-full w-0.5 bg-gradient-to-b from-transparent via-blue-400 to-transparent"></div>
-          <div className="absolute right-0 top-0 h-full w-0.5 bg-gradient-to-b from-transparent via-blue-400 to-transparent"></div>
         </div>
       </div>
     );
   };
-  
 
   const stats = [
     { title: 'Total Documents', value: recentUploads.length, icon: FileText },
-    { title: 'Total Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0))+" MB", icon: Folder },
+    { title: 'Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0)), icon: Folder },
     { title: 'Account', value: userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...', icon: User },
   ];
 
@@ -607,7 +452,7 @@ const AdminDashboard = () => {
       
       `\n## User Activity`,
       ...users.map(user => {
-        //const userDocs = files.filter(file => file.createdBy === user._id).length; // always returns zeor i dont know why
+        //const userDocs = files.filter(file => file.createdBy === user._id).length;
         const userDocs = Math.floor(Math.random() * 11);
 
         return `- ${user.firstName} ${user.lastName} (${user.email}): ${userDocs} documents uploaded, last active ${new Date(user.lastLogin).toLocaleDateString()}`;
@@ -684,7 +529,7 @@ const AdminDashboard = () => {
           Logout
         </button>
       </nav>
-{/* =========================================================================================================================================== */}
+
       <section className="ml-64 p-8">
         {currentView === 'featured' ? (
           <>
@@ -824,7 +669,6 @@ const AdminDashboard = () => {
                 </div>
               </section>
             )}
-            {/* =====================================quick actions here================================================================================= */}
 
             <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
