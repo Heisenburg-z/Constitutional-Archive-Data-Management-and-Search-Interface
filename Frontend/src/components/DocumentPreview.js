@@ -441,8 +441,8 @@ export default function DocumentPreviewShowcase() {
       <div className="mt-12 text-center">
         <button 
           onClick={toggleShowAllDocuments}
-          className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium"
-        >
+          className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+        
           {showAllDocuments ? (
             <>
               Back to Featured View

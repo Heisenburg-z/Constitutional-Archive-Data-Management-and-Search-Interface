@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import ConstitutionalArchiveHomepage from './ConstitutionalArchiveHomepage';
+import ConstitutionalArchiveHomepage from './components/HomePage';
 import AdminDashboard from './AdminDashboard';
 import AdminLogin from './AdminLogin';
 import AdminSignup from './AdminSignup';
