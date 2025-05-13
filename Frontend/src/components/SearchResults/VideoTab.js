@@ -45,7 +45,6 @@ const mockVideos = [
 ];
 
 
-
 const VideoCard = ({ video, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -98,6 +97,19 @@ const VideoCard = ({ video, onClick }) => {
 };
 
 const VideoModal = ({ video, onClose }) => {
+  // Function to extract YouTube video ID from URL
+  const getYoutubeVideoId = (url) => {
+    if (url.includes('youtu.be/')) {
+      return url.split('youtu.be/')[1];
+    } else if (url.includes('youtube.com/watch?v=')) {
+      return url.split('v=')[1].split('&')[0];
+    }
+    return null;
+  };
+
+  const videoId = getYoutubeVideoId(video.url);
+  const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 animate-fadeIn"
@@ -107,18 +119,28 @@ const VideoModal = ({ video, onClose }) => {
         className="bg-white rounded-xl overflow-hidden shadow-2xl max-w-2xl w-full mx-4 animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative bg-black p-4 flex items-center justify-center h-64">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Play className="h-16 w-16 text-white opacity-50" />
-          </div>
-          <img 
-            src={video.thumbnail} 
-            alt={video.title} 
-            className="max-h-full object-contain"
-          />
+        <div className="relative bg-black w-full" style={{ paddingTop: "56.25%" }}>
+          {embedUrl ? (
+            <iframe 
+              src={embedUrl}
+              title={video.title}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img 
+                src={video.thumbnail} 
+                alt={video.title} 
+                className="w-full h-full object-contain"
+              />
+              <Play className="absolute h-16 w-16 text-white opacity-70" />
+            </div>
+          )}
           <button 
             onClick={onClose}
-            className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all"
+            className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75 transition-all z-10"
           >
             <X className="h-5 w-5" />
           </button>
