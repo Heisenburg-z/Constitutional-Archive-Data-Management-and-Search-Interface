@@ -1,22 +1,6 @@
-import { 
-  BarChart,
-  Upload,
-  Folder,
-  FileText,
-  Plus,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  File,
-  FileSpreadsheet,
-  FileImage,
-  FileVideo,
-  FileArchive,
-  User,
-  Mail,
-  Edit
-} from 'lucide-react';
+// src/components/Dashboard/AdminDashboard.js
+
+import { BarChart, Upload, User,Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
@@ -25,26 +9,16 @@ import DocumentPreviewModal from './components/DocumentPreviewModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i]);
-};
+// Import our modularized components /components/Dashboard
+import DashboardHeader from './components/Dashboard/DashboardHeader';
+import StatCard from './components/Dashboard/StatCard';
+import QuickActions from './components/Dashboard/QuickActions';
+import FeaturedDocuments from './components/Dashboard/FeaturedDocuments';
+import AllDocumentsView from './components/Dashboard/AllDocumentsView';
 
-const getFileIcon = (mimeType) => {
-  const type = (mimeType || '').split('/')[0]; 
-  switch(type) {
-    case 'application': return <FileSpreadsheet className="text-blue-400" size={40} />;
-    case 'image': return <FileImage className="text-green-400" size={40} />;
-    case 'video': return <FileVideo className="text-red-400" size={40} />;
-    case 'text': return <FileText className="text-purple-400" size={40} />;
-    case 'zip':
-    case 'x-zip-compressed': return <FileArchive className="text-yellow-400" size={40} />;
-    default: return <File className="text-gray-400" size={40} />;
-  }
-};
+
+// Import utility functions
+import { formatFileSize, generateReportContent, downloadReport } from './utils/fileUtils';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -224,66 +198,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const DocumentCard = ({ doc }) => {
-    const isDownloading = downloadingDocs[doc._id] || false;
-    
-    return (
-      <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-        <div className="flex justify-center mb-4">
-          {getFileIcon(doc.fileType)}
-        </div>
-        <h3 className="font-medium text-gray-900 mb-1 truncate">{doc.name}</h3>
-        <div className="flex items-center text-xs text-gray-500 mb-3 gap-2">
-          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
-            {doc.type}
-          </span>
-          <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-        </div>
-        <div className="text-sm text-gray-600 mb-4">
-          {formatFileSize(doc.fileSize)}
-        </div>
-        <div className="flex justify-between">
-          <button 
-            onClick={() => handlePreviewDocument(doc)}
-            className="text-blue-600 hover:text-blue-800 text-sm"
-          >
-            Preview
-          </button>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => handleEditMetadata(doc)}
-              className="text-purple-600 hover:text-purple-800 text-sm flex items-center gap-1"
-            >
-              <Edit size={14} /> Edit
-            </button>
-            <button 
-              onClick={() => handleDownloadDocument(doc)}
-              className="text-green-600 hover:text-green-800 text-sm"
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <>
-                  <span className="inline-block h-4 w-4 border-2 border-t-transparent border-green-600 rounded-full animate-spin mr-1"></span>
-                  Downloading
-                </>
-              ) : 'Download'}
-            </button>
-            <button 
-              onClick={() => setDocumentToDelete(doc._id)}
-              className="text-red-600 hover:text-red-800 text-sm"
-              disabled={isDeleting}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const stats = [
-    { title: 'Total Documents', value: recentUploads.length, icon: FileText },
-    { title: 'Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0)), icon: Folder },
+    { title: 'Total Documents', value: recentUploads.length, icon: User },
+    { title: 'Storage Used', value: formatFileSize(recentUploads.reduce((acc, doc) => acc + (doc.fileSize || 0), 0)), icon: User },
     { title: 'Account', value: userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Loading...', icon: User },
   ];
 
@@ -375,7 +292,7 @@ const AdminDashboard = () => {
       setFilteredDocuments(filtered);
     }
   };
-  //==============================================================================================================================
+
   const generateReport = async () => {
     try {
       // Fetch all directories and files
@@ -404,10 +321,8 @@ const AdminDashboard = () => {
       const users = await usersResponse.json();
       if (!usersResponse.ok) throw new Error(users.message || 'Failed to fetch users');
       
-      // Generate report content - now passing userProfile
+      // Generate and download the report
       const reportContent = generateReportContent(documents, users, userProfile);
-      
-      // Create and download the report
       downloadReport(reportContent);
       
       toast.success('Report generated successfully!');
@@ -416,71 +331,6 @@ const AdminDashboard = () => {
       toast.error(error.message || 'Failed to generate report');
     }
   };
-  
-  const generateReportContent = (documents, users, userProfile) => {
-    // Separate directories and files
-    const directories = documents.filter(doc => doc.type === 'directory');
-    const files = documents.filter(doc => doc.type === 'file');
-    
-    // Get user map for lookup
-    // const userMap = users.reduce((acc, user) => {
-    //   acc[user._id] = `${user.firstName} ${user.lastName}`;
-    //   return acc;
-    // }, {});
-    
-    // Generate report sections
-    const reportSections = [
-      `=== Constitutional Archive Report ===`,
-      `Generated on: ${new Date().toLocaleString()}`,
-      `\n## Summary`,
-      `Total Directories: ${directories.length}`,
-      `Total Documents: ${files.length}`,
-      `Total Users: ${users.length}`,
-      `Total Storage Used: ${formatFileSize(files.reduce((acc, file) => acc + (file.fileSize || 0), 0))}`,
-      
-      `\n## Directories Overview`,
-      ...directories.map(dir => {
-        const childCount = dir.children?.length || 0;
-        return `- ${dir.name} (${childCount} items, ${dir.metadata?.region || 'No region'}, ${dir.metadata?.countryCode || 'No code'})`;
-      }),
-      
-      `\n## Recent Documents`,
-      ...files.slice(0, 10).map(file => {
-        const parentDir = directories.find(dir => dir._id === file.parentId);
-        return `- ${file.name} (${file.metadata?.documentType || 'Unknown type'}, ${formatFileSize(file.fileSize)}, in ${parentDir?.name || 'Unknown directory'})`;
-      }),
-      
-      `\n## User Activity`,
-      ...users.map(user => {
-        //const userDocs = files.filter(file => file.createdBy === user._id).length;
-        const userDocs = Math.floor(Math.random() * 11);
-
-        return `- ${user.firstName} ${user.lastName} (${user.email}): ${userDocs} documents uploaded, last active ${new Date(user.lastLogin).toLocaleDateString()}`;
-      }),
-      
-      `\n## System Information`,
-      `Report generated by: ${userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'System'}`,
-      `Data as of: ${new Date().toLocaleString()}`
-    ];
-    
-    return reportSections.join('\n');
-  };
-  const downloadReport = (content) => {
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Constitutional_Archive_Report_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    }, 100);
-  };
-  //===============================================================================================================================
 
   const nextDocument = () => {
     setCurrentDocIndex((prevIndex) => 
@@ -533,211 +383,56 @@ const AdminDashboard = () => {
       <section className="ml-64 p-8">
         {currentView === 'featured' ? (
           <>
-            <header className="mb-8 flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Document Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : 'Admin'}</p>
+            <DashboardHeader 
+              userProfile={userProfile} 
+              setCurrentView={setCurrentView} 
+            />
 
-                {userProfile && (
-                  <div className="mt-2 flex items-center text-sm text-gray-600">
-                    <Mail className="h-4 w-4 mr-1" />
-                    <span>{userProfile.email}</span>
-                  </div>
-                )}
-              </div>
-              <button 
-                onClick={() => setCurrentView('all')}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2"
-              >
-                <Search size={16} />
-                Browse All Documents
-              </button>
-            </header>
-
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {stats.map((stat) => (
-                <article key={stat.title} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                  <stat.icon className="text-blue-600 mb-4" size={24} />
-                  <h3 className="text-gray-500 text-sm mb-1">{stat.title}</h3>
-                  <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-                </article>
+                <StatCard 
+                  key={stat.title} 
+                  title={stat.title} 
+                  value={stat.value} 
+                  icon={stat.icon} 
+                />
               ))}
             </section>
 
             {recentUploads.length > 0 && (
-              <section className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
-                <header className="flex justify-between items-center mb-6">
-                  <h2 className="text-lg font-semibold text-gray-900">Featured Documents</h2>
-                  <button
-                    onClick={() => setShowUploadModal(true)}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
-                  >
-                    <Plus size={16} />
-                    New Upload
-                  </button>
-                </header>
-
-                <div className="relative">
-                  <div className="bg-white rounded-lg p-6 border border-gray-200">
-                    <div className="flex items-start gap-8">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                            {recentUploads[currentDocIndex]?.type || 'Document'}
-                          </span>
-                          <span className="text-gray-500 text-sm">
-                            {new Date(recentUploads[currentDocIndex]?.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                          {recentUploads[currentDocIndex]?.name || 'Untitled Document'}
-                        </h3>
-                        <p className="text-gray-600 mb-4">
-                          {formatFileSize(recentUploads[currentDocIndex]?.fileSize || 0)}
-                        </p>
-                        
-                        <div className="flex items-center gap-4 mt-6">
-                          <button 
-                            onClick={() => handleDownloadDocument(recentUploads[currentDocIndex])}
-                            className={`inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 ${
-                              downloadingDocs[recentUploads[currentDocIndex]?._id] ? 'opacity-75 cursor-not-allowed' : ''
-                            }`}
-                            disabled={downloadingDocs[recentUploads[currentDocIndex]?._id] || !recentUploads[currentDocIndex]?.contentUrl}
-                          >
-                            {downloadingDocs[recentUploads[currentDocIndex]?._id] ? (
-                              <div className="h-4 w-4 border-2 border-t-transparent border-blue-600 rounded-full animate-spin"></div>
-                            ) : (
-                              <Download size={18} />
-                            )}
-                            {downloadingDocs[recentUploads[currentDocIndex]?._id] ? 'Downloading...' : 'Download'}
-                          </button>
-                          <button 
-                            onClick={() => handleEditMetadata(recentUploads[currentDocIndex])}
-                            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-800"
-                          >
-                            <Edit size={18} />
-                            Edit
-                          </button>
-                          <button 
-                            onClick={() => setDocumentToDelete(recentUploads[currentDocIndex]?._id)}
-                            className="inline-flex items-center gap-2 text-red-600 hover:text-red-800"
-                            disabled={isDeleting}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gray-50 rounded-lg p-4 w-64 h-64 flex items-center justify-center">
-                        {getFileIcon(recentUploads[currentDocIndex]?.fileType)}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4">
-                    <button 
-                      onClick={prevDocument}
-                      aria-label="Go to previous document"
-                      className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                  </div>
-                  
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4">
-                    <button 
-                      onClick={nextDocument}
-                      aria-label="Go to next document"
-                      className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-center mt-4 gap-2">
-                    {recentUploads.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => goToDocumentIndex(index)}
-                        aria-label={`Go to document ${index + 1}`}
-                        className={`w-2 h-2 rounded-full ${
-                          currentDocIndex === index ? 'bg-blue-600' : 'bg-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </section>
+              <FeaturedDocuments 
+                recentUploads={recentUploads}
+                currentDocIndex={currentDocIndex}
+                nextDocument={nextDocument}
+                prevDocument={prevDocument}
+                goToDocumentIndex={goToDocumentIndex}
+                handleDownloadDocument={handleDownloadDocument}
+                handleEditMetadata={handleEditMetadata}
+                setDocumentToDelete={setDocumentToDelete}
+                downloadingDocs={downloadingDocs}
+                isDeleting={isDeleting}
+                setShowUploadModal={setShowUploadModal}
+              />
             )}
 
-            <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-              <ul className="space-y-3">
-                <li>
-                          <button 
-              onClick={generateReport}
-              className="w-full flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg"
-            >
-              <FileText size={18} className="text-blue-600" />
-              Generate Report
-            </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setShowUploadModal(true)}
-                    className="w-full flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    <Upload size={18} className="text-blue-600" />
-                    Upload Document
-                  </button>
-                </li>
-              </ul>
-            </section>
+            <QuickActions 
+              generateReport={generateReport}
+              setShowUploadModal={setShowUploadModal}
+            />
           </>
         ) : (
-          <section>
-            <header className="mb-8">
-              <div className="flex justify-between items-center">
-                <button 
-                  onClick={() => setCurrentView('featured')} 
-                  className="flex items-center text-blue-600 hover:text-blue-800"
-                >
-                  <ChevronLeft size={20} />
-                  Back to Featured View
-                </button>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mt-4">All Documents</h1>
-            </header>
-            
-            <div className="mb-6">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search size={20} className="text-gray-500" />
-                </div>
-                <input
-                  type="search"
-                  className="block w-full p-4 pl-12 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Search documents..."
-                  value={searchQuery}
-                  onChange={handleSearch}
-                />
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              {filteredDocuments.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No documents found</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredDocuments.map((doc) => (
-                    <DocumentCard key={doc._id} doc={doc} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+          <AllDocumentsView 
+            setCurrentView={setCurrentView}
+            searchQuery={searchQuery}
+            handleSearch={handleSearch}
+            filteredDocuments={filteredDocuments}
+            downloadingDocs={downloadingDocs}
+            handlePreviewDocument={handlePreviewDocument}
+            handleEditMetadata={handleEditMetadata}
+            handleDownloadDocument={handleDownloadDocument}
+            setDocumentToDelete={setDocumentToDelete}
+            isDeleting={isDeleting}
+          />
         )}
       </section>
 
