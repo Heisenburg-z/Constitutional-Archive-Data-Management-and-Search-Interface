@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const Archive = require('../models/Archive');
+const authenticate = require('../middleware/auth');
 
 const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
 const apiKey = process.env.AZURE_SEARCH_API_KEY;
@@ -32,8 +34,22 @@ router.get('/', async (req, res) => {
   console.log(`[SUGGESTIONS][${requestId}] Query: "${q}" (length: ${q.length})`);
 
   try {
-    // Only call Azure if query has at least 2 characters
-    if (q.length >= 2) {
+    // Only proceed if query has at least 2 characters
+    if (q.length < 2) {
+      console.log(`[SUGGESTIONS][${requestId}] Query length < 2, returning empty suggestions`);
+      return res.json({ suggestions: [] });
+    }
+
+    // Create a case-insensitive regex search pattern for MongoDB search
+    const searchRegex = new RegExp(q, 'i');
+
+    // Initialize arrays for different suggestion types
+    let azureSuggestions = [];
+    let videoSuggestions = [];
+    let keywordSuggestions = [];
+
+    // Get Azure Search suggestions if configured
+    if (endpoint && apiKey && indexName) {
       console.log(`[SUGGESTIONS][${requestId}] Query length >= 2, proceeding with Azure Search`);
       
       const url = `${endpoint}/indexes/${encodeURIComponent(indexName)}/docs/suggest`;
@@ -65,98 +81,97 @@ router.get('/', async (req, res) => {
         console.log(`[SUGGESTIONS][${requestId}] Azure response received in ${responseTime}ms`);
         console.log(`[SUGGESTIONS][${requestId}] Response status: ${response.status}`);
         
-        // Deep clone the response data for logging (to prevent circular reference issues)
+        // Deep clone the response data for logging
         const responseData = JSON.parse(JSON.stringify(response.data));
-        console.log(`[SUGGESTIONS][${requestId}] Full response data:`, JSON.stringify(responseData, null, 2));
 
         // Validate response structure
-        if (!responseData) {
-          console.error(`[SUGGESTIONS][${requestId}] ERROR: Empty response from Azure`);
-          throw new Error('Empty response from Azure Search');
-        }
+        if (responseData && Array.isArray(responseData.value)) {
+          azureSuggestions = responseData.value.map((item) => {
+            // Try multiple possible fields for the suggestion text
+            const possibleFields = ['text', '@search.text', 'metadata_storage_name', 'name', 'title', 'content'];
+            let suggestionText = '';
 
-        if (!Array.isArray(responseData.value)) {
-          console.error(`[SUGGESTIONS][${requestId}] ERROR: Unexpected response structure - value is not an array`);
-          console.error(`[SUGGESTIONS][${requestId}] Response value type:`, typeof responseData.value);
-          throw new Error('Unexpected response structure from Azure Search');
-        }
-
-        // Enhanced suggestion extraction
-        const suggestions = responseData.value.map((item, index) => {
-          console.log(`[SUGGESTIONS][${requestId}] Processing item ${index}:`, JSON.stringify(item, null, 2));
-
-          // Try multiple possible fields for the suggestion text
-          const possibleFields = ['text', '@search.text', 'metadata_storage_name', 'name', 'title', 'content'];
-          let suggestionText = '';
-
-          for (const field of possibleFields) {
-            if (item[field]) {
-              suggestionText = item[field];
-              console.log(`[SUGGESTIONS][${requestId}] Found suggestion in field "${field}":`, suggestionText);
-              break;
+            for (const field of possibleFields) {
+              if (item[field]) {
+                suggestionText = item[field];
+                break;
+              }
             }
-          }
 
-          if (!suggestionText) {
-            console.warn(`[SUGGESTIONS][${requestId}] WARNING: No suggestion text found in item ${index}`);
-            console.warn(`[SUGGESTIONS][${requestId}] Item keys:`, Object.keys(item));
-            return null;
-          }
-
-          // Clean up the suggestion text
-          suggestionText = suggestionText.toString().trim();
-          if (suggestionText.length > 100) {
-            suggestionText = suggestionText.substring(0, 100) + '...';
-          }
-
-          return suggestionText;
-        }).filter(Boolean);
-
-        console.log(`[SUGGESTIONS][${requestId}] Extracted suggestions:`, suggestions);
-
-        if (suggestions.length === 0) {
-          console.warn(`[SUGGESTIONS][${requestId}] WARNING: No valid suggestions extracted from response`);
+            // Clean up the suggestion text
+            return suggestionText.toString().trim();
+          }).filter(text => text.length > 0);
         }
 
-        return res.json({
-          suggestions: suggestions,
-          debug: { requestId, responseTime: `${responseTime}ms` }
-        });
-
+        console.log(`[SUGGESTIONS][${requestId}] Azure suggestions:`, azureSuggestions);
       } catch (axiosError) {
         console.error(`[SUGGESTIONS][${requestId}] ERROR: Azure request failed`);
         console.error(`[SUGGESTIONS][${requestId}] Error message:`, axiosError.message);
-
-        if (axiosError.response) {
-          console.error(`[SUGGESTIONS][${requestId}] Response status:`, axiosError.response.status);
-          console.error(`[SUGGESTIONS][${requestId}] Response headers:`, axiosError.response.headers);
-          console.error(`[SUGGESTIONS][${requestId}] Response data:`, JSON.stringify(axiosError.response.data, null, 2));
-        } else if (axiosError.request) {
-          console.error(`[SUGGESTIONS][${requestId}] No response received. Request details:`, {
-            method: axiosError.request.method,
-            path: axiosError.request.path,
-            headers: axiosError.request.headers
-          });
-        }
-
-        console.error(`[SUGGESTIONS][${requestId}] Stack trace:`, axiosError.stack);
-        throw axiosError;
+        // Continue with other suggestion methods even if Azure fails
       }
     }
 
-    // Return popular suggestions for empty/short queries
-    console.log(`[SUGGESTIONS][${requestId}] Query length < 2, returning popular suggestions`);
-    const popularSuggestions = [
-      'First Amendment',
-      'Property Rights',
-      'Judicial Review', 
-      'Bill of Rights',
-      'Constitutional Amendments'
-    ];
+    // Search in video metadata from MongoDB
+    try {
+      const videoQuery = {
+        type: 'Link',
+        $or: [
+          { name: searchRegex },
+          { 'metadata.title': searchRegex },
+          { 'metadata.keywords': { $in: [searchRegex] } }
+        ],
+        $and: [
+          { 
+            $or: [
+              { contentUrl: { $regex: /youtube\.com/ } },
+              { contentUrl: { $regex: /youtu\.be/ } }
+            ]
+          }
+        ]
+      };
+      
+      const videoResults = await Archive.find(videoQuery)
+        .select('name metadata.title metadata.keywords')
+        .limit(5);
+      
+      // Extract video suggestions from results
+      videoSuggestions = videoResults.map(video => {
+        return video.metadata?.title || video.name;
+      }).filter(text => text.length > 0);
+      
+      // Extract keywords from videos that match the search
+      const keywordSet = new Set();
+      videoResults.forEach(video => {
+        if (video.metadata?.keywords) {
+          video.metadata.keywords.forEach(keyword => {
+            if (keyword.toLowerCase().includes(q.toLowerCase())) {
+              keywordSet.add(keyword);
+            }
+          });
+        }
+      });
+      keywordSuggestions = Array.from(keywordSet);
+
+      console.log(`[SUGGESTIONS][${requestId}] Video suggestions:`, videoSuggestions);
+      console.log(`[SUGGESTIONS][${requestId}] Keyword suggestions:`, keywordSuggestions);
+    } catch (mongoError) {
+      console.error(`[SUGGESTIONS][${requestId}] ERROR: MongoDB query failed`);
+      console.error(`[SUGGESTIONS][${requestId}] Error message:`, mongoError.message);
+      // Continue with other suggestion methods even if MongoDB fails
+    }
+
+    // Combine all suggestions, remove duplicates, and limit to 10
+    const allSuggestions = [...new Set([
+      ...azureSuggestions,
+      ...videoSuggestions,
+      ...keywordSuggestions
+    ])].slice(0, 10);
+
+    console.log(`[SUGGESTIONS][${requestId}] Final combined suggestions:`, allSuggestions);
     
-    return res.json({ 
-      suggestions: popularSuggestions,
-      debug: { requestId, source: 'popular-suggestions' }
+    return res.json({
+      suggestions: allSuggestions,
+      debug: { requestId }
     });
 
   } catch (err) {
@@ -188,7 +203,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Configuration check endpoint
+// Configuration check endpoint (kept from original)
 router.get('/check-config', async (req, res) => {
   const checkId = Math.random().toString(36).substring(2, 8);
   console.log(`\n[CONFIG CHECK][${checkId}] Starting configuration check`);
