@@ -1,21 +1,57 @@
-//Backend/routes/archives.js
+// Backend/routes/archives.js
 const express = require('express');
 const router = express.Router();
 const Archive = require('../models/Archive');
-const { uploadFile, listDirectories ,deleteBlob} = require('../utils/azureStorage');
+const { uploadFile, listDirectories, deleteBlob } = require('../utils/azureStorage');
 const authenticate = require('../middleware/auth');
 
-// Get all archives
+// Get all archives with search and filter capabilities
 router.get('/', authenticate, async (req, res) => {
   try {
-    const archives = await Archive.find().populate('createdBy');
+    const { type, search, parentId } = req.query;
+    
+    // Build query object
+    const query = {};
+    
+    // Add type filter if provided
+    if (type) {
+      query.type = type;
+    }
+    
+    // Add parentId filter if provided
+    if (parentId) {
+      query.parentId = parentId;
+    } else if (parentId === '') {
+      // If parentId is empty string, get root items (no parent)
+      query.parentId = { $in: [null, undefined] };
+    }
+    
+    // Add search functionality if search parameter is provided
+    if (search) {
+      // Create a case-insensitive regex search for name or metadata title
+      const searchRegex = new RegExp(search, 'i');
+      
+      // Search in name, metadata.title, and metadata.keywords
+      query.$or = [
+        { name: searchRegex },
+        { 'metadata.title': searchRegex },
+        { 'metadata.keywords': { $in: [searchRegex] } }
+      ];
+    }
+    
+    // Execute query and populate creator info
+    const archives = await Archive.find(query)
+      .populate('createdBy')
+      .sort({ createdAt: -1 }); // Sort by newest first
+    
     res.json(archives);
   } catch (err) {
+    console.error('Archives search error:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Update file metadata ,  This lets you send only the fields you want to change. It's flexible and safe.
+// Update file metadata
 router.patch('/:id', authenticate, async (req, res) => {
   try {
     const archiveId = req.params.id;
@@ -43,8 +79,6 @@ router.patch('/:id', authenticate, async (req, res) => {
 });
 
 // Delete file from archive
-// This function deletes the file from Azure and removes the reference from MongoDB 
-
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const archiveId = req.params.id;
@@ -54,17 +88,17 @@ router.delete('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'File not found' });
     }
 
-     // Verify user has permission to delete (admin or owner)
-     if (req.user.role !== 'admin' && archive.createdBy.toString() !== req.user._id.toString()) {
+    // Verify user has permission to delete (admin or owner)
+    if (req.user.role !== 'admin' && archive.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Unauthorized to delete this file' });
     }
 
-    // Extract blob path from contentUrl
-    const blobUrl = archive.contentUrl;
-    const blobPath = blobUrl.split('.blob.core.windows.net/')[1]; // gets the container/path/blob
-
-    // Delete from Azure
-    await deleteBlob(blobPath);
+    // Extract blob path from contentUrl if it's a file
+    if (archive.type === 'file' && archive.contentUrl) {
+      const blobUrl = archive.contentUrl;
+      const blobPath = blobUrl.split('.blob.core.windows.net/')[1]; // gets the container/path/blob
+      await deleteBlob(blobPath);
+    }
 
     // Remove archive document
     await Archive.findByIdAndDelete(archiveId);
@@ -87,8 +121,7 @@ router.delete('/:id', authenticate, async (req, res) => {
       errorMessage = 'Unauthorized to perform this action';
     }
 
-
-    res.status(500).json({ error: 'Failed to delete file' });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -135,13 +168,29 @@ router.post('/directory', authenticate, async (req, res) => {
   try {
     const { name, parentId, metadata, accessLevel } = req.body;
     
+    // Validate name
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ message: 'Directory name is required' });
+    }
+
+    // Check if directory with same name already exists in this location
+    const existingDir = await Archive.findOne({
+      name,
+      parentId: parentId || null,
+      type: 'directory'
+    });
+
+    if (existingDir) {
+      return res.status(400).json({ message: 'A directory with this name already exists in this location' });
+    }
+
     const newDirectory = new Archive({
       name,
       parentId: parentId || null,
       type: 'directory',
-      metadata,
+      metadata: metadata || {},
       accessLevel: accessLevel || 'public',
-      createdBy:req.user._id,
+      createdBy: req.user._id,
       createdAt: new Date()
     });
     
@@ -157,6 +206,7 @@ router.post('/directory', authenticate, async (req, res) => {
     
     res.status(201).json(savedDirectory);
   } catch (err) {
+    console.error('Error creating directory:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -174,6 +224,17 @@ router.post('/upload', authenticate, async (req, res) => {
     // Parse metadata
     const metadata = metadataJson ? JSON.parse(metadataJson) : {};
     
+    // Check if file with same name already exists in this location
+    const existingFile = await Archive.findOne({
+      name,
+      parentId: parentId || null,
+      type: 'file'
+    });
+
+    if (existingFile) {
+      return res.status(400).json({ message: 'A file with this name already exists in this location' });
+    }
+
     // Get the parent path for Azure Storage
     let parentPath = '';
     
@@ -208,12 +269,11 @@ router.post('/upload', authenticate, async (req, res) => {
         { $push: { children: savedArchive._id } }
       );
     }
-    console.log('✅ Upload successful. Sending response.');
+
     res.status(200).json({
       message: 'Upload successful',
       archive: savedArchive
     });
-    
     
   } catch (error) {
     console.error('Upload error:', error);
@@ -224,9 +284,8 @@ router.post('/upload', authenticate, async (req, res) => {
   }
 });
 
-const { BlobServiceClient } = require('@azure/storage-blob');
-
-router.get('/api/download', async (req, res) => {
+// Download file from Azure Storage
+router.get('/download', async (req, res) => {
   try {
     const blobPath = req.query.path;
     if (!blobPath) {
@@ -283,7 +342,6 @@ async function buildDirectoryPath(directoryId) {
     console.error('Error building directory path:', error);
     throw error;
   }
-  
 }
 
 module.exports = router;
