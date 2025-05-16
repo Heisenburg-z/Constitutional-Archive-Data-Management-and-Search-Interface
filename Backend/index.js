@@ -1,27 +1,20 @@
-
-// server/index.js - Fixed and improved
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const fileUpload = require('express-fileupload');
-
-// Import routes
 const suggestionsRouter = require('./routes/suggestions');
-const archivesRoutes = require('./routes/archives');
-const usersRouter = require('./routes/users').router;
-const authRouter = require('./routes/auth');
-const searchRouter = require('./routes/search');
+
+
 
 // Fixed CORS configuration
 const corsOptions = {
   origin: [
     'https://thankful-cliff-0c6d2f510.6.azurestaticapps.net',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL // Add from env if available
-  ].filter(Boolean), // Filter out undefined values
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
@@ -42,25 +35,6 @@ app.get('/api/health', (req, res) => {
   res.status(200).json(status);
 });
 
-// Route registration (MUST come after CORS setup)
-app.use('/api/users', usersRouter);
-app.use('/api/archives', archivesRoutes.router);
-app.use('/api/auth', authRouter);
-app.use('/api/search', searchRouter);
-app.use('/api/suggestions', suggestionsRouter);
-
-// Public routes - no authentication required
-app.use('/api/public/archives', archivesRoutes.publicRoutes);
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Server error:', err.stack);
-  res.status(500).json({ 
-    error: 'Server error', 
-    message: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred'
-  });
-});
-
 // Improved startup sequence
 async function initializeApp() {
   // Start server first
@@ -69,24 +43,9 @@ async function initializeApp() {
     console.log(`Server running on port ${port}`);
   });
 
-  // Set up graceful shutdown
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    server.close(() => {
-      console.log('Server closed');
-      mongoose.connection.close(false, () => {
-        console.log('MongoDB connection closed');
-        process.exit(0);
-      });
-    });
-  });
-
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI, {
-      // MongoDB connection options
-      serverSelectionTimeoutMS: 5000
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
     // Verify Azure Storage
@@ -96,9 +55,23 @@ async function initializeApp() {
 
   } catch (error) {
     console.error('Non-fatal service error:', error);
-    // Don't exit process - server remains running with limited functionality
+    // Don't exit process - server remains running
   }
 }
+
+// Route registration (MUST come after CORS setup)
+app.use('/api/users', require('./routes/users'));
+app.use('/api/archives', require('./routes/archives'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/search', require('./routes/search'));
+// Add this with your other route registrations
+app.use('/api/suggestions', suggestionsRouter);
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Server error' });
+});
 
 // Start the application
 initializeApp();

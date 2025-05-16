@@ -1,14 +1,52 @@
 import React, { useState } from "react";
-import { Video, X, Play, AlertTriangle } from "lucide-react";
+import { Video, X, Play } from "lucide-react";
+
+const mockVideos = [
+  {
+    title: "South Africa's Bill of Rights Explained",
+    url: "https://youtu.be/y-F0z13elCY",
+    thumbnail: "https://img.youtube.com/vi/y-F0z13elCY/hqdefault.jpg",
+    author: "Legal Resources Centre",
+    date: "2021-03-11",
+    keywords: ["Bill of Rights", "Human Rights", "South African Constitution"],
+  },
+  {
+    title: "A Brief History of the South African Constitution",
+    url: "https://youtu.be/3oDbboQoMaI",
+    thumbnail: "https://img.youtube.com/vi/3oDbboQoMaI/hqdefault.jpg",
+    author: "SABC Digital News",
+    date: "2019-04-27",
+    keywords: ["History", "Democracy", "Constitution drafting"],
+  },
+  {
+    title: "Understanding Separation of Powers in South Africa",
+    url: "https://youtu.be/qWpjrHdWq98",
+    thumbnail: "https://img.youtube.com/vi/qWpjrHdWq98/hqdefault.jpg",
+    author: "Parliament RSA",
+    date: "2020-10-15",
+    keywords: ["Executive", "Legislature", "Judiciary"],
+  },
+  {
+    title: "Inside the South African Constitutional Court",
+    url: "https://youtu.be/Go4q0fh2omY",
+    thumbnail: "https://img.youtube.com/vi/Go4q0fh2omY/hqdefault.jpg",
+    author: "Judges Matter",
+    date: "2022-06-20",
+    keywords: ["Court", "Justice", "Rule of Law"],
+  },
+  {
+    title: "The Birth of South Africa's Constitution",
+    url: "https://youtu.be/aEbo4H_0joE",
+    thumbnail: "https://img.youtube.com/vi/aEbo4H_0joE/hqdefault.jpg",
+    author: "Constitution Hill",
+    date: "2023-01-18",
+    keywords: ["Mandela", "Reconciliation", "Democracy"],
+  },
+];
+
 
 const VideoCard = ({ video, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
-
-  // Function to get YouTube thumbnail from URL
-  const getYoutubeThumbnail = (url) => {
-    const videoId = getYoutubeVideoId(url);
-    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/api/placeholder/320/180";
-  };
 
   return (
     <div
@@ -20,8 +58,8 @@ const VideoCard = ({ video, onClick }) => {
       <div className="relative group">
         <div className={`relative overflow-hidden ${isHovered ? "ring-4 ring-blue-400" : ""}`}>
           <img
-            src={getYoutubeThumbnail(video.contentUrl)}
-            alt={video.name}
+            src={video.thumbnail}
+            alt={video.title}
             className="w-full h-48 object-cover transition-all duration-500 transform group-hover:brightness-75"
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -32,18 +70,12 @@ const VideoCard = ({ video, onClick }) => {
         </div>
         
         <div className="p-4 space-y-2 text-left">
-          <h3 className="text-lg font-semibold transition-colors duration-300 group-hover:text-blue-600">
-            {video.metadata?.title || video.name}
-          </h3>
+          <h3 className="text-lg font-semibold transition-colors duration-300 group-hover:text-blue-600">{video.title}</h3>
           <p className="text-sm text-gray-500">
-            {video.metadata?.author || 'Unknown'} • {
-              video.metadata?.publicationDate ? 
-              new Date(video.metadata.publicationDate).toLocaleDateString() : 
-              new Date(video.createdAt).toLocaleDateString()
-            }
+            {video.author} • {new Date(video.date).toLocaleDateString()}
           </p>
           <div className="flex flex-wrap gap-2 mt-2">
-            {video.metadata?.keywords?.map((kw, i) => (
+            {video.keywords.map((kw, i) => (
               <span
                 key={i}
                 className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full transition-all duration-300 hover:bg-blue-200"
@@ -67,8 +99,6 @@ const VideoCard = ({ video, onClick }) => {
 const VideoModal = ({ video, onClose }) => {
   // Function to extract YouTube video ID from URL
   const getYoutubeVideoId = (url) => {
-    if (!url) return null;
-    
     if (url.includes('youtu.be/')) {
       return url.split('youtu.be/')[1];
     } else if (url.includes('youtube.com/watch?v=')) {
@@ -77,9 +107,8 @@ const VideoModal = ({ video, onClose }) => {
     return null;
   };
 
-  const videoId = getYoutubeVideoId(video.contentUrl);
+  const videoId = getYoutubeVideoId(video.url);
   const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : null;
-  const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "/api/placeholder/640/360";
 
   return (
     <div 
@@ -94,7 +123,7 @@ const VideoModal = ({ video, onClose }) => {
           {embedUrl ? (
             <iframe 
               src={embedUrl}
-              title={video.metadata?.title || video.name}
+              title={video.title}
               className="absolute inset-0 w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
               allowFullScreen
@@ -102,8 +131,8 @@ const VideoModal = ({ video, onClose }) => {
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <img 
-                src={thumbnailUrl} 
-                alt={video.metadata?.title || video.name} 
+                src={video.thumbnail} 
+                alt={video.title} 
                 className="w-full h-full object-contain"
               />
               <Play className="absolute h-16 w-16 text-white opacity-70" />
@@ -117,16 +146,12 @@ const VideoModal = ({ video, onClose }) => {
           </button>
         </div>
         <div className="p-4">
-          <h2 className="text-xl font-bold">{video.metadata?.title || video.name}</h2>
+          <h2 className="text-xl font-bold">{video.title}</h2>
           <p className="text-sm text-gray-500 mt-1">
-            {video.metadata?.author || 'Unknown'} • {
-              video.metadata?.publicationDate ? 
-              new Date(video.metadata.publicationDate).toLocaleDateString() : 
-              new Date(video.createdAt).toLocaleDateString()
-            }
+            {video.author} • {new Date(video.date).toLocaleDateString()}
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            {video.metadata?.keywords?.map((kw, i) => (
+            {video.keywords.map((kw, i) => (
               <span
                 key={i}
                 className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full"
@@ -141,29 +166,8 @@ const VideoModal = ({ video, onClose }) => {
   );
 };
 
-// Utility function for getting YouTube video ID (used in multiple places)
-const getYoutubeVideoId = (url) => {
-  if (!url) return null;
-  
-  if (url.includes('youtu.be/')) {
-    return url.split('youtu.be/')[1].split('?')[0];
-  } else if (url.includes('youtube.com/watch?v=')) {
-    return url.split('v=')[1].split('&')[0];
-  }
-  return null;
-};
-
-const VideoTab = ({ results = [], query = "" }) => {
+const VideoTab = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
-  
-  // Filter videos from search results
-  const videoResults = results.filter(item => 
-    item.type?.toLowerCase() === 'link' || 
-    (item.contentUrl && (
-      item.contentUrl.includes('youtube.com') || 
-      item.contentUrl.includes('youtu.be')
-    ))
-  );
 
   const openVideoModal = (video) => {
     setSelectedVideo(video);
@@ -208,30 +212,19 @@ const VideoTab = ({ results = [], query = "" }) => {
         <div className="inline-block animate-float">
           <Video className="h-16 w-16 mx-auto mb-4 text-blue-500" />
         </div>
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-          Video Results: {query}
-        </h2>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Educational Videos</h2>
+        <p className="text-sm text-gray-500">Explore videos about South Africa's Constitution.</p>
       </div>
 
-      {videoResults.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videoResults.map((video, index) => (
-            <VideoCard 
-              key={video.id || index} 
-              video={video} 
-              onClick={() => openVideoModal(video)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
-          <h3 className="text-xl font-medium text-gray-700">No video results found</h3>
-          <p className="text-gray-500 max-w-md mt-2">
-            We couldn't find any videos matching your search query. Try different keywords or check the Documents tab.
-          </p>
-        </div>
-      )}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {mockVideos.map((video, index) => (
+          <VideoCard 
+            key={index} 
+            video={video} 
+            onClick={() => openVideoModal(video)}
+          />
+        ))}
+      </div>
 
       {selectedVideo && (
         <VideoModal video={selectedVideo} onClose={closeVideoModal} />

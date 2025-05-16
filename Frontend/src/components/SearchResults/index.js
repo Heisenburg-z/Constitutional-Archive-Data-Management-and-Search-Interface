@@ -2,7 +2,7 @@
 import { Tabs } from './Tabs';
 import { DocumentTab } from './DocumentTab';
 import { ImageTab } from './ImageTab';
-import VideoTab from './VideoTab';
+import  VideoTab  from './VideoTab';
 import { X, Search } from 'lucide-react';
 
 export const SearchResults = ({ 
@@ -31,7 +31,7 @@ export const SearchResults = ({
       <div className="p-6">
         {activeTab === 'documents' && <DocumentTab results={searchResults.results} query={searchResults.query} />}
         {activeTab === 'images' && <ImageTab />}
-        {activeTab === 'videos' && <VideoTab results={searchResults.results} query={searchResults.query} />}
+        {activeTab === 'videos' && <VideoTab />}
       </div>
 
       <div className="border-t p-6 bg-blue-50 flex justify-center">
