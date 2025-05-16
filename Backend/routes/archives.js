@@ -5,6 +5,39 @@ const Archive = require('../models/Archive');
 const { uploadFile, listDirectories, deleteBlob } = require('../utils/azureStorage');
 const authenticate = require('../middleware/auth');
 
+// Public route (no authentication)
+router.get('/public', async (req, res) => {
+  try {
+    const { type, search, parentId } = req.query;
+    
+    // Build public query object
+    const query = {
+      accessLevel: 'public', // Enforce public access
+      ...(type && { type }),
+      ...(parentId ? { parentId } : parentId === '' ? { parentId: { $in: [null, undefined] } } : {})
+    };
+
+    // Add search filter
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      query.$or = [
+        { name: searchRegex },
+        { 'metadata.title': searchRegex },
+        { 'metadata.keywords': { $in: [searchRegex] } }
+      ];
+    }
+
+    // Get public results without sensitive data
+    const archives = await Archive.find(query)
+      .select('-createdBy -internalNotes -accessLevel') // Exclude sensitive fields
+      .sort({ createdAt: -1 });
+
+    res.json(archives);
+  } catch (err) {
+    console.error('Public archives error:', err);
+    res.status(500).json({ message: 'Error fetching public documents' });
+  }
+});
 // Get all archives with search and filter capabilities
 router.get('/', authenticate, async (req, res) => {
   try {
@@ -344,4 +377,8 @@ async function buildDirectoryPath(directoryId) {
   }
 }
 
-module.exports = router;
+// Export as separate routers
+module.exports = {
+  authenticated: router,
+  publicRoutes: publicRouter // Create a separate router for public endpoints
+};

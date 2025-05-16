@@ -60,12 +60,14 @@ async function initializeApp() {
 }
 
 // Route registration (MUST come after CORS setup)
-app.use('/api/users', require('./routes/users'));
+app.use('/api/users', require('./routes/users').router);
 app.use('/api/archives', require('./routes/archives'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/search', require('./routes/search'));
 // Add this with your other route registrations
 app.use('/api/suggestions', suggestionsRouter);
+// Add public route
+app.use('/api/public/archives', require('./routes/archives').publicRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
