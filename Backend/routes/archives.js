@@ -1,14 +1,17 @@
 // Backend/routes/archives.js
 const express = require('express');
 const router = express.Router();
+const publicRouter = express.Router(); // Create a separate router for public endpoints
 const Archive = require('../models/Archive');
-const { uploadFile, listDirectories, deleteBlob } = require('../utils/azureStorage');
+const { uploadFile, listDirectories, deleteBlob, BlobServiceClient } = require('../utils/azureStorage');
 const authenticate = require('../middleware/auth');
 
-// Public route (no authentication)
-router.get('/public', async (req, res) => {
+// PUBLIC ROUTES (no authentication)
+
+// Public route for accessing archives
+publicRouter.get('/', async (req, res) => {
   try {
-    const { type, search, parentId } = req.query;
+    const { type, search, parentId, accessLevel } = req.query;
     
     // Build public query object
     const query = {
@@ -38,6 +41,9 @@ router.get('/public', async (req, res) => {
     res.status(500).json({ message: 'Error fetching public documents' });
   }
 });
+
+// PRIVATE ROUTES (require authentication)
+
 // Get all archives with search and filter capabilities
 router.get('/', authenticate, async (req, res) => {
   try {
@@ -317,8 +323,8 @@ router.post('/upload', authenticate, async (req, res) => {
   }
 });
 
-// Download file from Azure Storage
-router.get('/download', async (req, res) => {
+// Public download file route (available to both routers)
+const downloadHandler = async (req, res) => {
   try {
     const blobPath = req.query.path;
     if (!blobPath) {
@@ -348,7 +354,11 @@ router.get('/download', async (req, res) => {
     console.error('Download error:', error);
     res.status(500).send('Download failed');
   }
-});
+};
+
+// Add download route to both routers
+router.get('/download', downloadHandler);
+publicRouter.get('/download', downloadHandler);
 
 // Helper function to build the full path for a directory
 async function buildDirectoryPath(directoryId) {
@@ -377,8 +387,8 @@ async function buildDirectoryPath(directoryId) {
   }
 }
 
-// Export as separate routers
-module.exports = {
-  authenticated: router,
-  publicRoutes: publicRouter // Create a separate router for public endpoints
+// Export both routers
+module.exports = { 
+  router, 
+  publicRoutes: publicRouter
 };
