@@ -15,7 +15,7 @@ export const SearchResults = ({
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
   const [videoError, setVideoError] = useState(null);
 
-  // Fetch video results when search query changes
+  // Fetch video results when search query changes or when the component mounts
   useEffect(() => {
     if (searchResults?.query) {
       fetchVideoResults(searchResults.query);
@@ -67,7 +67,7 @@ export const SearchResults = ({
               </div>
             </div>
             <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-            <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* <Tabs activeTab={activeTab} setActiveTab={setActiveTab} /> */}
           </div>
         </header>
 

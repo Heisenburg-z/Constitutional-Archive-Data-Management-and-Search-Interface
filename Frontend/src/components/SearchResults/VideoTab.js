@@ -153,6 +153,7 @@ const VideoTab = ({ searchQuery = "" }) => {
       }
       
       const data = await response.json();
+      console.log("Fetched videos:", data);
       setVideos(data.results || []);
     } catch (err) {
       console.error("Error fetching videos:", err);
