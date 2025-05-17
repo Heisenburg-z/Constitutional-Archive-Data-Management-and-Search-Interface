@@ -14,7 +14,86 @@ router.get('/', authenticate, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Add this route to archives.js
 
+// Public video search endpoint - no authentication required
+router.get('/videos/search', async (req, res) => {
+  try {
+    const { query, limit = 10, page = 1 } = req.query;
+    const skip = (page - 1) * limit;
+    
+    // Base search criteria for videos
+    const searchCriteria = {
+      type: 'Link',
+      fileType: 'application/video',
+      accessLevel: 'public' // Only return public videos
+    };
+    
+    // Add text search if query is provided
+    if (query) {
+      searchCriteria['$or'] = [
+        { name: { $regex: query, $options: 'i' } },
+        { 'metadata.title': { $regex: query, $options: 'i' } },
+        { 'metadata.keywords': { $regex: query, $options: 'i' } },
+        { 'metadata.author': { $regex: query, $options: 'i' } }
+      ];
+    }
+    
+    // Get total count for pagination
+    const totalCount = await Archive.countDocuments(searchCriteria);
+    
+    // Execute search with pagination
+    const videos = await Archive.find(searchCriteria)
+      .sort({ 'metadata.publicationDate': -1 }) // Sort by publication date descending
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(); // Use lean for better performance with plain objects
+    
+    // Transform video data to match expected format in VideoTab.js
+    const formattedVideos = videos.map(video => ({
+      id: video._id,
+      title: video.metadata?.title || video.name,
+      url: video.contentUrl,
+      thumbnail: video.metadata?.thumbnailUrl || `https://img.youtube.com/vi/${getYoutubeVideoId(video.contentUrl)}/hqdefault.jpg`,
+      author: video.metadata?.author || 'Unknown',
+      date: video.metadata?.publicationDate || video.createdAt,
+      keywords: video.metadata?.keywords || []
+    }));
+    
+    res.json({
+      results: formattedVideos,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(totalCount / limit)
+      }
+    });
+    
+  } catch (err) {
+    console.error('Video search error:', err);
+    res.status(500).json({ message: 'Failed to search videos' });
+  }
+});
+
+// Helper function to extract YouTube video ID from URL
+function getYoutubeVideoId(url) {
+  if (!url) return null;
+  
+  try {
+    if (url.includes('youtu.be/')) {
+      return url.split('youtu.be/')[1].split('?')[0];
+    } else if (url.includes('youtube.com/watch?v=')) {
+      return url.split('v=')[1].split('&')[0];
+    } else if (url.includes('youtube.com/embed/')) {
+      return url.split('embed/')[1].split('?')[0];
+    }
+  } catch (err) {
+    console.error('Error extracting YouTube ID:', err);
+  }
+  
+  return null;
+}
 // Update file metadata ,  This lets you send only the fields you want to change. It's flexible and safe.
 router.patch('/:id', authenticate, async (req, res) => {
   try {

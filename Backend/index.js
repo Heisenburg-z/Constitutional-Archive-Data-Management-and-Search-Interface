@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 const fileUpload = require('express-fileupload');
 const suggestionsRouter = require('./routes/suggestions');
+const archivesRouter = require('./routes/archives');
 
 
 
@@ -66,6 +67,10 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/search', require('./routes/search'));
 // Add this with your other route registrations
 app.use('/api/suggestions', suggestionsRouter);
+app.use('/api/archives/videos/search', (req, res, next) => {
+  // This will bypass the authentication middleware for the video search route only
+  archivesRouter.handle(req, res, next);
+});
 
 // Error handler
 app.use((err, req, res, next) => {

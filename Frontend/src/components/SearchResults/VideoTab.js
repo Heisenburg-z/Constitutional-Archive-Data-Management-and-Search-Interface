@@ -1,49 +1,5 @@
-import React, { useState } from "react";
-import { Video, X, Play } from "lucide-react";
-
-const mockVideos = [
-  {
-    title: "South Africa's Bill of Rights Explained",
-    url: "https://youtu.be/y-F0z13elCY",
-    thumbnail: "https://img.youtube.com/vi/y-F0z13elCY/hqdefault.jpg",
-    author: "Legal Resources Centre",
-    date: "2021-03-11",
-    keywords: ["Bill of Rights", "Human Rights", "South African Constitution"],
-  },
-  {
-    title: "A Brief History of the South African Constitution",
-    url: "https://youtu.be/3oDbboQoMaI",
-    thumbnail: "https://img.youtube.com/vi/3oDbboQoMaI/hqdefault.jpg",
-    author: "SABC Digital News",
-    date: "2019-04-27",
-    keywords: ["History", "Democracy", "Constitution drafting"],
-  },
-  {
-    title: "Understanding Separation of Powers in South Africa",
-    url: "https://youtu.be/qWpjrHdWq98",
-    thumbnail: "https://img.youtube.com/vi/qWpjrHdWq98/hqdefault.jpg",
-    author: "Parliament RSA",
-    date: "2020-10-15",
-    keywords: ["Executive", "Legislature", "Judiciary"],
-  },
-  {
-    title: "Inside the South African Constitutional Court",
-    url: "https://youtu.be/Go4q0fh2omY",
-    thumbnail: "https://img.youtube.com/vi/Go4q0fh2omY/hqdefault.jpg",
-    author: "Judges Matter",
-    date: "2022-06-20",
-    keywords: ["Court", "Justice", "Rule of Law"],
-  },
-  {
-    title: "The Birth of South Africa's Constitution",
-    url: "https://youtu.be/aEbo4H_0joE",
-    thumbnail: "https://img.youtube.com/vi/aEbo4H_0joE/hqdefault.jpg",
-    author: "Constitution Hill",
-    date: "2023-01-18",
-    keywords: ["Mandela", "Reconciliation", "Democracy"],
-  },
-];
-
+import React, { useState, useEffect } from "react";
+import { Video, X, Play, Search, Loader } from "lucide-react";
 
 const VideoCard = ({ video, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -75,7 +31,7 @@ const VideoCard = ({ video, onClick }) => {
             {video.author} • {new Date(video.date).toLocaleDateString()}
           </p>
           <div className="flex flex-wrap gap-2 mt-2">
-            {video.keywords.map((kw, i) => (
+            {video.keywords.slice(0, 3).map((kw, i) => (
               <span
                 key={i}
                 className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full transition-all duration-300 hover:bg-blue-200"
@@ -166,8 +122,55 @@ const VideoModal = ({ video, onClose }) => {
   );
 };
 
-const VideoTab = () => {
+const VideoTab = ({ searchQuery = "" }) => {
+  const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+
+  // Fetch videos when component mounts or searchQuery changes
+  useEffect(() => {
+    if (searchQuery) {
+      setLocalQuery(searchQuery);
+      fetchVideos(searchQuery);
+    } else {
+      fetchVideos(); // Fetch all videos if no search query
+    }
+  }, [searchQuery]);
+
+  const fetchVideos = async (query = "") => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/archives/videos/search?query=${encodeURIComponent(query)}&limit=20`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setVideos(data.results || []);
+    } catch (err) {
+      console.error("Error fetching videos:", err);
+      setError("Failed to load videos. Please try again later.");
+      
+      // Fallback to mock data in development
+      if (process.env.NODE_ENV === 'development') {
+        setVideos(mockVideos);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchVideos(localQuery);
+  };
 
   const openVideoModal = (video) => {
     setSelectedVideo(video);
@@ -215,16 +218,58 @@ const VideoTab = () => {
         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Educational Videos</h2>
         <p className="text-sm text-gray-500">Explore videos about South Africa's Constitution.</p>
       </div>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockVideos.map((video, index) => (
-          <VideoCard 
-            key={index} 
-            video={video} 
-            onClick={() => openVideoModal(video)}
-          />
-        ))}
+      
+      {/* Search box */}
+      <div className="mb-8 max-w-md mx-auto">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
+              placeholder="Search videos..."
+              className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            />
+            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Search
+          </button>
+        </form>
       </div>
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader className="h-12 w-12 text-blue-500 animate-spin mb-4" />
+          <p className="text-gray-500">Loading videos...</p>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-center">
+          {error}
+        </div>
+      ) : videos.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-lg text-gray-500">No videos found.</p>
+          {localQuery && (
+            <p className="mt-2 text-gray-500">
+              Try adjusting your search terms or browse all videos by clearing the search.
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map((video, index) => (
+            <VideoCard 
+              key={video.id || index} 
+              video={video} 
+              onClick={() => openVideoModal(video)}
+            />
+          ))}
+        </div>
+      )}
 
       {selectedVideo && (
         <VideoModal video={selectedVideo} onClose={closeVideoModal} />
@@ -232,5 +277,49 @@ const VideoTab = () => {
     </div>
   );
 };
+
+// Mock data for fallback during development
+const mockVideos = [
+  {
+    title: "South Africa's Bill of Rights Explained",
+    url: "https://youtu.be/y-F0z13elCY",
+    thumbnail: "https://img.youtube.com/vi/y-F0z13elCY/hqdefault.jpg",
+    author: "Legal Resources Centre",
+    date: "2021-03-11",
+    keywords: ["Bill of Rights", "Human Rights", "South African Constitution"],
+  },
+  {
+    title: "A Brief History of the South African Constitution",
+    url: "https://youtu.be/3oDbboQoMaI",
+    thumbnail: "https://img.youtube.com/vi/3oDbboQoMaI/hqdefault.jpg",
+    author: "SABC Digital News",
+    date: "2019-04-27",
+    keywords: ["History", "Democracy", "Constitution drafting"],
+  },
+  {
+    title: "Understanding Separation of Powers in South Africa",
+    url: "https://youtu.be/qWpjrHdWq98",
+    thumbnail: "https://img.youtube.com/vi/qWpjrHdWq98/hqdefault.jpg",
+    author: "Parliament RSA",
+    date: "2020-10-15",
+    keywords: ["Executive", "Legislature", "Judiciary"],
+  },
+  {
+    title: "Inside the South African Constitutional Court",
+    url: "https://youtu.be/Go4q0fh2omY",
+    thumbnail: "https://img.youtube.com/vi/Go4q0fh2omY/hqdefault.jpg",
+    author: "Judges Matter",
+    date: "2022-06-20",
+    keywords: ["Court", "Justice", "Rule of Law"],
+  },
+  {
+    title: "The Birth of South Africa's Constitution",
+    url: "https://youtu.be/aEbo4H_0joE",
+    thumbnail: "https://img.youtube.com/vi/aEbo4H_0joE/hqdefault.jpg",
+    author: "Constitution Hill",
+    date: "2023-01-18",
+    keywords: ["Mandela", "Reconciliation", "Democracy"],
+  },
+];
 
 export default VideoTab;
