@@ -8,7 +8,9 @@ const authenticate = require('../middleware/auth');
 // Get all archives
 router.get('/', authenticate, async (req, res) => {
   try {
-    const archives = await Archive.find().populate('createdBy');
+    const archives = await Archive.find()
+    .sort({ createdAt: -1 }) // Sort by newest first
+    .populate('createdBy');
     res.json(archives);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -156,6 +158,20 @@ router.post('/directory', authenticate, async (req, res) => {
     }
     
     res.status(201).json(savedDirectory);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get recent uploads with uploader info
+router.get('/recent', authenticate, async (req, res) => {
+  try {
+    const recentFiles = await Archive.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate('createdBy', 'firstName lastName email role');
+    
+    res.json(recentFiles);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
