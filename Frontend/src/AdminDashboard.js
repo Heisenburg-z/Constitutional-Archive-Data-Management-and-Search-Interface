@@ -1,6 +1,6 @@
 // src/components/Dashboard/AdminDashboard.js
 
-import { BarChart, Upload, User,Edit } from 'lucide-react';
+import { BarChart, Upload, User,Edit ,History} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
@@ -8,6 +8,7 @@ import ConfirmDialog from './components/ConfirmDialog';
 import DocumentPreviewModal from './components/DocumentPreviewModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DocumentSubmissionLog from './components/DocumentSubmissionLog'; 
 
 // Import our modularized components /components/Dashboard
 import DashboardHeader from './components/Dashboard/DashboardHeader';
@@ -31,7 +32,7 @@ const AdminDashboard = () => {
   const [documentToEdit, setDocumentToEdit] = useState(null);
   const [metadataForm, setMetadataForm] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
-  const [currentView, setCurrentView] = useState('featured');
+  const [currentView, setCurrentView] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDocuments, setFilteredDocuments] = useState([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
@@ -354,13 +355,13 @@ const AdminDashboard = () => {
         <h2 className="text-xl font-bold text-blue-800 mb-8">Constitutional Archive</h2>
         <ul className="space-y-4">
           <li>
-            <a
-              href="#dashboard"
-              className="flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 rounded-lg"
+            <div
+              onClick={() => setCurrentView('dashboard')}
+              className="cursor-pointer flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 rounded-lg"
             >
               <BarChart size={20} className="text-blue-600" />
               Dashboard
-            </a>
+            </div>
           </li>
           <li>
             <div
@@ -369,6 +370,15 @@ const AdminDashboard = () => {
             >
               <Upload size={20} className="text-blue-600" />
               Upload
+            </div>
+          </li>
+          <li>
+            <div
+              onClick={() => setCurrentView('recent')}
+              className="cursor-pointer flex items-center gap-3 p-3 text-gray-700 hover:bg-blue-50 rounded-lg"
+            >
+              <History size={20} className="text-blue-600" />
+              Submission Log
             </div>
           </li>
         </ul>
@@ -381,7 +391,7 @@ const AdminDashboard = () => {
       </nav>
 
       <section className="ml-64 p-8">
-        {currentView === 'featured' ? (
+        {currentView === 'dashboard' ? (
           <>
             <DashboardHeader 
               userProfile={userProfile} 
@@ -420,6 +430,17 @@ const AdminDashboard = () => {
               setShowUploadModal={setShowUploadModal}
             />
           </>
+          ) : currentView === 'recent' ? (
+            <DocumentSubmissionLog 
+              documents={recentUploads}  
+              handleDownloadDocument={handleDownloadDocument}
+              handleEditMetadata={handleEditMetadata}
+              setDocumentToDelete={setDocumentToDelete}
+              downloadingDocs={downloadingDocs}
+              isDeleting={isDeleting}
+            />
+
+
         ) : (
           <AllDocumentsView 
             setCurrentView={setCurrentView}
