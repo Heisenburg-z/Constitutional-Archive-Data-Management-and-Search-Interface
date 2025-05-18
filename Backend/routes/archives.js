@@ -15,7 +15,195 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 // Add this route to archives.js
+// Enhanced public file explorer endpoint
+router.get('/explorer', async (req, res) => {
+  try {
+    const { path, limit = 50, page = 1, type, country, documentType, sort = 'name', order = 'asc' } = req.query;
+    const skip = (page - 1) * limit;
+    
+    // Base search criteria for public files
+    const searchCriteria = {
+      accessLevel: 'public'
+    };
+    
+    // Apply filters if provided
+    if (type) searchCriteria.type = type;
+    if (country) searchCriteria['metadata.countryCode'] = country;
+    if (documentType) searchCriteria['metadata.documentType'] = documentType;
+    
+    // Handle path navigation
+    if (path && path !== '/') {
+      const pathParts = path.split('/').filter(part => part.trim() !== '');
+      let currentDir = null;
+      
+      // Traverse the path to find the final directory
+      for (const part of pathParts) {
+        const dir = await Archive.findOne({
+          name: part,
+          type: 'directory',
+          parentId: currentDir ? currentDir._id : null,
+          accessLevel: 'public'
+        });
+        
+        if (!dir) {
+          return res.status(404).json({ message: 'Directory not found' });
+        }
+        currentDir = dir;
+      }
+      
+      if (currentDir) {
+        searchCriteria.parentId = currentDir._id;
+      }
+    } else {
+      // If no path provided, show root level files
+      searchCriteria.parentId = null;
+    }
+    
+    // Get total count for pagination
+    const totalCount = await Archive.countDocuments(searchCriteria);
+    
+    // Determine sort order
+    const sortCriteria = {};
+    if (sort === 'date') {
+      sortCriteria['metadata.publicationDate'] = order === 'asc' ? 1 : -1;
+    } else if (sort === 'name') {
+      sortCriteria.name = order === 'asc' ? 1 : -1;
+    } else if (sort === 'type') {
+      sortCriteria.type = order === 'asc' ? 1 : -1;
+    }
+    
+    // Always sort directories first
+    const finalSort = {
+      type: -1, // Directories first
+      ...sortCriteria
+    };
+    
+    // Execute search with pagination
+    const items = await Archive.find(searchCriteria)
+      .sort(finalSort)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+    
+    // Enhanced data transformation
+    const formattedItems = items.map(item => {
+      const baseItem = {
+        id: item._id,
+        name: item.name,
+        type: item.type,
+        fileType: item.fileType,
+        size: item.fileSize,
+        url: item.contentUrl,
+        metadata: item.metadata || {},
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        accessLevel: item.accessLevel,
+        children: item.children || []
+      };
+      
+      // Add type-specific properties
+      if (item.type === 'Link' && item.fileType === 'application/video') {
+        baseItem.thumbnail = `https://img.youtube.com/vi/${getYoutubeVideoId(item.contentUrl)}/hqdefault.jpg`;
+        baseItem.isVideo = true;
+      } else if (item.type === 'file') {
+        baseItem.isDocument = true;
+        baseItem.icon = getFileIcon(item.fileType);
+      } else if (item.type === 'directory') {
+        baseItem.isDirectory = true;
+        baseItem.icon = 'folder';
+      }
+      
+      // Add country-specific metadata if available
+      if (item.metadata?.countryCode) {
+        baseItem.country = {
+          code: item.metadata.countryCode,
+          name: getCountryName(item.metadata.countryCode)
+        };
+      }
+      
+      return baseItem;
+    });
+    
+    // Get available filters for the current view
+    const availableFilters = await getAvailableFilters(searchCriteria);
+    
+    res.json({
+      path: path || '/',
+      items: formattedItems,
+      filters: availableFilters,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(totalCount / limit)
+      }
+    });
+    
+  } catch (err) {
+    console.error('File explorer error:', err);
+    res.status(500).json({ message: 'Failed to load file explorer' });
+  }
+});
 
+// Helper function to get available filters
+async function getAvailableFilters(baseCriteria) {
+  const filters = {
+    types: [],
+    countries: [],
+    documentTypes: []
+  };
+  
+  try {
+    // Get distinct types
+    filters.types = await Archive.distinct('type', baseCriteria);
+    
+    // Get distinct countries
+    filters.countries = await Archive.distinct('metadata.countryCode', {
+      ...baseCriteria,
+      'metadata.countryCode': { $exists: true }
+    });
+    
+    // Get distinct document types
+    filters.documentTypes = await Archive.distinct('metadata.documentType', {
+      ...baseCriteria,
+      'metadata.documentType': { $exists: true }
+    });
+    
+    // Remove null/undefined values
+    filters.countries = filters.countries.filter(Boolean);
+    filters.documentTypes = filters.documentTypes.filter(Boolean);
+    
+    return filters;
+  } catch (err) {
+    console.error('Error getting filters:', err);
+    return filters;
+  }
+}
+
+// Helper function to get file icon based on type
+function getFileIcon(fileType) {
+  if (!fileType) return 'file';
+  
+  if (fileType.includes('pdf')) return 'pdf';
+  if (fileType.includes('word')) return 'word';
+  if (fileType.includes('excel')) return 'excel';
+  if (fileType.includes('powerpoint')) return 'powerpoint';
+  if (fileType.includes('image')) return 'image';
+  if (fileType.includes('video')) return 'video';
+  
+  return 'file';
+}
+
+// Helper function to get country name from code
+function getCountryName(code) {
+  const countries = {
+    'ZA': 'South Africa',
+    'US': 'United States',
+    'GB': 'United Kingdom'
+    // Add more as needed
+  };
+  return countries[code] || code;
+}
 // Public video search endpoint - no authentication required
 router.get('/videos/search', async (req, res) => {
   try {

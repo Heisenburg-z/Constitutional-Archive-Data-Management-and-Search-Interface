@@ -8,6 +8,9 @@ import AdminDashboard from './AdminDashboard';
 import AdminLogin from './AdminLogin';
 import AdminSignup from './AdminSignup';
 import CompleteSignup from './CompleteSignup'; 
+import BrowseArchive from './components/BrowseArchive';
+import AboutPage from './components/AboutPage';
+import ContactPage from './components/ContactPage';
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('authToken');
@@ -23,6 +26,9 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
           <Route path="/complete-signup" element={<CompleteSignup />} />
+          <Route path="/browse" element={<BrowseArchive />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
           <Route 
             path="/admin/*" 
             element={

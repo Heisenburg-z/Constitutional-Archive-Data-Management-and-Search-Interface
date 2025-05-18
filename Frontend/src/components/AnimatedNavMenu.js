@@ -1,3 +1,5 @@
+
+// AnimatedNavMenu.js
 import { useState, useEffect } from "react";
 
 export default function AnimatedNavMenu() {
