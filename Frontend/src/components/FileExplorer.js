@@ -37,7 +37,7 @@ const FileExplorer = () => {
     const fetchDocuments = async () => {
       try {
         setLoading(true);
-        let url = `${process.env.REACT_APP_API_URL}/archives/explorer?path=${encodeURIComponent(currentPath)}`;
+        let url = `${process.env.REACT_APP_API_URL}/api/archives/explorer?path=${encodeURIComponent(currentPath)}`;
         
         // Add filters if they exist
         if (filters.type) url += `&type=${filters.type}`;
