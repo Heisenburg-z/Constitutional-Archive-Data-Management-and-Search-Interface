@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Folder, File, FileText, Video, Image, Grid, List, ChevronRight, ChevronDown, Search, Filter, ArrowUpDown, Download, Eye, Info, ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useState, useEffect ,useCallback} from 'react';
+import { Folder,FileText, Video, Image, Grid, List, ChevronRight,  Search,  ArrowUpDown, Download,ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function FileExplorer() {
   // State variables
@@ -30,11 +30,9 @@ export default function FileExplorer() {
   const [selectedItem, setSelectedItem] = useState(null);
 
   // Fetch data from the API
-  useEffect(() => {
-    fetchData();
-  }, [currentPath, searchQuery, filters, sort, order, pagination.page, pagination.limit]);
 
-  const fetchData = async () => {
+  // Memoized fetchData function
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -69,7 +67,23 @@ export default function FileExplorer() {
       setError('Failed to load files. Please try again.');
       setLoading(false);
     }
-  };
+  }, [
+    currentPath,
+    pagination.limit,
+    pagination.page,
+    filters.type,
+    filters.country,
+    filters.documentType,
+    sort,
+    order,
+    searchQuery
+  ]);
+
+  // Fetch data when dependencies change
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
 
   // Navigate to a directory
   const navigateToDirectory = (dirPath) => {
