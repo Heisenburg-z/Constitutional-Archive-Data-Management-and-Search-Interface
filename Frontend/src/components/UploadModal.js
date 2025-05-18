@@ -238,12 +238,11 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
                 />
               )}
               {previewData?.type === 'pdf' && (
-                <div className="text-center">
-                  <File size={80} className="text-red-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium">{previewData.name}</p>
-                  <p className="text-gray-500">{(previewData.size / 1024 / 1024).toFixed(2)} MB</p>
-                  <p className="mt-4 text-gray-500">PDF preview not available in this view</p>
-                </div>
+                <iframe 
+                  src={previewData.data} 
+                  className="w-full h-full"
+                  title="PDF Preview"
+                />
               )}
               {previewData?.type === 'text' && (
                 <pre className="whitespace-pre-wrap font-sans w-full max-h-full overflow-auto p-4 bg-gray-50 rounded">
@@ -280,14 +279,9 @@ const UploadModal = ({ onClose, onUploadSuccess }) => {
                 onClick={handleClosePreview}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Back to Edit
+                Continue Editing
               </button>
-                <button
-          onClick={handleSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Confirm Upload
-      </button>
+
             </div>
           </div>
         ) : (
