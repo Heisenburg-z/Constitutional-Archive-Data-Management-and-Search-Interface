@@ -12,6 +12,12 @@ import BrowseArchive from './components/BrowseArchive';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 
+import ResetPasswordPage from "./ResetPassword"; 
+import ForgotPassword from "./ForgotPassword"; 
+
+
+
+
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('authToken');
   return isAuthenticated ? children : <Navigate to="/admin/login" />;
@@ -25,6 +31,9 @@ function App() {
           <Route path="/" element={<ConstitutionalArchiveHomepage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+         <Route path="/forgot-password" element={<ForgotPassword />} />
+
           <Route path="/complete-signup" element={<CompleteSignup />} />
           <Route path="/browse" element={<BrowseArchive />} />
         <Route path="/about" element={<AboutPage />} />
