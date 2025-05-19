@@ -12,6 +12,11 @@ import BrowseArchive from './components/BrowseArchive';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
 
+import ResetPasswordPage from "./ResetPasswordPage"; 
+
+<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('authToken');
   return isAuthenticated ? children : <Navigate to="/admin/login" />;
