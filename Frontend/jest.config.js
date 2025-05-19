@@ -16,13 +16,14 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
-  
+
   // Mock file imports
   moduleNameMapper: {
     // Mock CSS imports
     '\\.(css|less|scss|sass)$': '<rootDir>/src/__mocks__/styleMock.js',
     // Mock image imports
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/src/__mocks__/fileMock.js',
+    "^axios$": "<rootDir>/node_modules/axios/dist/axios.js"
   },
   
   // Coverage configuration

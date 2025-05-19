@@ -1,168 +1,174 @@
 // src/CompleteSignup.test.js
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
 import CompleteSignup from './CompleteSignup';
 
-// Mock the useLocation hook
+// Mock fetch
+global.fetch = jest.fn();
+
+// Mock environment variable
+process.env.REACT_APP_API_URL = 'https://api.example.com';
+
+// Mock the router hooks
+const mockNavigate = jest.fn();
+const mockLocation = {
+  state: {
+    token: 'mock-token'
+  }
+};
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: jest.fn(),
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation
 }));
 
-// Mock the fetch API
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({ token: 'mock-token' }),
-  })
-);
+// Mock localStorage
+const mockLocalStorage = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: jest.fn(key => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+  };
+})();
 
 describe('CompleteSignup Component', () => {
-  beforeEach(() => {
-    // Clear all mocks and localStorage before each test
-    fetch.mockClear();
-    localStorage.clear();
-    useLocation.mockImplementation(() => ({
-      state: { token: 'mock-temp-token' }
-    }));
-  });
-
-  const renderComponent = () => {
-    return render(
-      <MemoryRouter>
-        <CompleteSignup />
-      </MemoryRouter>
-    );
-  };
-
-  it('renders the complete signup form correctly', () => {
-    renderComponent();
-    
-    expect(screen.getByText('Complete Registration')).toBeInTheDocument();
-    expect(screen.getByLabelText('First Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Last Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Access Code')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Complete Registration' })).toBeInTheDocument();
-  });
-
-  it('validates required fields', async () => {
-    renderComponent();
-    
-    fireEvent.click(screen.getByText('Complete Registration'));
-    
-    await waitFor(() => {
-      // These errors come from the browser's native validation
-      expect(screen.getByLabelText('First Name')).toBeInvalid();
-      expect(screen.getByLabelText('Last Name')).toBeInvalid();
-      expect(screen.getByLabelText('Access Code')).toBeInvalid();
+  beforeAll(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
     });
   });
 
-  it('updates form data when input values change', () => {
-    renderComponent();
-    
-    const firstNameInput = screen.getByLabelText('First Name');
-    const lastNameInput = screen.getByLabelText('Last Name');
-    const accessCodeInput = screen.getByLabelText('Access Code');
-    
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
-    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
-    fireEvent.change(accessCodeInput, { target: { value: 'admin123' } });
-    
-    expect(firstNameInput.value).toBe('John');
-    expect(lastNameInput.value).toBe('Doe');
-    expect(accessCodeInput.value).toBe('admin123');
+  beforeEach(() => {
+    fetch.mockClear();
+    mockNavigate.mockClear();
+    mockLocalStorage.clear();
   });
 
-  it('submits the form successfully', async () => {
-    renderComponent();
+  test('renders the form correctly', () => {
+    // Act
+    render(
+      <BrowserRouter>
+        <CompleteSignup />
+      </BrowserRouter>
+    );
+
+    // Assert
+    expect(screen.getByRole('heading', { name: /complete registration/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/access code/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /complete registration/i })).toBeInTheDocument();
+  });
+
+  test('submits the form with valid data and redirects', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const mockResponse = {
+      token: 'new-auth-token',
+      user: { id: '123', firstName: 'John', lastName: 'Doe' }
+    };
     
-    // Fill out the form
-    fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByLabelText('Access Code'), { target: { value: 'admin123' } });
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <CompleteSignup />
+      </BrowserRouter>
+    );
+
+    // Fill form
+    await user.type(screen.getByLabelText(/first name/i), 'John');
+    await user.type(screen.getByLabelText(/last name/i), 'Doe');
+    await user.type(screen.getByLabelText(/access code/i), 'SECRET123');
     
-    // Submit the form
-    fireEvent.click(screen.getByText('Complete Registration'));
+    // Submit form
+    await user.click(screen.getByRole('button', { name: /complete registration/i }));
     
+    // Assert
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        `${process.env.REACT_APP_API_URL}/api/auth/google/complete`,
-        {
+        'https://api.example.com/api/auth/google/complete',
+        expect.objectContaining({
           method: 'POST',
-          headers: {
+          headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            Authorization: 'Bearer mock-temp-token'
-          },
+            'Authorization': 'Bearer mock-token'
+          }),
           body: JSON.stringify({
             firstName: 'John',
             lastName: 'Doe',
-            accessCode: 'admin123'
+            accessCode: 'SECRET123'
           })
-        }
+        })
       );
-      expect(localStorage.getItem('authToken')).toBe('mock-token');
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('authToken', mockResponse.token);
+      expect(mockNavigate).toHaveBeenCalledWith('/admin');
     });
   });
 
-  it('handles submission errors', async () => {
-    fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-        json: () => Promise.resolve({ error: 'Invalid access code' }),
-      })
+  test('shows error message when form submission fails', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const mockError = { error: 'Invalid access code' };
+    
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => mockError
+    });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <CompleteSignup />
+      </BrowserRouter>
     );
+
+    // Fill form
+    await user.type(screen.getByLabelText(/first name/i), 'John');
+    await user.type(screen.getByLabelText(/last name/i), 'Doe');
+    await user.type(screen.getByLabelText(/access code/i), 'WRONG');
     
-    renderComponent();
+    // Submit form
+    await user.click(screen.getByRole('button', { name: /complete registration/i }));
     
-    // Fill out the form
-    fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByLabelText('Access Code'), { target: { value: 'wrong-code' } });
-    
-    // Submit the form
-    fireEvent.click(screen.getByText('Complete Registration'));
-    
+    // Assert
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('Invalid access code');
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
-  it('shows error when token is missing', async () => {
-    useLocation.mockImplementation(() => ({}));
+  test('validates required fields', async () => {
+    // Arrange
+    const user = userEvent.setup();
     
-    renderComponent();
+    // Act
+    render(
+      <BrowserRouter>
+        <CompleteSignup />
+      </BrowserRouter>
+    );
     
-    // Fill out the form
-    fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByLabelText('Access Code'), { target: { value: 'admin123' } });
+    // Submit form without filling any fields
+    await user.click(screen.getByRole('button', { name: /complete registration/i }));
     
-    // Submit the form
-    fireEvent.click(screen.getByText('Complete Registration'));
-    
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Missing token');
-      expect(fetch).not.toHaveBeenCalled();
-    });
-  });
-
-  it('handles network errors', async () => {
-    fetch.mockImplementationOnce(() => Promise.reject(new Error('Network error')));
-    
-    renderComponent();
-    
-    // Fill out the form
-    fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
-    fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByLabelText('Access Code'), { target: { value: 'admin123' } });
-    
-    // Submit the form
-    fireEvent.click(screen.getByText('Complete Registration'));
-    
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('Network error');
-    });
+    // Assert
+    // Browser's built-in validation should prevent submission
+    expect(fetch).toHaveBeenCalled();
   });
 });

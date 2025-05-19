@@ -49,6 +49,7 @@
     "codecov": "^3.8.3",
     "jest": "^27.5.1",
     "jest-fetch-mock": "^3.0.3",
+    "msw": "^2.8.4",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.3"
   },
