@@ -6,8 +6,8 @@ import UploadModal from './UploadModal';
 import { uploadDocument, fetchDirectories } from '../services/uploadService';
 import { toast } from 'react-toastify';
 
-// Mock the required modules
-jest.mock('../../services/uploadService');
+// Mock the required modules 
+jest.mock('../../src/services/uploadService');
 jest.mock('react-toastify');
 jest.mock('react-dropzone', () => {
   return {

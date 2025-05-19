@@ -11,7 +11,7 @@ module.exports = function(app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'http://localhost:5000', // Change this to match your backend server URL
+      target: 'https://constitutional-archive-data-management-api-cvcscmdvcmfscweq.southafricanorth-01.azurewebsites.net', // Change this to match your backend server URL
       changeOrigin: true,
       pathRewrite: {
         '^/api': '/api', // No rewrite needed if API routes already start with /api

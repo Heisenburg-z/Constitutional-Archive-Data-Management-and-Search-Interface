@@ -1,184 +1,238 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import DocumentPreviewShowcase from './DocumentPreview';
-import { BookMarked, ExternalLink, Download, Info, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
-// Mock the Lucide icons
-jest.mock('lucide-react', () => ({
-  BookMarked: () => <div>BookMarkedIcon</div>,
-  ExternalLink: () => <div>ExternalLinkIcon</div>,
-  Download: () => <div>DownloadIcon</div>,
-  Info: () => <div>InfoIcon</div>,
-  X: () => <div>XIcon</div>,
-  ChevronLeft: () => <div>ChevronLeftIcon</div>,
-  ChevronRight: () => <div>ChevronRightIcon</div>,
-  Search: () => <div>SearchIcon</div>,
-}));
+// Mock fetch API
+global.fetch = jest.fn();
+global.URL.createObjectURL = jest.fn(() => 'blob:mockurl');
+global.URL.revokeObjectURL = jest.fn();
+
+// Mock document.createElement for download
+const mockAnchorElement = {
+  href: '',
+  download: '',
+  click: jest.fn(),
+};
+document.createElement = jest.fn(() => mockAnchorElement);
 
 describe('DocumentPreviewShowcase', () => {
-  const featuredDocuments = [
-    {
-      id: 1,
-      title: "Constitution Tenth Amendment Act",
-      description: "Test description 1",
-      url: "http://test.com/doc1.pdf",
-      category: "Amendments",
-      country: "South Africa",
-      date: "2023",
-      color: "blue",
-      previewText: "Test preview text 1",
-    },
-    {
-      id: 2,
-      title: "Chapter 1: Founding Provisions",
-      description: "Test description 2",
-      url: "http://test.com/doc2.pdf",
-      category: "Chapters",
-      country: "South Africa",
-      date: "1996",
-      color: "green",
-      previewText: "Test preview text 2",
-    }
-  ];
-
   beforeEach(() => {
-    // Mock the featuredDocuments if they're imported from another file
-    jest.mock('./featuredDocuments', () => ({
-      featuredDocuments: featuredDocuments
-    }));
+    jest.clearAllMocks();
+    // Default mock implementation for fetch
+    global.fetch.mockResolvedValue({
+      ok: true,
+      blob: async () => new Blob(['mock pdf content'], { type: 'application/pdf' })
+    });
   });
 
-  it('renders the component with initial featured document', () => {
+  it('renders featured documents section initially', () => {
     render(<DocumentPreviewShowcase />);
     
+    // Check if the main title is rendered
     expect(screen.getByText('Featured Constitutional Documents')).toBeInTheDocument();
+    
+    // Check if the first document is displayed by default
     expect(screen.getByText('Constitution Tenth Amendment Act')).toBeInTheDocument();
-    expect(screen.getByText('Amendments')).toBeInTheDocument();
-    expect(screen.getByText('Test preview text 1')).toBeInTheDocument();
+    
+    // Check if navigation UI is present
+    expect(screen.getByLabelText('Go to document 1')).toBeInTheDocument();
+    expect(screen.getByText('View Full Document')).toBeInTheDocument();
   });
 
-  it('navigates between documents using next/prev buttons', () => {
+  it('navigates between featured documents with arrows', () => {
     render(<DocumentPreviewShowcase />);
     
-    // Click next button
-    fireEvent.click(screen.getByLabelText('Go to next document'));
+    // First document should be visible
+    expect(screen.getByText('Constitution Tenth Amendment Act')).toBeInTheDocument();
+    
+    // Click next arrow
+    const nextButton = screen.getByRole('button', { name: '' }).nextSibling;
+    fireEvent.click(nextButton);
+    
+    // Second document should now be visible
     expect(screen.getByText('Chapter 1: Founding Provisions')).toBeInTheDocument();
     
-    // Click prev button
-    fireEvent.click(screen.getByLabelText('Go to previous document'));
+    // Click previous arrow
+    const prevButton = screen.getByRole('button', { name: '' });
+    fireEvent.click(prevButton);
+    
+    // First document should be visible again
     expect(screen.getByText('Constitution Tenth Amendment Act')).toBeInTheDocument();
   });
 
-  it('navigates using the dot indicators', () => {
+  it('navigates to specific document using indicator dots', () => {
     render(<DocumentPreviewShowcase />);
     
-    // Get all dot indicators
-    const dots = screen.getAllByRole('button', { name: /Go to document/ });
-    fireEvent.click(dots[1]);
+    // Go to third document directly
+    const thirdDot = screen.getByLabelText('Go to document 3');
+    fireEvent.click(thirdDot);
     
-    expect(screen.getByText('Chapter 1: Founding Provisions')).toBeInTheDocument();
+    // Third document should be visible
+    expect(screen.getByText('Chapter 2: Bill of Rights')).toBeInTheDocument();
   });
 
-  it('toggles between featured view and all documents view', () => {
+  it('toggles between featured and all documents views', () => {
     render(<DocumentPreviewShowcase />);
     
-    // Click browse all button
-    const browseButton = screen.getByText('Browse All Documents');
-    fireEvent.click(browseButton);
+    // Initially in featured view
+    expect(screen.getByText('Browse All Documents')).toBeInTheDocument();
     
-    // Should show search and all documents
-    expect(screen.getByPlaceholderText('Search documents...')).toBeInTheDocument();
+    // Toggle to all documents view
+    fireEvent.click(screen.getByText('Browse All Documents'));
+    
+    // Should now show all documents view
     expect(screen.getByText('All Documents')).toBeInTheDocument();
+    expect(screen.getByText('Back to Featured View')).toBeInTheDocument();
     
-    // Click back button
-    const backButton = screen.getByText('Back to Featured View');
-    fireEvent.click(backButton);
+    // Toggle back to featured view
+    fireEvent.click(screen.getByText('Back to Featured View'));
     
-    // Should show featured view again
-    expect(screen.getByText('Featured Constitutional Documents')).toBeInTheDocument();
+    // Should be back to featured view
+    expect(screen.getByText('Browse All Documents')).toBeInTheDocument();
   });
 
-  it('filters documents when searching', () => {
+  it('opens and closes document details modal', () => {
+    render(<DocumentPreviewShowcase />);
+    
+    // Open modal for current document
+    fireEvent.click(screen.getByText('Details'));
+    
+    // Modal should be visible
+    expect(screen.getByText('Related Information')).toBeInTheDocument();
+    
+    // Close modal
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    
+    // Modal should be closed
+    expect(screen.queryByText('Related Information')).not.toBeInTheDocument();
+  });
+
+  it('filters documents when searching in all documents view', () => {
     render(<DocumentPreviewShowcase />);
     
     // Switch to all documents view
     fireEvent.click(screen.getByText('Browse All Documents'));
     
-    // Type in search
+    // All 6 documents should be visible
+    expect(screen.getAllByText('View Document').length).toBe(6);
+    
+    // Search for "Bill of Rights"
     const searchInput = screen.getByPlaceholderText('Search documents...');
-    fireEvent.change(searchInput, { target: { value: 'Amendment' } });
+    fireEvent.change(searchInput, { target: { value: 'Bill of Rights' } });
     
-    // Should only show matching documents
-    expect(screen.getByText('Constitution Tenth Amendment Act')).toBeInTheDocument();
-    expect(screen.queryByText('Chapter 1: Founding Provisions')).not.toBeInTheDocument();
+    // Only one document should remain
+    expect(screen.getAllByText('View Document').length).toBe(1);
+    expect(screen.getByText('Chapter 2: Bill of Rights')).toBeInTheDocument();
+    
+    // Clear search
+    fireEvent.change(searchInput, { target: { value: '' } });
+    
+    // All documents should be visible again
+    expect(screen.getAllByText('View Document').length).toBe(6);
   });
 
-  it('opens and closes the document details modal', () => {
+  it('attempts to download document successfully', async () => {
     render(<DocumentPreviewShowcase />);
-    
-    // Click details button
-    fireEvent.click(screen.getByText('Details'));
-    
-    // Modal should open with document details
-    expect(screen.getByText('Document Preview')).toBeInTheDocument();
-    expect(screen.getByText('Related Information')).toBeInTheDocument();
-    
-    // Close modal
-    fireEvent.click(screen.getByText('XIcon'));
-    expect(screen.queryByText('Document Preview')).not.toBeInTheDocument();
-  });
-
-  // Add to your existing test file
-it('renders document preview with all props', () => {
-    render(<DocumentPreviewShowcase />);
-    expect(screen.getByText('Explore Constitutional History')).toBeInTheDocument();
-  });
-  
-  it('shows loading state during searches', async () => {
-    render(<DocumentPreviewShowcase />);
-    
-    fireEvent.click(screen.getByText('Browse All Documents'));
-    const input = screen.getByPlaceholderText('Search documents...');
-    fireEvent.change(input, { target: { value: 'Amendment' } });
-    
-    // Add mock API delay handling if needed
-    expect(await screen.findByText('Constitution Tenth Amendment Act')).toBeInTheDocument();
-  });
-  
-  it('handles empty search results', async () => {
-    render(<DocumentPreviewShowcase />);
-    
-    fireEvent.click(screen.getByText('Browse All Documents'));
-    const input = screen.getByPlaceholderText('Search documents...');
-    fireEvent.change(input, { target: { value: 'NonExistent' } });
-    
-    expect(await screen.findByText('No documents found')).toBeInTheDocument(); // Add this UI element
-  });
-
-  it('downloads document when download button is clicked', () => {
-    render(<DocumentPreviewShowcase />);
-    
-    // Mock window.location.href
-    delete window.location;
-    window.location = { href: '' };
     
     // Click download button
     fireEvent.click(screen.getByText('Download'));
     
-    // Should update window.location.href
-    expect(window.location.href).toBe('http://test.com/doc1.pdf');
+    // Check if download is in progress
+    expect(screen.getByText('Downloading...')).toBeInTheDocument();
+    
+    // Wait for download to complete
+    await waitFor(() => {
+      expect(screen.getByText('Download successful!')).toBeInTheDocument();
+    });
+    
+    // Verify download was triggered
+    expect(mockAnchorElement.click).toHaveBeenCalled();
+    expect(mockAnchorElement.download).toBe('Constitution_Tenth_Amendment_Act.pdf');
   });
 
-  it('shows correct document when clicked in all documents view', () => {
+  it('handles download failure gracefully', async () => {
+    // Mock fetch to fail
+    global.fetch.mockRejectedValueOnce(new Error('Network error'));
+    global.fetch.mockRejectedValueOnce(new Error('Proxy error'));
+    
+    // Mock window.open for fallback
+    const originalOpen = window.open;
+    window.open = jest.fn();
+    
     render(<DocumentPreviewShowcase />);
     
-    // Switch to all documents view
-    fireEvent.click(screen.getByText('Browse All Documents'));
+    // Click download button
+    fireEvent.click(screen.getByText('Download'));
     
-    // Click on second document's details button
-    const allDetailsButtons = screen.getAllByText('Details');
-    fireEvent.click(allDetailsButtons[1]);
+    // Wait for download to fail
+    await waitFor(() => {
+      expect(screen.getByText('Download failed. Try again.')).toBeInTheDocument();
+    });
     
-    // Modal should show second document
-    expect(screen.getByText('Chapter 1: Founding Provisions')).toBeInTheDocument();
+    // Check if fallback was used
+    expect(window.open).toHaveBeenCalled();
+    
+    // Restore original window.open
+    window.open = originalOpen;
+  });
+
+  it('prevents clicking download button during download', async () => {
+    // Use a slow resolving promise to simulate a long download
+    global.fetch.mockImplementationOnce(() => 
+      new Promise(resolve => 
+        setTimeout(() => resolve({
+          ok: true,
+          blob: async () => new Blob(['mock pdf content'], { type: 'application/pdf' })
+        }), 100)
+      )
+    );
+    
+    render(<DocumentPreviewShowcase />);
+    
+    // Click download button
+    const downloadButton = screen.getByText('Download');
+    fireEvent.click(downloadButton);
+    
+    // Button should be disabled while downloading
+    expect(downloadButton.closest('button')).toBeDisabled();
+    
+    // Wait for download to complete
+    await waitFor(() => {
+      expect(screen.getByText('Download successful!')).toBeInTheDocument();
+    });
+    
+    // Button should be enabled again
+    expect(downloadButton.closest('button')).not.toBeDisabled();
+  });
+
+  it('handles empty blobs during download', async () => {
+    // Mock fetch to return empty blob
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      blob: async () => new Blob([], { type: 'application/pdf' })
+    });
+    
+    render(<DocumentPreviewShowcase />);
+    
+    // Click download button
+    fireEvent.click(screen.getByText('Download'));
+    
+    // Wait for download to fail
+    await waitFor(() => {
+      expect(screen.getByText('Download failed. Try again.')).toBeInTheDocument();
+    });
+  });
+
+  it('applies correct color classes based on document color', () => {
+    render(<DocumentPreviewShowcase />);
+    
+    // First document should have blue color scheme
+    expect(screen.getByText('Constitution Tenth Amendment Act').closest('div')).toHaveClass('bg-blue-100');
+    
+    // Go to second document
+    fireEvent.click(screen.getByLabelText('Go to document 2'));
+    
+    // Second document should have green color scheme
+    expect(screen.getByText('Chapter 1: Founding Provisions').closest('div')).toHaveClass('bg-green-100');
   });
 });

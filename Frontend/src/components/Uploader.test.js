@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import Uploader from './Uploader';
-import UploadModal from './UploadModal';
+
 
 // Mock the child component and icons
 jest.mock('./UploadModal', () => ({ onClose, onUploadSuccess }) => (
