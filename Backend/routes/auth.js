@@ -195,23 +195,34 @@ router.post('/signup', async (req, res) => {
   });
 
   // At the start of your forgot password route handler
-router.post('/forgot-password', async (req, res) => {
-  console.log('PASSWORD RESET ROUTE HIT:', req.body.email);
-  
+router.post('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
   try {
-    // Your existing code...
-    console.log('USER FOUND, GENERATING TOKEN');
-    
-    // Before sending email
-    console.log('ATTEMPTING TO SEND EMAIL');
-    
-    // After sending email
-    console.log('EMAIL SENT SUCCESSFULLY');
-    
-    // Rest of your code...
+    const user = await User.findOne({
+      resetToken: token,
+      resetExpires: { $gt: Date.now() }, // token not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    user.passwordHash = passwordHash;
+    user.resetToken = undefined;
+    user.resetExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: 'Password reset successful' });
   } catch (error) {
-    console.error('PASSWORD RESET ERROR:', error.message);
-    // Your error handling...
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

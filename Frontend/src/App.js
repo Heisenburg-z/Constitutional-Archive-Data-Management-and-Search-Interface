@@ -9,9 +9,10 @@ import AdminLogin from './AdminLogin';
 import AdminSignup from './AdminSignup';
 import CompleteSignup from './CompleteSignup'; 
 
-import ResetPasswordPage from "./ResetPasswordPage"; 
+import ResetPasswordPage from "./ResetPassword"; 
+import ForgotPassword from "./ForgotPassword"; 
 
-<Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
 
 
 const PrivateRoute = ({ children }) => {
@@ -27,6 +28,9 @@ function App() {
           <Route path="/" element={<ConstitutionalArchiveHomepage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+         <Route path="/forgot-password" element={<ForgotPassword />} />
+
           <Route path="/complete-signup" element={<CompleteSignup />} />
           <Route 
             path="/admin/*" 
