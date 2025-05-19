@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <coverage generated="1747662205107" clover="3.2.0">
   <project timestamp="1747662205107" name="All files">
     <metrics statements="1148" coveredstatements="551" conditionals="876" coveredconditionals="380" methods="335" coveredmethods="146" elements="2359" coveredelements="1077" complexity="0" loc="1148" ncloc="1148" packages="6" files="41" classes="41"/>
     <package name="src">
       <metrics statements="308" coveredstatements="161" conditionals="179" coveredconditionals="87" methods="69" coveredmethods="30"/>
       <file name="AdminDashboard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminDashboard.js">
+=======
+<coverage generated="1747660869938" clover="3.2.0">
+  <project timestamp="1747660869939" name="All files">
+    <metrics statements="1148" coveredstatements="547" conditionals="876" coveredconditionals="380" methods="335" coveredmethods="144" elements="2359" coveredelements="1071" complexity="0" loc="1148" ncloc="1148" packages="6" files="41" classes="41"/>
+    <package name="src">
+      <metrics statements="308" coveredstatements="161" conditionals="179" coveredconditionals="87" methods="69" coveredmethods="30"/>
+      <file name="AdminDashboard.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminDashboard.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="166" coveredstatements="62" conditionals="79" coveredconditionals="10" methods="39" coveredmethods="9"/>
         <line num="23" count="1" type="stmt"/>
         <line num="24" count="12" type="stmt"/>
@@ -173,7 +182,11 @@
         <line num="548" count="0" type="stmt"/>
         <line num="554" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="AdminLogin.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminLogin.js">
+=======
+      <file name="AdminLogin.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminLogin.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="59" coveredstatements="35" conditionals="34" coveredconditionals="18" methods="11" coveredmethods="8"/>
         <line num="11" count="23" type="stmt"/>
         <line num="14" count="23" type="stmt"/>
@@ -235,7 +248,11 @@
         <line num="239" count="0" type="stmt"/>
         <line num="243" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="AdminSignup.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminSignup.js">
+=======
+      <file name="AdminSignup.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminSignup.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="60" coveredstatements="47" conditionals="62" coveredconditionals="55" methods="11" coveredmethods="8"/>
         <line num="11" count="45" type="stmt"/>
         <line num="21" count="45" type="stmt"/>
@@ -298,7 +315,11 @@
         <line num="380" count="0" type="stmt"/>
         <line num="384" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="CompleteSignup.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/CompleteSignup.js">
+=======
+      <file name="CompleteSignup.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/CompleteSignup.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="5" coveredmethods="5"/>
         <line num="6" count="35" type="stmt"/>
         <line num="11" count="34" type="stmt"/>
@@ -318,7 +339,11 @@
         <line num="66" count="6" type="stmt"/>
         <line num="78" count="14" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="setupProxy.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/setupProxy.js">
+=======
+      <file name="setupProxy.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/setupProxy.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="6" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -329,8 +354,13 @@
       </file>
     </package>
     <package name="src.components">
+<<<<<<< HEAD
       <metrics statements="608" coveredstatements="217" conditionals="503" coveredconditionals="170" methods="184" coveredmethods="57"/>
       <file name="AboutPage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AboutPage.js">
+=======
+      <metrics statements="608" coveredstatements="213" conditionals="503" coveredconditionals="170" methods="184" coveredmethods="55"/>
+      <file name="AboutPage.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AboutPage.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="19" coveredstatements="19" conditionals="20" coveredconditionals="20" methods="10" coveredmethods="10"/>
         <line num="8" count="1" type="stmt"/>
         <line num="9" count="92" type="stmt"/>
@@ -352,7 +382,11 @@
         <line num="127" count="72" type="stmt"/>
         <line num="147" count="90" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="AnimatedNavMenu.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AnimatedNavMenu.js">
+=======
+      <file name="AnimatedNavMenu.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AnimatedNavMenu.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="28" coveredstatements="0" conditionals="42" coveredconditionals="0" methods="13" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -383,17 +417,29 @@
         <line num="74" count="0" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="ApiErrorFallback.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ApiErrorFallback.js">
+=======
+      <file name="ApiErrorFallback.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ApiErrorFallback.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="2" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="11" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="BrowseArchive.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/BrowseArchive.js">
+=======
+      <file name="BrowseArchive.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/BrowseArchive.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="CategoriesSection.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/CategoriesSection.js">
+=======
+      <file name="CategoriesSection.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/CategoriesSection.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="6" count="0" type="stmt"/>
@@ -403,16 +449,27 @@
         <line num="14" count="0" type="stmt"/>
         <line num="15" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="ConfirmDialog.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ConfirmDialog.js">
+=======
+      <file name="ConfirmDialog.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ConfirmDialog.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="3" coveredstatements="3" conditionals="9" coveredconditionals="9" methods="1" coveredmethods="1"/>
         <line num="3" count="1" type="stmt"/>
         <line num="13" count="8" type="cond" truecount="2" falsecount="0"/>
         <line num="15" count="7" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="ContactPage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ContactPage.js">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
       <file name="DocumentPreview.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreview.js">
+=======
+      <file name="ContactPage.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ContactPage.js">
+        <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      </file>
+      <file name="DocumentPreview.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreview.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="74" coveredstatements="0" conditionals="44" coveredconditionals="0" methods="24" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
@@ -489,7 +546,11 @@
         <line num="465" count="0" type="stmt"/>
         <line num="512" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="DocumentPreviewModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreviewModal.js">
+=======
+      <file name="DocumentPreviewModal.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreviewModal.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="28" coveredstatements="2" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="5" count="1" type="cond" truecount="0" falsecount="1"/>
         <line num="6" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -520,14 +581,22 @@
         <line num="44" count="0" type="stmt"/>
         <line num="73" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="FeaturedCollections.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FeaturedCollections.js">
+=======
+      <file name="FeaturedCollections.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FeaturedCollections.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="9" type="stmt"/>
         <line num="12" count="27" type="stmt"/>
         <line num="13" count="27" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="FileExplorer.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FileExplorer.js">
+=======
+      <file name="FileExplorer.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FileExplorer.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="151" coveredstatements="80" conditionals="145" coveredconditionals="82" methods="54" coveredmethods="22"/>
         <line num="6" count="21" type="stmt"/>
         <line num="7" count="20" type="stmt"/>
@@ -681,12 +750,20 @@
         <line num="718" count="0" type="stmt"/>
         <line num="724" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="Footer.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Footer.js">
+=======
+      <file name="Footer.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Footer.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="ForgotPasswordModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ForgotPasswordModal.js">
+=======
+      <file name="ForgotPasswordModal.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ForgotPasswordModal.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="50" coveredstatements="45" conditionals="50" coveredconditionals="42" methods="7" coveredmethods="7"/>
         <line num="6" count="139" type="stmt"/>
         <line num="7" count="139" type="stmt"/>
@@ -739,12 +816,20 @@
         <line num="179" count="23" type="stmt"/>
         <line num="208" count="23" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="Header.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Header.js">
+=======
+      <file name="Header.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Header.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="2" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="HomePage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/HomePage.js">
+=======
+      <file name="HomePage.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/HomePage.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="80" coveredstatements="45" conditionals="36" coveredconditionals="9" methods="9" coveredmethods="6"/>
         <line num="11" count="1" type="stmt"/>
         <line num="12" count="143" type="stmt"/>
@@ -827,6 +912,7 @@
         <line num="133" count="0" type="stmt"/>
         <line num="136" count="142" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="RecentDocuments.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/RecentDocuments.js">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
@@ -835,6 +921,16 @@
         <line num="19" count="36" type="stmt"/>
       </file>
       <file name="SearchResults.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults.js">
+=======
+      <file name="RecentDocuments.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/RecentDocuments.js">
+        <metrics statements="4" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+      </file>
+      <file name="SearchResults.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="24" coveredstatements="0" conditionals="28" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="6" count="0" type="stmt"/>
@@ -861,7 +957,11 @@
         <line num="50" count="0" type="stmt"/>
         <line num="70" count="0" type="cond" truecount="0" falsecount="2"/>
       </file>
+<<<<<<< HEAD
       <file name="SearchSection.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchSection.js">
+=======
+      <file name="SearchSection.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchSection.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="12" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
@@ -876,7 +976,11 @@
         <line num="102" count="0" type="stmt"/>
         <line num="105" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="UploadModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/UploadModal.js">
+=======
+      <file name="UploadModal.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/UploadModal.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="107" coveredstatements="0" conditionals="89" coveredconditionals="0" methods="33" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -986,7 +1090,11 @@
         <line num="460" count="0" type="stmt"/>
         <line num="462" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="Uploader.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Uploader.js">
+=======
+      <file name="Uploader.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Uploader.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="9" coveredstatements="9" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="4"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="12" type="stmt"/>
@@ -1001,14 +1109,22 @@
     </package>
     <package name="src.components.Dashboard">
       <metrics statements="68" coveredstatements="52" conditionals="83" coveredconditionals="57" methods="37" coveredmethods="25"/>
+<<<<<<< HEAD
       <file name="AllDocumentsView.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/AllDocumentsView.js">
+=======
+      <file name="AllDocumentsView.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/AllDocumentsView.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
         <line num="7" count="1" type="stmt"/>
         <line num="19" count="10" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
         <line num="57" count="18" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="DashboardHeader.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DashboardHeader.js">
+=======
+      <file name="DashboardHeader.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DashboardHeader.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="19" coveredstatements="19" conditionals="20" coveredconditionals="20" methods="6" coveredmethods="6"/>
         <line num="4" count="1" type="stmt"/>
         <line num="6" count="38" type="stmt"/>
@@ -1030,7 +1146,11 @@
         <line num="42" count="38" type="stmt"/>
         <line num="97" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="DocumentCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DocumentCard.js">
+=======
+      <file name="DocumentCard.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DocumentCard.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="7" coveredstatements="7" conditionals="6" coveredconditionals="6" methods="5" coveredmethods="5"/>
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="11" type="cond" truecount="2" falsecount="0"/>
@@ -1040,7 +1160,11 @@
         <line num="40" count="1" type="stmt"/>
         <line num="52" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="FeaturedDocuments.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/FeaturedDocuments.js">
+=======
+      <file name="FeaturedDocuments.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/FeaturedDocuments.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="33" coveredstatements="17" conditionals="55" coveredconditionals="29" methods="20" coveredmethods="8"/>
         <line num="5" count="1" type="stmt"/>
         <line num="18" count="14" type="stmt"/>
@@ -1076,13 +1200,21 @@
         <line num="178" count="25" type="stmt"/>
         <line num="180" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="QuickActions.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/QuickActions.js">
+=======
+      <file name="QuickActions.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/QuickActions.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="5" type="stmt"/>
         <line num="22" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="StatCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/StatCard.js">
+=======
+      <file name="StatCard.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/StatCard.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="4" type="stmt"/>
@@ -1090,7 +1222,11 @@
     </package>
     <package name="src.components.SearchResults">
       <metrics statements="110" coveredstatements="85" conditionals="82" coveredconditionals="51" methods="30" coveredmethods="22"/>
+<<<<<<< HEAD
       <file name="DocumentCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentCard.js">
+=======
+      <file name="DocumentCard.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentCard.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="23" coveredstatements="15" conditionals="26" coveredconditionals="11" methods="4" coveredmethods="4"/>
         <line num="4" count="2" type="stmt"/>
         <line num="5" count="6" type="stmt"/>
@@ -1116,18 +1252,30 @@
         <line num="31" count="6" type="stmt"/>
         <line num="48" count="16" type="cond" truecount="2" falsecount="0"/>
       </file>
+<<<<<<< HEAD
       <file name="DocumentTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentTab.js">
+=======
+      <file name="DocumentTab.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentTab.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
         <line num="7" count="2" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="ImageTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/ImageTab.js">
+=======
+      <file name="ImageTab.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/ImageTab.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="3" count="2" type="stmt"/>
         <line num="4" count="4" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="Tabs.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/Tabs.js">
+=======
+      <file name="Tabs.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/Tabs.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="5" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -1135,7 +1283,11 @@
         <line num="14" count="0" type="stmt"/>
         <line num="16" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="VideoTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/VideoTab.js">
+=======
+      <file name="VideoTab.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/VideoTab.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="56" coveredstatements="45" conditionals="34" coveredconditionals="22" methods="17" coveredmethods="12"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="3" type="stmt"/>
@@ -1194,7 +1346,11 @@
         <line num="269" count="1" type="stmt"/>
         <line num="283" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="index.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/index.js">
+=======
+      <file name="index.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/index.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="21" coveredstatements="20" conditionals="20" coveredconditionals="18" methods="3" coveredmethods="3"/>
         <line num="8" count="1" type="stmt"/>
         <line num="14" count="19" type="stmt"/>
@@ -1221,7 +1377,11 @@
     </package>
     <package name="src.constants">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+<<<<<<< HEAD
       <file name="data.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/constants/data.js">
+=======
+      <file name="data.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/constants/data.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
         <line num="30" count="2" type="stmt"/>
@@ -1230,7 +1390,11 @@
     </package>
     <package name="src.utils">
       <metrics statements="51" coveredstatements="33" conditionals="29" coveredconditionals="15" methods="15" coveredmethods="12"/>
+<<<<<<< HEAD
       <file name="api.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/api.js">
+=======
+      <file name="api.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/api.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="11" type="cond" truecount="2" falsecount="0"/>
@@ -1242,14 +1406,22 @@
         <line num="10" count="2" type="stmt"/>
         <line num="11" count="2" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="colors.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/colors.js">
+=======
+      <file name="colors.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/colors.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
         <line num="2" count="5" type="stmt"/>
         <line num="3" count="60" type="stmt"/>
         <line num="53" count="60" type="cond" truecount="2" falsecount="0"/>
         <line num="56" count="9" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="fileUtils.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/fileUtils.js">
+=======
+      <file name="fileUtils.js" path="/home/vmuser/Sprint 4/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/fileUtils.js">
+>>>>>>> 553047ae64859891884a8ed8bf76d534190ec348
         <metrics statements="38" coveredstatements="20" conditionals="25" coveredconditionals="11" methods="12" coveredmethods="9"/>
         <line num="13" count="1" type="stmt"/>
         <line num="14" count="10" type="cond" truecount="2" falsecount="0"/>
