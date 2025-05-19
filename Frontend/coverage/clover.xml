@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1747655171472" clover="3.2.0">
-  <project timestamp="1747655171472" name="All files">
-    <metrics statements="1148" coveredstatements="547" conditionals="876" coveredconditionals="380" methods="335" coveredmethods="144" elements="2359" coveredelements="1071" complexity="0" loc="1148" ncloc="1148" packages="6" files="41" classes="41"/>
+<coverage generated="1747662205107" clover="3.2.0">
+  <project timestamp="1747662205107" name="All files">
+    <metrics statements="1148" coveredstatements="551" conditionals="876" coveredconditionals="380" methods="335" coveredmethods="146" elements="2359" coveredelements="1077" complexity="0" loc="1148" ncloc="1148" packages="6" files="41" classes="41"/>
     <package name="src">
       <metrics statements="308" coveredstatements="161" conditionals="179" coveredconditionals="87" methods="69" coveredmethods="30"/>
-      <file name="AdminDashboard.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/AdminDashboard.js">
+      <file name="AdminDashboard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminDashboard.js">
         <metrics statements="166" coveredstatements="62" conditionals="79" coveredconditionals="10" methods="39" coveredmethods="9"/>
         <line num="23" count="1" type="stmt"/>
         <line num="24" count="12" type="stmt"/>
@@ -173,7 +173,7 @@
         <line num="548" count="0" type="stmt"/>
         <line num="554" count="0" type="stmt"/>
       </file>
-      <file name="AdminLogin.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/AdminLogin.js">
+      <file name="AdminLogin.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminLogin.js">
         <metrics statements="59" coveredstatements="35" conditionals="34" coveredconditionals="18" methods="11" coveredmethods="8"/>
         <line num="11" count="23" type="stmt"/>
         <line num="14" count="23" type="stmt"/>
@@ -235,7 +235,7 @@
         <line num="239" count="0" type="stmt"/>
         <line num="243" count="0" type="stmt"/>
       </file>
-      <file name="AdminSignup.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/AdminSignup.js">
+      <file name="AdminSignup.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/AdminSignup.js">
         <metrics statements="60" coveredstatements="47" conditionals="62" coveredconditionals="55" methods="11" coveredmethods="8"/>
         <line num="11" count="45" type="stmt"/>
         <line num="21" count="45" type="stmt"/>
@@ -298,7 +298,7 @@
         <line num="380" count="0" type="stmt"/>
         <line num="384" count="0" type="stmt"/>
       </file>
-      <file name="CompleteSignup.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/CompleteSignup.js">
+      <file name="CompleteSignup.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/CompleteSignup.js">
         <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="5" coveredmethods="5"/>
         <line num="6" count="35" type="stmt"/>
         <line num="11" count="34" type="stmt"/>
@@ -318,7 +318,7 @@
         <line num="66" count="6" type="stmt"/>
         <line num="78" count="14" type="stmt"/>
       </file>
-      <file name="setupProxy.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/setupProxy.js">
+      <file name="setupProxy.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/setupProxy.js">
         <metrics statements="6" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -329,8 +329,8 @@
       </file>
     </package>
     <package name="src.components">
-      <metrics statements="608" coveredstatements="213" conditionals="503" coveredconditionals="170" methods="184" coveredmethods="55"/>
-      <file name="AboutPage.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/AboutPage.js">
+      <metrics statements="608" coveredstatements="217" conditionals="503" coveredconditionals="170" methods="184" coveredmethods="57"/>
+      <file name="AboutPage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AboutPage.js">
         <metrics statements="19" coveredstatements="19" conditionals="20" coveredconditionals="20" methods="10" coveredmethods="10"/>
         <line num="8" count="1" type="stmt"/>
         <line num="9" count="92" type="stmt"/>
@@ -352,7 +352,7 @@
         <line num="127" count="72" type="stmt"/>
         <line num="147" count="90" type="stmt"/>
       </file>
-      <file name="AnimatedNavMenu.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/AnimatedNavMenu.js">
+      <file name="AnimatedNavMenu.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/AnimatedNavMenu.js">
         <metrics statements="28" coveredstatements="0" conditionals="42" coveredconditionals="0" methods="13" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -383,17 +383,17 @@
         <line num="74" count="0" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
       </file>
-      <file name="ApiErrorFallback.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/ApiErrorFallback.js">
+      <file name="ApiErrorFallback.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ApiErrorFallback.js">
         <metrics statements="2" coveredstatements="2" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="11" type="stmt"/>
       </file>
-      <file name="BrowseArchive.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/BrowseArchive.js">
+      <file name="BrowseArchive.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/BrowseArchive.js">
         <metrics statements="2" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
       </file>
-      <file name="CategoriesSection.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/CategoriesSection.js">
+      <file name="CategoriesSection.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/CategoriesSection.js">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="6" count="0" type="stmt"/>
@@ -403,16 +403,16 @@
         <line num="14" count="0" type="stmt"/>
         <line num="15" count="0" type="stmt"/>
       </file>
-      <file name="ConfirmDialog.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/ConfirmDialog.js">
+      <file name="ConfirmDialog.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ConfirmDialog.js">
         <metrics statements="3" coveredstatements="3" conditionals="9" coveredconditionals="9" methods="1" coveredmethods="1"/>
         <line num="3" count="1" type="stmt"/>
         <line num="13" count="8" type="cond" truecount="2" falsecount="0"/>
         <line num="15" count="7" type="stmt"/>
       </file>
-      <file name="ContactPage.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/ContactPage.js">
+      <file name="ContactPage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ContactPage.js">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="DocumentPreview.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/DocumentPreview.js">
+      <file name="DocumentPreview.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreview.js">
         <metrics statements="74" coveredstatements="0" conditionals="44" coveredconditionals="0" methods="24" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="75" count="0" type="stmt"/>
@@ -489,7 +489,7 @@
         <line num="465" count="0" type="stmt"/>
         <line num="512" count="0" type="stmt"/>
       </file>
-      <file name="DocumentPreviewModal.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/DocumentPreviewModal.js">
+      <file name="DocumentPreviewModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/DocumentPreviewModal.js">
         <metrics statements="28" coveredstatements="2" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="5" count="1" type="cond" truecount="0" falsecount="1"/>
         <line num="6" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -520,14 +520,14 @@
         <line num="44" count="0" type="stmt"/>
         <line num="73" count="0" type="stmt"/>
       </file>
-      <file name="FeaturedCollections.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/FeaturedCollections.js">
+      <file name="FeaturedCollections.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FeaturedCollections.js">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="9" type="stmt"/>
         <line num="12" count="27" type="stmt"/>
         <line num="13" count="27" type="stmt"/>
       </file>
-      <file name="FileExplorer.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/FileExplorer.js">
+      <file name="FileExplorer.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/FileExplorer.js">
         <metrics statements="151" coveredstatements="80" conditionals="145" coveredconditionals="82" methods="54" coveredmethods="22"/>
         <line num="6" count="21" type="stmt"/>
         <line num="7" count="20" type="stmt"/>
@@ -681,12 +681,12 @@
         <line num="718" count="0" type="stmt"/>
         <line num="724" count="1" type="stmt"/>
       </file>
-      <file name="Footer.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Footer.js">
+      <file name="Footer.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Footer.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="5" type="stmt"/>
       </file>
-      <file name="ForgotPasswordModal.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/ForgotPasswordModal.js">
+      <file name="ForgotPasswordModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/ForgotPasswordModal.js">
         <metrics statements="50" coveredstatements="45" conditionals="50" coveredconditionals="42" methods="7" coveredmethods="7"/>
         <line num="6" count="139" type="stmt"/>
         <line num="7" count="139" type="stmt"/>
@@ -739,12 +739,12 @@
         <line num="179" count="23" type="stmt"/>
         <line num="208" count="23" type="stmt"/>
       </file>
-      <file name="Header.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Header.js">
+      <file name="Header.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Header.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="2" type="stmt"/>
       </file>
-      <file name="HomePage.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/HomePage.js">
+      <file name="HomePage.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/HomePage.js">
         <metrics statements="80" coveredstatements="45" conditionals="36" coveredconditionals="9" methods="9" coveredmethods="6"/>
         <line num="11" count="1" type="stmt"/>
         <line num="12" count="143" type="stmt"/>
@@ -827,14 +827,14 @@
         <line num="133" count="0" type="stmt"/>
         <line num="136" count="142" type="stmt"/>
       </file>
-      <file name="RecentDocuments.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/RecentDocuments.js">
-        <metrics statements="4" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
+      <file name="RecentDocuments.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/RecentDocuments.js">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="9" type="stmt"/>
+        <line num="18" count="36" type="stmt"/>
+        <line num="19" count="36" type="stmt"/>
       </file>
-      <file name="SearchResults.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults.js">
+      <file name="SearchResults.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults.js">
         <metrics statements="24" coveredstatements="0" conditionals="28" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="5" count="0" type="stmt"/>
         <line num="6" count="0" type="stmt"/>
@@ -861,7 +861,7 @@
         <line num="50" count="0" type="stmt"/>
         <line num="70" count="0" type="cond" truecount="0" falsecount="2"/>
       </file>
-      <file name="SearchSection.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchSection.js">
+      <file name="SearchSection.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchSection.js">
         <metrics statements="12" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
@@ -876,7 +876,7 @@
         <line num="102" count="0" type="stmt"/>
         <line num="105" count="0" type="stmt"/>
       </file>
-      <file name="UploadModal.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/UploadModal.js">
+      <file name="UploadModal.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/UploadModal.js">
         <metrics statements="107" coveredstatements="0" conditionals="89" coveredconditionals="0" methods="33" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -986,7 +986,7 @@
         <line num="460" count="0" type="stmt"/>
         <line num="462" count="0" type="stmt"/>
       </file>
-      <file name="Uploader.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Uploader.js">
+      <file name="Uploader.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Uploader.js">
         <metrics statements="9" coveredstatements="9" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="4"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="12" type="stmt"/>
@@ -1001,14 +1001,14 @@
     </package>
     <package name="src.components.Dashboard">
       <metrics statements="68" coveredstatements="52" conditionals="83" coveredconditionals="57" methods="37" coveredmethods="25"/>
-      <file name="AllDocumentsView.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/AllDocumentsView.js">
+      <file name="AllDocumentsView.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/AllDocumentsView.js">
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
         <line num="7" count="1" type="stmt"/>
         <line num="19" count="10" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
         <line num="57" count="18" type="stmt"/>
       </file>
-      <file name="DashboardHeader.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/DashboardHeader.js">
+      <file name="DashboardHeader.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DashboardHeader.js">
         <metrics statements="19" coveredstatements="19" conditionals="20" coveredconditionals="20" methods="6" coveredmethods="6"/>
         <line num="4" count="1" type="stmt"/>
         <line num="6" count="38" type="stmt"/>
@@ -1030,7 +1030,7 @@
         <line num="42" count="38" type="stmt"/>
         <line num="97" count="1" type="stmt"/>
       </file>
-      <file name="DocumentCard.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/DocumentCard.js">
+      <file name="DocumentCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/DocumentCard.js">
         <metrics statements="7" coveredstatements="7" conditionals="6" coveredconditionals="6" methods="5" coveredmethods="5"/>
         <line num="7" count="1" type="stmt"/>
         <line num="8" count="11" type="cond" truecount="2" falsecount="0"/>
@@ -1040,7 +1040,7 @@
         <line num="40" count="1" type="stmt"/>
         <line num="52" count="1" type="stmt"/>
       </file>
-      <file name="FeaturedDocuments.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/FeaturedDocuments.js">
+      <file name="FeaturedDocuments.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/FeaturedDocuments.js">
         <metrics statements="33" coveredstatements="17" conditionals="55" coveredconditionals="29" methods="20" coveredmethods="8"/>
         <line num="5" count="1" type="stmt"/>
         <line num="18" count="14" type="stmt"/>
@@ -1076,13 +1076,13 @@
         <line num="178" count="25" type="stmt"/>
         <line num="180" count="1" type="stmt"/>
       </file>
-      <file name="QuickActions.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/QuickActions.js">
+      <file name="QuickActions.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/QuickActions.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="5" type="stmt"/>
         <line num="22" count="1" type="stmt"/>
       </file>
-      <file name="StatCard.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/Dashboard/StatCard.js">
+      <file name="StatCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/Dashboard/StatCard.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="4" type="stmt"/>
@@ -1090,7 +1090,7 @@
     </package>
     <package name="src.components.SearchResults">
       <metrics statements="110" coveredstatements="85" conditionals="82" coveredconditionals="51" methods="30" coveredmethods="22"/>
-      <file name="DocumentCard.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/DocumentCard.js">
+      <file name="DocumentCard.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentCard.js">
         <metrics statements="23" coveredstatements="15" conditionals="26" coveredconditionals="11" methods="4" coveredmethods="4"/>
         <line num="4" count="2" type="stmt"/>
         <line num="5" count="6" type="stmt"/>
@@ -1116,18 +1116,18 @@
         <line num="31" count="6" type="stmt"/>
         <line num="48" count="16" type="cond" truecount="2" falsecount="0"/>
       </file>
-      <file name="DocumentTab.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/DocumentTab.js">
+      <file name="DocumentTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/DocumentTab.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
         <line num="7" count="2" type="stmt"/>
       </file>
-      <file name="ImageTab.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/ImageTab.js">
+      <file name="ImageTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/ImageTab.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
         <line num="3" count="2" type="stmt"/>
         <line num="4" count="4" type="stmt"/>
       </file>
-      <file name="Tabs.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/Tabs.js">
+      <file name="Tabs.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/Tabs.js">
         <metrics statements="5" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -1135,7 +1135,7 @@
         <line num="14" count="0" type="stmt"/>
         <line num="16" count="0" type="stmt"/>
       </file>
-      <file name="VideoTab.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/VideoTab.js">
+      <file name="VideoTab.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/VideoTab.js">
         <metrics statements="56" coveredstatements="45" conditionals="34" coveredconditionals="22" methods="17" coveredmethods="12"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="3" type="stmt"/>
@@ -1194,7 +1194,7 @@
         <line num="269" count="1" type="stmt"/>
         <line num="283" count="1" type="stmt"/>
       </file>
-      <file name="index.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/components/SearchResults/index.js">
+      <file name="index.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/components/SearchResults/index.js">
         <metrics statements="21" coveredstatements="20" conditionals="20" coveredconditionals="18" methods="3" coveredmethods="3"/>
         <line num="8" count="1" type="stmt"/>
         <line num="14" count="19" type="stmt"/>
@@ -1221,16 +1221,16 @@
     </package>
     <package name="src.constants">
       <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="data.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/constants/data.js">
+      <file name="data.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/constants/data.js">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="30" count="1" type="stmt"/>
-        <line num="66" count="1" type="stmt"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="66" count="2" type="stmt"/>
       </file>
     </package>
     <package name="src.utils">
       <metrics statements="51" coveredstatements="33" conditionals="29" coveredconditionals="15" methods="15" coveredmethods="12"/>
-      <file name="api.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/utils/api.js">
+      <file name="api.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/api.js">
         <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="11" type="cond" truecount="2" falsecount="0"/>
@@ -1242,14 +1242,14 @@
         <line num="10" count="2" type="stmt"/>
         <line num="11" count="2" type="stmt"/>
       </file>
-      <file name="colors.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/utils/colors.js">
+      <file name="colors.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/colors.js">
         <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
-        <line num="2" count="4" type="stmt"/>
-        <line num="3" count="24" type="stmt"/>
-        <line num="53" count="24" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="3" count="60" type="stmt"/>
+        <line num="53" count="60" type="cond" truecount="2" falsecount="0"/>
         <line num="56" count="9" type="stmt"/>
       </file>
-      <file name="fileUtils.js" path="/home/thapelo/Constitutional-Archive-Data-Management-and-Search-Interface-1/Frontend/src/utils/fileUtils.js">
+      <file name="fileUtils.js" path="/home/vmuser/Desktop/Constitutional-Archive-Data-Management-and-Search-Interface/Frontend/src/utils/fileUtils.js">
         <metrics statements="38" coveredstatements="20" conditionals="25" coveredconditionals="11" methods="12" coveredmethods="9"/>
         <line num="13" count="1" type="stmt"/>
         <line num="14" count="10" type="cond" truecount="2" falsecount="0"/>
