@@ -18,10 +18,10 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password/${token}`, {
-        password: newPassword,
+        newPassword,
       });
       toast.success("Password reset successful");
-      navigate("/login");
+      navigate("/admin/login");
     } catch (err) {
       toast.error(err.response?.data?.message || "Error resetting password");
     } finally {
@@ -37,6 +37,7 @@ export default function ResetPasswordPage() {
         placeholder="New password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
+        disabled={isLoading}
       />
       <button onClick={handleReset} disabled={isLoading}>
         {isLoading ? "Resetting..." : "Reset Password"}

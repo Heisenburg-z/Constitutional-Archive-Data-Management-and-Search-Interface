@@ -195,35 +195,50 @@ router.post('/signup', async (req, res) => {
   });
 
   // At the start of your forgot password route handler
-router.post('/reset-password/:token', async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
 
   try {
-    const user = await User.findOne({
-      resetToken: token,
-      resetExpires: { $gt: Date.now() }, // token not expired
-    });
-
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired token' });
+      return res.status(400).json({ message: 'User with this email does not exist' });
     }
 
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    // Generate reset token and expiry (e.g., 1 hour)
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    user.passwordHash = passwordHash;
-    user.resetToken = undefined;
-    user.resetExpires = undefined;
-
+    user.resetToken = token;
+    user.resetExpires = Date.now() + 3600000; // 1 hour from now
     await user.save();
 
-    res.json({ message: 'Password reset successful' });
+    // Prepare email message
+    const msg = {
+      to: user.email,
+      from: process.env.EMAIL_FROM,
+      subject: 'Password Reset Request',
+      text: `You requested a password reset. Click the link to reset your password: ${process.env.FRONTEND_URL}/reset-password/${token}`,
+      html: `
+        <p>You requested a password reset.</p>
+        <p>Click <a href="${process.env.FRONTEND_URL}/reset-password/${token}">here</a> to reset your password.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      `
+    };
+
+    await sgMail.send(msg);
+
+    res.json({ message: 'Password reset email sent' });
   } catch (error) {
-    console.error('Reset password error:', error);
+    console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 module.exports = router;
