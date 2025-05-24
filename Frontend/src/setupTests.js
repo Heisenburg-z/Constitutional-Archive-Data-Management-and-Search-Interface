@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom';
 import fetchMock from 'jest-fetch-mock';
+// Ensure DOM is available
+if (typeof document === 'undefined') {
+  const { JSDOM } = require('jsdom');
+  const dom = new JSDOM();
+  global.document = dom.window.document;
+  global.window = dom.window;
+}
 
 fetchMock.enableMocks();
 // jest.setup.js
@@ -54,7 +61,58 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError;
 });
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Mock scrollTo
+global.scrollTo = jest.fn();
+
+// Mock window.open
+global.open = jest.fn();
+
+// Mock URL constructor and methods
+global.URL = class URL {
+  constructor(url) {
+    this.href = url;
+  }
+  static createObjectURL = jest.fn(() => 'mock-blob-url');
+  static revokeObjectURL = jest.fn();
+};
+
+// Mock Blob constructor
+global.Blob = class Blob {
+  constructor(parts, options) {
+    this.parts = parts;
+    this.options = options;
+    this.size = parts.reduce((acc, part) => acc + part.length, 0);
+  }
+};
+
+// Suppress console errors for cleaner test output
+
+
+afterAll(() => {
+  console.error = originalError;
+});
+
+// Clean up after each test
+afterEach(() => {
+  jest.clearAllMocks();
+  // Clear any timers
+  jest.clearAllTimers();
+});
 // Reset all mocks after each test
 afterEach(() => {
   jest.clearAllMocks();

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BrowseArchive Snapshot matches snapshot 1`] = `
+<main
+  class="min-h-screen bg-gray-100 p-6"
+>
+  <header
+    class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-md"
+  >
+    <h1
+      class="text-3xl font-bold"
+    >
+      Browse Archive
+    </h1>
+    <p
+      class="text-sm mt-2"
+    >
+      Explore documents and folders in the archive.
+    </p>
+  </header>
+  <section
+    class="mt-6"
+  >
+    <div
+      data-testid="file-explorer"
+    >
+      File Explorer Component
+    </div>
+  </section>
+</main>
+`;

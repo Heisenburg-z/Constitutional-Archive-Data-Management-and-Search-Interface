@@ -1,0 +1,321 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DocumentSubmissionLog Component Snapshot Testing matches snapshot with documents 1`] = `
+<div
+  class="bg-white rounded-lg shadow-md p-6 border border-gray-100"
+>
+  <div
+    class="flex items-center gap-3 mb-6"
+  >
+    <div
+      class="p-2 rounded-lg bg-blue-50 text-blue-600"
+    >
+      <div
+        data-testid="history-icon"
+      />
+    </div>
+    <div>
+      <h2
+        class="text-xl font-bold text-gray-800"
+      >
+        Document Submission Log
+      </h2>
+      <p
+        class="text-sm text-gray-500"
+      >
+        Track all document submissions with upload details
+      </p>
+    </div>
+  </div>
+  <div
+    class="overflow-x-auto"
+  >
+    <table
+      class="min-w-full divide-y divide-gray-200"
+    >
+      <thead
+        class="bg-gray-50"
+      >
+        <tr>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <div
+              class="flex items-center gap-1"
+            >
+              <div
+                data-testid="filetext-icon"
+              />
+              Document
+            </div>
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <div
+              class="flex items-center gap-1"
+            >
+              <div
+                data-testid="user-icon"
+              />
+              Submitted By
+            </div>
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            <div
+              class="flex items-center gap-1"
+            >
+              <div
+                data-testid="calendar-icon"
+              />
+              Submission Date
+            </div>
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Type
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        class="bg-white divide-y divide-gray-200"
+      >
+        <tr
+          class="hover:bg-gray-50 transition-colors"
+        >
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="text-sm font-medium text-gray-900"
+            >
+              admin-document.pdf
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="flex items-center"
+            >
+              <div
+                class="text-sm"
+              >
+                <div
+                  class="font-medium text-gray-900"
+                >
+                  Admin
+                   
+                  User
+                </div>
+                <div
+                  class="text-xs text-gray-500"
+                >
+                  admin@example.com
+                </div>
+                <span
+                  class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
+                >
+                  Admin
+                </span>
+              </div>
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="text-sm text-gray-900"
+            >
+              2024/01/16
+            </div>
+            <div
+              class="text-xs text-gray-500"
+            >
+              16:45:00
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <span
+              class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800"
+            >
+              directory
+            </span>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2"
+          >
+            <button
+              class="text-blue-600 hover:text-blue-900 p-1.5 rounded hover:bg-blue-50 transition-colors"
+              title="Download"
+            >
+              <div
+                data-testid="download-icon"
+              />
+            </button>
+            <button
+              class="text-green-600 hover:text-green-900 p-1.5 rounded hover:bg-green-50 transition-colors"
+              title="Edit"
+            >
+              <div
+                data-testid="edit-icon"
+              />
+            </button>
+            <button
+              class="text-red-600 hover:text-red-900 p-1.5 rounded hover:bg-red-50 transition-colors"
+              title="Delete"
+            >
+              <div
+                data-testid="trash-icon"
+              />
+            </button>
+          </td>
+        </tr>
+        <tr
+          class="hover:bg-gray-50 transition-colors"
+        >
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="text-sm font-medium text-gray-900"
+            >
+              test-document.pdf
+              <div
+                class="text-xs text-gray-500 mt-1"
+              >
+                Test Document Title
+              </div>
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="flex items-center"
+            >
+              <div
+                class="text-sm"
+              >
+                <div
+                  class="font-medium text-gray-900"
+                >
+                  John
+                   
+                  Doe
+                </div>
+                <div
+                  class="text-xs text-gray-500"
+                >
+                  john.doe@example.com
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <div
+              class="text-sm text-gray-900"
+            >
+              2024/01/15
+            </div>
+            <div
+              class="text-xs text-gray-500"
+            >
+              12:30:00
+            </div>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap"
+          >
+            <span
+              class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+            >
+              file
+            </span>
+          </td>
+          <td
+            class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2"
+          >
+            <button
+              class="text-blue-600 hover:text-blue-900 p-1.5 rounded hover:bg-blue-50 transition-colors"
+              title="Download"
+            >
+              <div
+                data-testid="download-icon"
+              />
+            </button>
+            <button
+              class="text-green-600 hover:text-green-900 p-1.5 rounded hover:bg-green-50 transition-colors"
+              title="Edit"
+            >
+              <div
+                data-testid="edit-icon"
+              />
+            </button>
+            <button
+              class="text-red-600 hover:text-red-900 p-1.5 rounded hover:bg-red-50 transition-colors"
+              title="Delete"
+            >
+              <div
+                data-testid="trash-icon"
+              />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+exports[`DocumentSubmissionLog Component Snapshot Testing matches snapshot with no documents 1`] = `
+<div
+  class="bg-white rounded-lg shadow-md p-6 border border-gray-100"
+>
+  <div
+    class="flex items-center gap-3 mb-6"
+  >
+    <div
+      class="p-2 rounded-lg bg-blue-50 text-blue-600"
+    >
+      <div
+        data-testid="history-icon"
+      />
+    </div>
+    <div>
+      <h2
+        class="text-xl font-bold text-gray-800"
+      >
+        Document Submission Log
+      </h2>
+      <p
+        class="text-sm text-gray-500"
+      >
+        No documents submitted yet
+      </p>
+    </div>
+  </div>
+  <div
+    class="text-center py-8 text-gray-500"
+  >
+    <div
+      data-testid="filetext-icon"
+    />
+    <p>
+      No documents have been submitted yet
+    </p>
+  </div>
+</div>
+`;
