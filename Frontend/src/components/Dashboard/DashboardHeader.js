@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Mail,  Menu, User, FileText, LogOut } from 'lucide-react';
+import { Search, Mail,  Menu,  FileText, LogOut } from 'lucide-react';
 
-const DashboardHeader = ({ userProfile, setCurrentView }) => {
+const DashboardHeader = ({ userProfile, setCurrentView ,userDocuments}) => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -27,6 +27,14 @@ const DashboardHeader = ({ userProfile, setCurrentView }) => {
     return () => clearTimeout(timer);
   }, []);
 
+ // Filter documents to show only those uploaded by the current user
+ 
+
+  // Handle menu item clicks
+  const handleMenuItemClick = (view) => {
+    setIsMenuOpen(false);
+    setCurrentView(view);
+  };
 
 
   // Handle menu toggle
@@ -115,25 +123,49 @@ const DashboardHeader = ({ userProfile, setCurrentView }) => {
             
             {/* Dropdown menu */}
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-20 animate-fadeIn">
-                <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
-                  Signed in as <span className="font-medium">{displayName}</span>
+          <div className="absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-20 animate-fadeIn">
+            {/* Profile Section */}
+            <div className="px-4 py-3 border-b border-gray-100">
+              <div className="text-sm font-medium text-gray-900">{displayName}</div>
+              <div className="text-xs text-gray-500 truncate">{userProfile?.email}</div>
+              {userProfile?.role && (
+                <div className="mt-1">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {userProfile.role}
+                  </span>
                 </div>
-                <a href="#profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                  <User size={16} className="mr-2" />
-                  Your Profile
-                </a>
-                <a href="#settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                  <FileText size={16} className="mr-2" />
-                  Documents
-                </a>
-                <div className="border-t border-gray-100 my-1"></div>
-                <a href="#logout" className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                  <LogOut size={16} className="mr-2" />
-                  Sign out
-                </a>
+              )}
+              <div className="mt-2 flex items-center text-xs text-gray-500">
+                <svg className="h-3 w-3 text-green-500 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                  <circle cx="4" cy="4" r="3" />
+                </svg>
+                Active now
+              </div>
+            </div>
+
+            
+
+            {/* All Documents Section (only for admins) */}
+            {userProfile?.role === 'admin' && (
+              <div 
+                onClick={() => handleMenuItemClick('all')}
+                className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                
               </div>
             )}
+
+            <div className="border-t border-gray-100 my-1"></div>
+            <a 
+              href="#logout" 
+              className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={16} className="mr-2" />
+              Sign out
+            </a>
+          </div>
+        )}
+
           </div>
         </div>
       </div>
