@@ -1,6 +1,6 @@
 // src/components/Dashboard/AdminDashboard.js
 
-import { BarChart, Upload, User,Edit ,History} from 'lucide-react';
+import { BarChart, Upload, User,Edit ,History,LogOut} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import UploadModal from './components/UploadModal';
@@ -382,12 +382,15 @@ const AdminDashboard = () => {
             </div>
           </li>
         </ul>
+        <li className="list-none"> {/* Add list-none to remove bullet point */}
         <button
           onClick={handleLogout}
-          className="mt-8 w-full text-left p-3 text-red-600 hover:bg-red-50 rounded-lg"
+          className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded-lg"
         >
+          <LogOut size={20} className="text-red-600" />
           Logout
         </button>
+      </li>
       </nav>
 
       <section className="ml-64 p-8">
