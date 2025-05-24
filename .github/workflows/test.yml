@@ -1,7 +1,5 @@
 name: Tests and Coverage
-
 on: [push, pull_request]
-
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -13,16 +11,28 @@ jobs:
         node-version: 18.x
     - name: Install Frontend Dependencies
       working-directory: Frontend
-      run: npm ci
+      run: npm ci --silent
+      env:
+        NPM_CONFIG_LOGLEVEL: error
     - name: Run Frontend Tests
       working-directory: Frontend
-      run: npm run test:coverage
+      run: npm run test:coverage --silent
+      env:
+        CI: true
+        NODE_OPTIONS: --max-old-space-size=4096
+        NPM_CONFIG_LOGLEVEL: error
+        # Suppress specific warnings
+        NODE_NO_WARNINGS: 1
+        # React Scripts specific
+        GENERATE_SOURCEMAP: false
+        # Suppress console warnings in tests
+        REACT_APP_SUPPRESS_WARNINGS: true
     - name: Upload Frontend Coverage
       working-directory: Frontend
-      run: npm run report:coverage
+      run: npm run report:coverage --silent
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
+        NPM_CONFIG_LOGLEVEL: error
   backend:
     runs-on: ubuntu-latest
     steps:
@@ -33,12 +43,23 @@ jobs:
         node-version: 18.x
     - name: Install Backend Dependencies
       working-directory: Backend
-      run: npm ci
+      run: npm ci --silent
+      env:
+        NPM_CONFIG_LOGLEVEL: error
     - name: Run Backend Tests
       working-directory: Backend
-      run: npm run coverage
+      run: npm run coverage --silent
+      env:
+        CI: true
+        NODE_OPTIONS: --max-old-space-size=4096
+        NPM_CONFIG_LOGLEVEL: error
+        # Suppress specific warnings
+        NODE_NO_WARNINGS: 1
+        # Jest specific warning suppression
+        JEST_SILENT: true
     - name: Upload Backend Coverage
       working-directory: Backend
-      run: npm run report:coverage
+      run: npm run report:coverage --silent
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        NPM_CONFIG_LOGLEVEL: error
