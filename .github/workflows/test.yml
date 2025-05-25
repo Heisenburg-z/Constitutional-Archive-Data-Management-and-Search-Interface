@@ -16,7 +16,7 @@ jobs:
         NPM_CONFIG_LOGLEVEL: error
     - name: Run Frontend Tests
       working-directory: Frontend
-      run: npm run test:coverage --silent
+      run: npm run test:coverage
       env:
         CI: true
         NODE_OPTIONS: --max-old-space-size=4096 --no-warnings
