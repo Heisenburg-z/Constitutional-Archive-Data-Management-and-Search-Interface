@@ -16,17 +16,18 @@ jobs:
         NPM_CONFIG_LOGLEVEL: error
     - name: Run Frontend Tests
       working-directory: Frontend
-      run: npm run test:coverage --silent
+      run: npm run test:coverage 2>/dev/null
       env:
         CI: true
         NODE_OPTIONS: --max-old-space-size=4096
-        NPM_CONFIG_LOGLEVEL: error
         # Suppress specific warnings
         NODE_NO_WARNINGS: 1
         # React Scripts specific
         GENERATE_SOURCEMAP: false
-        # Suppress console warnings in tests
-        REACT_APP_SUPPRESS_WARNINGS: true
+        # Suppress ESLint warnings in tests
+        ESLINT_NO_DEV_ERRORS: true
+        # Reduce output noise
+        NPM_CONFIG_LOGLEVEL: silent
     - name: Upload Frontend Coverage
       working-directory: Frontend
       run: npm run report:coverage --silent
