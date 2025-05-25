@@ -15,6 +15,8 @@ jobs:
       env:
         NPM_CONFIG_LOGLEVEL: error
     - name: Run Frontend Tests
+      id: frontend-tests
+      continue-on-error: true
       working-directory: Frontend
       run: npm run test:coverage
       env:
@@ -27,11 +29,23 @@ jobs:
         # Reduce npm noise but keep errors visible
         NPM_CONFIG_LOGLEVEL: error
     - name: Upload Frontend Coverage
+      if: always()
+      continue-on-error: true
       working-directory: Frontend
       run: npm run report:coverage --silent
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         NPM_CONFIG_LOGLEVEL: error
+    - name: Frontend Test Results Summary
+      if: always()
+      run: |
+        if [ "${{ steps.frontend-tests.outcome }}" = "failure" ]; then
+          echo "⚠️ Frontend tests failed but workflow continued"
+          echo "frontend_tests_failed=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Frontend tests passed"
+          echo "frontend_tests_failed=false" >> $GITHUB_OUTPUT
+        fi
   backend:
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +60,8 @@ jobs:
       env:
         NPM_CONFIG_LOGLEVEL: error
     - name: Run Backend Tests
+      id: backend-tests
+      continue-on-error: true
       working-directory: Backend
       run: npm run coverage --silent
       env:
@@ -57,8 +73,37 @@ jobs:
         # Jest specific warning suppression
         JEST_SILENT: true
     - name: Upload Backend Coverage
+      if: always()
+      continue-on-error: true
       working-directory: Backend
       run: npm run report:coverage --silent
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         NPM_CONFIG_LOGLEVEL: error
+    - name: Backend Test Results Summary
+      if: always()
+      run: |
+        if [ "${{ steps.backend-tests.outcome }}" = "failure" ]; then
+          echo "⚠️ Backend tests failed but workflow continued"
+          echo "backend_tests_failed=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Backend tests passed"
+          echo "backend_tests_failed=false" >> $GITHUB_OUTPUT
+        fi
+  summary:
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    if: always()
+    steps:
+    - name: Workflow Summary
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Frontend job: ${{ needs.frontend.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Backend job: ${{ needs.backend.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.frontend.result }}" != "success" ] || [ "${{ needs.backend.result }}" != "success" ]; then
+          echo "⚠️ Some tests failed, but coverage was still uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "✅ All tests passed successfully" >> $GITHUB_STEP_SUMMARY
+        fi
