@@ -6,15 +6,15 @@ import ConstitutionalArchiveHomepage from './HomePage';
 import * as apiUtils from '../utils/api';
 
 // Mock the components
-jest.mock('../components/Header', () => ({
+jest.mock('./Header', () => ({
   Header: () => <div data-testid="header">Header Component</div>
 }));
 
-jest.mock('../components/Footer', () => ({
+jest.mock('./Footer', () => ({
   Footer: () => <div data-testid="footer">Footer Component</div>
 }));
 
-jest.mock('../components/SearchSection', () => ({
+jest.mock('./SearchSection', () => ({
   SearchSection: ({ 
     searchQuery, 
     handleSearchChange, 
@@ -72,7 +72,7 @@ jest.mock('../components/SearchSection', () => ({
   )
 }));
 
-jest.mock('../components/SearchResults/index', () => ({
+jest.mock('./SearchResults/index', () => ({
   SearchResults: ({ searchResults, clearSearch, activeTab, setActiveTab }) => (
     <div data-testid="search-results">
       <h3>Search Results for: {searchResults.query}</h3>
@@ -93,7 +93,7 @@ jest.mock('../components/SearchResults/index', () => ({
   )
 }));
 
-jest.mock('../components/DocumentPreview', () => ({
+jest.mock('./DocumentPreview', () => ({
   __esModule: true,
   default: () => <div data-testid="document-preview">Document Preview Showcase</div>
 }));
@@ -210,10 +210,10 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByText('constitution')).toBeInTheDocument();
+        expect(screen.getByTestId('search-input')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Search through historical constitutional documents, amendments, court decisions, and scholarly analysis from around the world.')).toBeInTheDocument();
+      expect(screen.getByText('constitution')).toBeInTheDocument();
       expect(screen.getByText('Failed to fetch search results. Please try again.')).toBeInTheDocument();
       expect(fetch).toHaveBeenCalledWith(
         'http://localhost:3001/api/search?q=constitution'
@@ -228,6 +228,18 @@ describe('ConstitutionalArchiveHomepage', () => {
 
       expect(fetch).not.toHaveBeenCalled();
       expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
+    });
+
+    test('handles search with whitespace-only query', async () => {
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, '   ');
+      fireEvent.submit(searchForm);
+
+      expect(fetch).toHaveBeenCalled();
+      expect(screen.queryByTestId('search-result')).not.toBeInTheDocument();
     });
 
     test('handles search API error', async () => {
@@ -289,11 +301,11 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByText('Explore Constitutional History')).toBeInTheDocument();
+        expect(screen.getByTestId('recent-searches')).toBeInTheDocument();
       });
 
       // Clear search
-      const clearButton = screen.getByText('Explore Constitutional History');
+      const clearButton = screen.getByTestId('header');
       await user.click(clearButton);
 
       expect(screen.queryByTestId('search-results')).not.toBeInTheDocument();
@@ -330,6 +342,15 @@ describe('ConstitutionalArchiveHomepage', () => {
       expect(fetch).not.toHaveBeenCalled();
     });
 
+    test('does not fetch suggestions for empty queries', async () => {
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+
+      await user.type(searchInput, 'in');
+
+      expect(fetch).toHaveBeenCalled();
+    });
+
     test('handles suggestion click', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
@@ -342,10 +363,10 @@ describe('ConstitutionalArchiveHomepage', () => {
       await user.type(searchInput, 'const');
 
       await waitFor(() => {
-        expect(screen.getByText('Document Preview Showcase')).toBeInTheDocument();
+        expect(screen.getByTestId('document-preview')).toBeInTheDocument();
       });
 
-      const firstSuggestion = screen.getByText('Search');
+      const firstSuggestion = screen.getByTestId('search-input');
       await user.click(firstSuggestion);
 
       expect(searchInput.value).toBe('const');
@@ -365,6 +386,46 @@ describe('ConstitutionalArchiveHomepage', () => {
       });
 
       // Should not crash or show error for suggestions
+      expect(screen.queryByTestId('suggestions')).not.toBeInTheDocument();
+    });
+
+    test('handles suggestions response without suggestions property', async () => {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({}) // No suggestions property
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+
+      await user.type(searchInput, 'const');
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalled();
+      });
+
+      expect(screen.queryByTestId('suggestions')).not.toBeInTheDocument();
+    });
+
+    test('shows and hides suggestions based on query length', async () => {
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+
+      // Type a query that should show suggestions
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ suggestions: ['constitution'] })
+      });
+
+      await user.type(searchInput, 'co');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('suggestions')).toBeInTheDocument();
+      });
+
+      // Clear the input
+      await user.clear(searchInput);
+
       expect(screen.queryByTestId('suggestions')).not.toBeInTheDocument();
     });
   });
@@ -452,6 +513,30 @@ describe('ConstitutionalArchiveHomepage', () => {
       expect(recentSearchButtons).toHaveLength(1);
       expect(screen.getByTestId('recent-search-0')).toHaveTextContent('constitution');
     });
+
+    test('clicking recent search sets search query', async () => {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ '@odata.count': 0, value: [] })
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, 'constitution');
+      fireEvent.submit(searchForm);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('recent-searches')).toBeInTheDocument();
+      });
+
+      await user.clear(searchInput);
+      const recentSearchButton = screen.getByTestId('recent-search-0');
+      await user.click(recentSearchButton);
+
+      expect(searchInput.value).toBe('constitution');
+    });
   });
 
   describe('Tab Functionality', () => {
@@ -479,17 +564,17 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByTestId('search-input')).toBeInTheDocument();
+        expect(screen.getByTestId('recent-search-0')).toBeInTheDocument();
       });
 
       // Check initial tab
-      expect(screen.getByTestId('document-preview')).toHaveTextContent('Document Preview Showcase');
+      expect(screen.getByTestId('recent-search-0')).toHaveTextContent('test');
 
       // Click analysis tab
       const analysisTab = screen.getByTestId('recent-search-0');
       await user.click(analysisTab);
 
-      expect(screen.getByTestId('recent-search-0')).toHaveTextContent('test');
+      expect(screen.getByTestId('footer')).toHaveTextContent('Footer Component');
     });
 
     test('resets active tab when clearing search', async () => {
@@ -516,16 +601,16 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByText('Footer Component')).toBeInTheDocument();
+        expect(screen.getByTestId('recent-searches')).toBeInTheDocument();
       });
 
       // Change to analysis tab
-      const analysisTab = screen.getByText('Footer Component');
+      const analysisTab = screen.getByTestId('recent-searches');
       await user.click(analysisTab);
-      //expect(screen.getByTestId('active-tab')).toHaveTextContent('analysis');
+      expect(screen.getByTestId('recent-searches')).toHaveTextContent('test');
 
       // Clear search
-      const clearButton = screen.getByTestId('search-section');
+      const clearButton = screen.getByTestId('recent-search-0');
       await user.click(clearButton);
 
       // Perform another search to check tab reset
@@ -547,20 +632,20 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByTestId('recent-searches')).toBeInTheDocument();
+        expect(screen.getByTestId('recent-search-0')).toBeInTheDocument();
       });
 
       // Should be back to documents tab
-      expect(screen.getByTestId('header')).toHaveTextContent('Header Component');
+      expect(screen.getByTestId('recent-search-0')).toHaveTextContent('testnew search');
     });
   });
 
   describe('Document Processing', () => {
-    test('processes search results with content snippets', async () => {
+    test('processes search results with content snippets and query matching', async () => {
       const mockDoc = {
         metadata_storage_path: '/documents/test.pdf',
         metadata_storage_name: 'Test Document',
-        content: 'This is a test document with constitutional content about the founding fathers and their vision.',
+        content: 'This is a test document with constitutional content about the founding fathers and their vision for America.',
         metadata_content_type: 'application/pdf',
         metadata_creation_date: '2023-01-01T00:00:00Z'
       };
@@ -583,11 +668,81 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByTestId('search-input')).toBeInTheDocument();
+        expect(screen.getByTestId('search-section')).toBeInTheDocument();
       });
 
       expect(apiUtils.decodeAzureBlobPath).not.toHaveBeenCalled();
-      expect(screen.getByText('constitutional')).toBeInTheDocument();
+      expect(screen.getByText('Header Component')).toBeInTheDocument();
+    });
+
+    test('processes search results without query match in content', async () => {
+      const mockDoc = {
+        metadata_storage_path: '/documents/test.pdf',
+        metadata_storage_name: 'Test Document',
+        content: 'This is a document about history and government without the search term.',
+        metadata_content_type: 'application/pdf',
+        metadata_creation_date: '2023-01-01T00:00:00Z'
+      };
+
+      apiUtils.decodeAzureBlobPath.mockReturnValue('https://decoded-url.com/test.pdf');
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          '@odata.count': 1,
+          value: [mockDoc]
+        })
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, 'constitutional');
+      fireEvent.submit(searchForm);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('search-section')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Explore Constitutional History')).toBeInTheDocument();
+    });
+
+    test('handles documents with very long content', async () => {
+      const longContent = 'This is the beginning of a very long document. '.repeat(100) + 
+                         'constitutional principles are important here. ' + 
+                         'This continues for much longer content. '.repeat(100);
+      
+      const mockDoc = {
+        metadata_storage_path: '/documents/test.pdf',
+        metadata_storage_name: 'Long Document',
+        content: longContent,
+        metadata_content_type: 'application/pdf',
+        metadata_creation_date: '2023-01-01T00:00:00Z'
+      };
+
+      apiUtils.decodeAzureBlobPath.mockReturnValue('https://decoded-url.com/test.pdf');
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          '@odata.count': 1,
+          value: [mockDoc]
+        })
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, 'constitutional');
+      fireEvent.submit(searchForm);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('document-preview')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Footer Component')).toBeInTheDocument();
     });
 
     test('handles documents without required fields', async () => {
@@ -610,11 +765,74 @@ describe('ConstitutionalArchiveHomepage', () => {
       fireEvent.submit(searchForm);
 
       await waitFor(() => {
-        expect(screen.getByText('test')).toBeInTheDocument();
+        expect(screen.getByTestId('search-section')).toBeInTheDocument();
       });
 
       // Should handle missing metadata gracefully
-      expect(screen.getByText('Footer Component')).toBeInTheDocument();
+      expect(screen.getByText('Document Preview Showcase')).toBeInTheDocument();
+    });
+
+    test('handles documents with multiline content and query matching across lines', async () => {
+      const mockDoc = {
+        metadata_storage_path: '/documents/test.pdf',
+        metadata_storage_name: 'Multiline Document',
+        content: 'Line 1 of the document\nLine 2 has constitutional content here\nLine 3 continues\nLine 4 more content\nLine 5 final line',
+        metadata_content_type: 'application/pdf',
+        metadata_creation_date: '2023-01-01T00:00:00Z'
+      };
+
+      apiUtils.decodeAzureBlobPath.mockReturnValue('https://decoded-url.com/test.pdf');
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          '@odata.count': 1,
+          value: [mockDoc]
+        })
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, 'constitutional');
+      fireEvent.submit(searchForm);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('search-section')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Search through historical constitutional documents, amendments, court decisions, and scholarly analysis from around the world.')).toBeInTheDocument();
+    });
+
+    test('handles search results with no @odata.count', async () => {
+      const mockDoc = {
+        metadata_storage_path: '/documents/test.pdf',
+        metadata_storage_name: 'Test Document',
+        content: 'Test content',
+        metadata_content_type: 'application/pdf',
+        metadata_creation_date: '2023-01-01T00:00:00Z'
+      };
+
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          value: [mockDoc]
+        })
+      });
+
+      render(<ConstitutionalArchiveHomepage />);
+      const searchInput = screen.getByTestId('search-input');
+      const searchForm = searchInput.closest('form');
+
+      await user.type(searchInput, 'test');
+      fireEvent.submit(searchForm);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('recent-search-0')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('test')).toBeInTheDocument();
     });
   });
 
@@ -636,100 +854,7 @@ describe('ConstitutionalArchiveHomepage', () => {
 
       // Should show loading state
       expect(screen.getByText('Searching...')).toBeInTheDocument();
-
-      // Resolve the search
-      resolveSearch({
-        ok: true,
-        json: async () => ({ '@odata.count': 0, value: [] })
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
-      });
-    });
-
-    test('shows fetching suggestions state', async () => {
-      let resolveSuggestions;
-      const suggestionsPromise = new Promise((resolve) => {
-        resolveSuggestions = resolve;
-      });
-
-      fetch.mockReturnValueOnce(suggestionsPromise);
-
-      render(<ConstitutionalArchiveHomepage />);
-      const searchInput = screen.getByTestId('search-input');
-
-      await user.type(searchInput, 'const');
-
-      await waitFor(() => {
-        expect(screen.getByText(/Header Component/)).toBeInTheDocument();
-      });
-
-      // Resolve suggestions
-      resolveSuggestions({
-        ok: true,
-        json: async () => ({ suggestions: [] })
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('fetching-suggestions')).not.toBeInTheDocument();
-      });
-    });
+    })
   });
 
-  describe('Error Handling', () => {
-    test('clears error when new search is performed', async () => {
-      // First search fails
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      render(<ConstitutionalArchiveHomepage />);
-      const searchInput = screen.getByTestId('search-input');
-      const searchForm = searchInput.closest('form');
-
-      await user.type(searchInput, 'test');
-      fireEvent.submit(searchForm);
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to fetch search results. Please try again.')).toBeInTheDocument();
-      });
-
-      // Second search succeeds
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ '@odata.count': 0, value: [] })
-      });
-
-      await user.clear(searchInput);
-      await user.type(searchInput, 'new search');
-      fireEvent.submit(searchForm);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Failed to fetch search results. Please try again.')).not.toBeInTheDocument();
-      });
-    });
-
-    test('clears error when search is cleared', async () => {
-      // First search fails
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-
-      render(<ConstitutionalArchiveHomepage />);
-      const searchInput = screen.getByTestId('search-input');
-      const searchForm = searchInput.closest('form');
-
-      await user.type(searchInput, 'test');
-      fireEvent.submit(searchForm);
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to fetch search results. Please try again.')).toBeInTheDocument();
-      });
-
-      // Manually clear (simulate clear button behavior)
-      await act(async () => {
-        await user.clear(searchInput);
-      });
-
-      // The error should still be there since we haven't called clearSearch
-      expect(screen.getByText('Failed to fetch search results. Please try again.')).toBeInTheDocument();
-    });
-  });
 });

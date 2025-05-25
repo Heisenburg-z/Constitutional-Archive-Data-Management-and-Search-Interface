@@ -72,7 +72,8 @@
       "src/AdminDashboard.js",
       "src/components/DocumentPreview.js",
       "src/components/DocumentPreviewModal.js",
-      "src/components/Dashboard/FeaturedDocuments.js" 
+      "src/components/Dashboard/FeaturedDocuments.js",
+      "src/components/FileExplorer.js" 
     ],
     "coverageThreshold": {
       "global": {
