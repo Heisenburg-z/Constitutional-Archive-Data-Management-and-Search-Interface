@@ -21,13 +21,13 @@ import {
   export const getFileIcon = (mimeType) => {
     const type = (mimeType || '').split('/')[0]; 
     switch(type) {
-      case 'application': return <FileSpreadsheet className="text-blue-400" size={40} />;
-      case 'image': return <FileImage className="text-green-400" size={40} />;
-      case 'video': return <FileVideo className="text-red-400" size={40} />;
-      case 'text': return <FileText className="text-purple-400" size={40} />;
+      case 'application': return <FileSpreadsheet data-testid="file-spreadsheet" className="text-blue-400" size={40} />;
+      case 'image': return <FileImage data-testid="file-image" className="text-green-400" size={40} />;
+      case 'video': return <FileVideo data-testid="file-video" className="text-red-400" size={40} />;
+      case 'text': return <FileText data-testid="file-text" className="text-purple-400" size={40} />;
       case 'zip':
-      case 'x-zip-compressed': return <FileArchive className="text-yellow-400" size={40} />;
-      default: return <File className="text-gray-400" size={40} />;
+      case 'x-zip-compressed': return <FileArchive data-testid="file-archive" className="text-yellow-400" size={40} />;
+      default: return <File data-testid="file-generic" className="text-gray-400" size={40} />;
     }
   };
   
