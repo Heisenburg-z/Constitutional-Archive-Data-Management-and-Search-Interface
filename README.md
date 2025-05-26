@@ -9,7 +9,9 @@
 A modern web platform for managing and exploring South Africa’s constitutional archives. Built with **React**, **Tailwind CSS**, **Express**, and **MongoDB**, powered by **Azure services** like Blob Storage, Cognitive Search AI, and Azure OpenAI.
 
 ---
-
+## Admin Login Credintials
+email: thapelondlovu74@gmail.com
+password: password
 ## 🌐 Live Links
 
 - **Frontend:** [thankful-cliff (Azure Static Web App)](https://thankful-cliff-0c6d2f510.6.azurestaticapps.net/)
